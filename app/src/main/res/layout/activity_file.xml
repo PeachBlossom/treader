@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.design.widget.CoordinatorLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:fitsSystemWindows="true"
+    android:orientation="vertical"
+    tools:context=".FileActivity">
+
+    <RelativeLayout
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <android.support.design.widget.AppBarLayout
+            android:id="@+id/appbar"
+            android:layout_height="wrap_content"
+            android:layout_width="match_parent"
+            android:theme="@style/AppTheme.AppBarOverlay">
+
+            <android.support.v7.widget.Toolbar
+                android:id="@+id/toolbar"
+                android:layout_width="match_parent"
+                android:layout_height="?attr/actionBarSize"
+                android:background="@mipmap/bookshelf_header_bg"
+                app:popupTheme="@style/AppTheme.PopupOverlay" />
+        </android.support.design.widget.AppBarLayout>
+
+        <LinearLayout
+            android:id="@+id/ll_file"
+            android:layout_width="match_parent"
+            android:layout_height="50dip"
+            android:layout_below="@id/appbar"
+            android:background="@drawable/border_set"
+            android:orientation="horizontal"
+            android:visibility="gone">
+
+            <TextView
+                android:id="@+id/tv_file_title"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:layout_centerInParent="true"
+                android:layout_marginLeft="10dp"
+                android:text="@string/root"
+                android:layout_weight="1"
+                android:textColor="@color/text_title_color"
+                android:textSize="16sp" />
+
+            <ImageButton
+                android:id="@+id/btn_file_return"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_marginRight="10dp"
+                android:background="@drawable/local_up"
+                android:visibility="gone"/>
+        </LinearLayout>
+
+        <include layout="@layout/activity_file_bottom"
+            android:id="@+id/layout_bottom"
+            android:layout_width="match_parent"
+            android:layout_height="50dp"
+            android:layout_alignParentBottom="true"/>
+
+        <ListView
+            android:id="@+id/lv_file_drawer"
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            android:background="@color/white"
+            android:cacheColorHint="#00000000"
+            android:choiceMode="singleChoice"
+            android:layout_above="@id/layout_bottom"
+            android:layout_below="@id/ll_file"
+            android:divider="@color/list_item_divider"
+            android:dividerHeight="1dp" />
+
+    </RelativeLayout>
+
+</android.support.design.widget.CoordinatorLayout>

@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+
+     android:layout_width="match_parent"
+     android:layout_height="match_parent"
+     android:gravity="center"
+     android:orientation="vertical" >
+
+    <LinearLayout
+        android:id="@+id/bookItemLinearLayout"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:orientation="vertical" >
+
+        <TextView
+            android:layout_height="120dp"
+            android:layout_width="90dp"
+            android:layout_marginTop="46dp"
+            android:background="@mipmap/cover_default_new"
+            android:drawableBottom="@mipmap/cover_type_txt"
+            android:id="@+id/imageView1"
+            android:text=""
+            android:padding="10dp"
+            android:textColor="@color/read_textColor"
+            />
+
+    </LinearLayout>
+
+    <ImageButton
+        android:id="@+id/item_close_Im"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="right"
+        android:layout_marginRight="4dp"
+        android:layout_marginTop="36dp"
+        android:visibility="gone"
+        android:background="@mipmap/item_close_button"/>
+
+
+</FrameLayout>

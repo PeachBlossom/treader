@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="colorPrimary">#3F51B5</color>
+    <color name="colorPrimaryDark">#303F9F</color>
+    <color name="colorAccent">#FF4081</color>
+    <color name="colorYellow">#FFEC8B</color>
+    <color name="white">#ffffffff</color>
+    <color name="black">#000000</color>
+    <color name="red">#ffff0000</color>
+    <color name="dark_red">#ff8c1c1c</color>
+    <color name="transparent">#00000000</color>
+    <color name="light_gray">#ffececec</color>
+    <color name="light_yellow">#fffff99e</color>
+    <color name="dark_gray">#ff999999</color>
+    <color name="green">#ff95c81c</color>
+    <color name="orange">#ffefa600</color>
+    <color name="silver">#ffecebe8</color>
+    <color name="gray">#ff7f7f7f</color>
+    <color name="skyblue">#87CEEB</color>
+    <color name="full_transparent">#00000000</color>
+    <color name="half_transparent">#aa000000</color>
+    <color name="background_color">#eeeeee</color>
+    <color name="list_item_divider">#cccccc</color>
+    <color name="divider">#9c9c9c</color>
+    <color name="text_color">#000000</color>
+    <color name="text_color_pressed">#ffffff</color>
+    <color name="text_title_color">#444444</color>
+    <color name="menu_background">#d3d7d4</color>
+    <color name="toolpop_background">#b0000000</color>
+    <color name="shelf_background">#DA955A</color>
+    <color name="shelf_myNavigationColor">#86471B</color>
+    <!-- Reader Color -->
+    <color name="reader_default_bg_toolbar">#CC000000</color>
+    <color name="reader_default_bg_yellow">#CFBEB6</color>
+    <color name="reader_default_bg_black">#090C13</color>
+    <color name="reader_default_text_light">#32414E</color>
+    <color name="reader_default_text_dark">#444444</color>
+    <color name="read_background">#FAF9DE</color>
+    <color name="read_background_paperYellow">#D4C5A3</color>
+    <color name="read_textColor">#3B3A38</color>
+
+    <!-- UI Color -->
+    <color name="myPrimaryColor">#4284F5</color>
+    <color name="myPrimaryDarkColor">#3870d0</color>
+    <color name="myAccentColor">#fe5151</color>
+    <color name="myDrawerBackground">#F2F2F2</color>
+    <color name="myWindowBackground">#F5F5F5</color>
+    <color name="myTextPrimaryColor">#FFFFFF</color>
+    <color name="mySearchToggleColor">#7F7F7F</color>
+    <!-- Navigation Color is 30% black mask attack to primary color -->
+    <color name="myNavigationColor">#2E5CAB</color>
+    <color name="myNavigationColorWhite">#B2B2B2</color>
+</resources>
