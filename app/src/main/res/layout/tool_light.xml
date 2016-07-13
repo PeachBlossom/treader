@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/tool_light"
+    android:layout_width="match_parent"
+    android:layout_height="70dp"
+
+     >
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="70dp"
+        android:orientation="horizontal"
+        android:layout_centerInParent="true"
+        >
+  <!--  <ImageButton
+        android:id="@+id/imageBtn_light"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_vertical"
+
+        android:gravity="left"
+
+        >
+    </ImageButton>     -->
+     <TextView
+         android:id="@+id/light_decrease"
+         android:layout_width="wrap_content"
+         android:layout_height="wrap_content"
+         android:layout_weight="1"
+         android:gravity="center"
+         android:text="暗"
+         android:textSize="16sp"
+         android:textColor="@color/white"
+         android:layout_gravity="center_vertical"
+         />
+
+    <SeekBar
+        android:id="@+id/seekBar_light"
+        android:layout_width="150dip"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_vertical"
+        android:layout_weight="1"
+        android:gravity="center"
+        android:max="10" >
+    </SeekBar>
+
+    <TextView
+        android:id="@+id/light_plus"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:gravity="center"
+        android:text="亮"
+        android:textSize="16sp"
+        android:textColor="@color/white"
+        android:layout_gravity="center_vertical"
+        />
+
+    </LinearLayout>
+</RelativeLayout>

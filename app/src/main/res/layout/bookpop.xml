@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                android:id="@+id/book_pop"
+                android:orientation="vertical"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:layout_alignParentTop="true"
+        android:background="@drawable/tmall_bar_bg"
+        android:orientation="horizontal"
+        android:id="@+id/linearLayout">
+        <ImageButton
+            android:id="@+id/pop_return"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@drawable/return_button"
+            android:layout_marginLeft="10dp"
+            android:layout_gravity="center_vertical"
+
+            />
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="right"
+            android:orientation="horizontal"
+            >
+            <!--    android:gravity　属性是对该view中内容的限定．比如一个button 上面的text. 你可以设置该text 相对于view的靠左，靠右等位置．
+android:layout_gravity是用来设置该view相对与父view 的位置．比如一个button 在linearlayout里，你想把该button放在linearlayout里靠左、靠右等位置就可以通过该属性设置．
+即android:gravity用于设置View中内容相对于View组件的对齐方式，而android:layout_gravity用于设置View组件相对于Container的对齐方式。
+当Linear Layout为水平时，可以设置上下  当Linear Layout为垂直时，可以设置左右      -->
+         <ImageButton
+             android:id="@+id/imageBtn_light"
+             android:layout_width="wrap_content"
+             android:layout_height="wrap_content"
+             android:layout_gravity="center_vertical"
+             android:background="@color/black"
+             />
+
+        <ImageButton
+            android:id="@+id/listener_book"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:layout_marginRight="10dp"
+            android:background="@drawable/img_tts"
+
+            />
+
+
+        </LinearLayout>
+
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/blank_view"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_above="@+id/bookpop_bottom"
+        android:layout_below="@+id/linearLayout"/>
+
+    <LinearLayout
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:id="@+id/bookpop_bottom"
+    android:baselineAligned="false"
+    android:layout_alignParentBottom="true"
+        >
+
+    <TextView
+        style="@style/text_style"
+        android:id="@+id/bookBtn_size"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:drawableTop="@drawable/reader_text_size"
+        android:gravity="center"
+        android:text="@string/bookpop_size" />
+
+    <TextView
+        style="@style/text_style"
+        android:id="@+id/bookBtn_light"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:drawableTop="@drawable/reader_screen_brightness"
+        android:gravity="center"
+        android:text="@string/bookpop_light" />
+
+    <TextView
+        style="@style/text_style"
+        android:id="@+id/bookBtn_mark"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:drawableTop="@drawable/reader_bookmark_operation"
+        android:gravity="center"
+        android:text="@string/bookpop_card" />
+
+    <TextView
+        style="@style/text_style"
+        android:id="@+id/bookBtn_jump"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:drawableTop="@drawable/reader_jump_to"
+        android:gravity="center"
+        android:text="@string/bookpop_send" />
+    <TextView
+        style="@style/text_style"
+        android:layout_marginTop="1dp"
+        android:id="@+id/readSet"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:drawableTop="@drawable/pp"
+        android:gravity="center"
+        android:text="@string/readseting" />
+        </LinearLayout>
+
+
+
+
+</RelativeLayout>

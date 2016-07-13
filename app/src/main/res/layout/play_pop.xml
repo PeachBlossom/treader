@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                android:id="@+id/tool44"
+                android:layout_width="wrap_content"
+                android:layout_height="150dp"
+                android:orientation="vertical"
+    >
+    <LinearLayout
+        android:layout_width="fill_parent"
+        android:layout_height="80dp"
+        android:orientation="horizontal"
+        android:gravity="center"
+        >
+        <Button
+            android:textStyle="bold"
+            android:textSize="18sp"
+            android:textColor="#ffffff"
+            android:layout_weight="1"
+            android:background="@drawable/camera_bottom_on"
+            android:id="@+id/play_voice"
+            android:layout_width="fill_parent"
+            android:layout_height="45dp"
+            android:layout_marginLeft="10dip"
+            android:text="开始"
+            />
+        <Button
+            android:textStyle="bold"
+            android:textSize="18sp"
+            android:textColor="#ffffff"
+            android:layout_weight="1"
+            android:background="@drawable/camera_bottom_on"
+            android:id="@+id/play_set"
+            android:layout_width="fill_parent"
+            android:layout_height="45dp"
+            android:layout_marginLeft="5dip"
+            android:text="暂停"
+            android:layout_marginRight="10dp"
+            />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="fill_parent"
+        android:layout_height="80dp"
+        android:orientation="horizontal"
+        android:gravity="center"
+        >
+        <Button
+            android:textStyle="bold"
+            android:textSize="18sp"
+            android:textColor="#ffffff"
+            android:layout_weight="1"
+            android:background="@drawable/camera_bottom_on"
+            android:id="@+id/play_setting"
+            android:layout_width="fill_parent"
+            android:layout_height="45dp"
+            android:layout_marginLeft="10dip"
+            android:text="发音人"
+            />
+        <Button
+            android:textStyle="bold"
+            android:textSize="18sp"
+            android:textColor="#ffffff"
+            android:layout_weight="1"
+            android:background="@drawable/camera_bottom_on"
+            android:id="@+id/play_continute"
+            android:layout_width="fill_parent"
+            android:layout_height="45dp"
+            android:layout_marginLeft="5dip"
+            android:text="继续"
+            android:layout_marginRight="10dp"
+            />
+
+    </LinearLayout>
+
+
+</LinearLayout>
