@@ -150,15 +150,13 @@ public class DragGridView extends GridView implements View.OnClickListener{
 
     public DragGridView(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
-        background = BitmapFactory.decodeResource(getResources(),
-                R.mipmap.bookshelf_layer_center);
-        bookshelf_dock = BitmapFactory.decodeResource(getResources(),R.mipmap.bookshelf_dock);
-
         mVibrator = (Vibrator) context.getSystemService(Context.VIBRATOR_SERVICE);
         mWindowManager = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
         mStatusHeight = getStatusHeight(context);
-//        background = BitmapFactory.decodeResource(getResources(),
-//                R.drawable.bookshelf_layer_center1);
+
+        background = BitmapFactory.decodeResource(getResources(),
+                R.mipmap.bookshelf_layer_center);
+        bookshelf_dock = BitmapFactory.decodeResource(getResources(),R.mipmap.bookshelf_dock);
         if(!mNumColumnsSet){
             mNumColumns = AUTO_FIT;
         }
@@ -182,10 +180,10 @@ public class DragGridView extends GridView implements View.OnClickListener{
             setIsShowDeleteButton(true);
             for (int i = 0;i < getChildCount();i++) {
                 final View mGridItemView = getChildAt(i);
-                mDeleteButton = (ImageButton) mGridItemView.findViewById(R.id.item_close_Im);
+                mDeleteButton = (ImageButton) mGridItemView.findViewById(R.id.ib_close);
                 mDeleteButton.setOnClickListener(DragGridView.this);
                 if(mDeleteButton.getVisibility()!=VISIBLE) {
-                 //   mDeleteButton.setVisibility(VISIBLE);
+                    //   mDeleteButton.setVisibility(VISIBLE);
                 }
 
             }
@@ -276,7 +274,7 @@ public class DragGridView extends GridView implements View.OnClickListener{
 
                 //根据按下的X,Y坐标获取所点击item的position
                 mDragPosition = pointToPosition(mDownX, mDownY);
-               // Log.d("mDagPosition is", "" + mDragPosition);
+                // Log.d("mDagPosition is", "" + mDragPosition);
 
                 if(mDragPosition == AdapterView.INVALID_POSITION){
                     return super.dispatchTouchEvent(ev);
@@ -397,8 +395,8 @@ public class DragGridView extends GridView implements View.OnClickListener{
         mWindowLayoutParams.x = downX - mPoint2ItemLeft + mOffset2Left;
         mWindowLayoutParams.y = downY - mPoint2ItemTop + mOffset2Top - mStatusHeight;
         mWindowLayoutParams.alpha = 1.0f; //透明度
-       // mWindowLayoutParams.width = WindowManager.LayoutParams.WRAP_CONTENT;
-      //  mWindowLayoutParams.height = WindowManager.LayoutParams.WRAP_CONTENT;
+        // mWindowLayoutParams.width = WindowManager.LayoutParams.WRAP_CONTENT;
+        //  mWindowLayoutParams.height = WindowManager.LayoutParams.WRAP_CONTENT;
         mWindowLayoutParams.width = (int)(1.05*mStartDragItemView.getWidth());
         mWindowLayoutParams.height = (int)(1.05*mStartDragItemView.getHeight());
         mWindowLayoutParams.flags = WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE
@@ -530,7 +528,7 @@ public class DragGridView extends GridView implements View.OnClickListener{
         if (isForward) {
             for (int pos = oldPosition; pos < newPosition; pos++) {
                 View view = getChildAt(pos - getFirstVisiblePosition());
-               // Log.d("oldPosition",""+ pos);
+                // Log.d("oldPosition",""+ pos);
 
                 //双数
                 if ((pos + 1) % mNumColumns == 0) {
@@ -596,7 +594,6 @@ public class DragGridView extends GridView implements View.OnClickListener{
      */
     public static int getStatusHeight(Context context)
     {
-
         int statusHeight = -1;
         try
         {
@@ -638,7 +635,7 @@ public class DragGridView extends GridView implements View.OnClickListener{
         }
         if(i == 1) {
             firtView = getChildAt(0);
-            firstItemTextView = (TextView) firtView.findViewById(R.id.imageView1);
+            firstItemTextView = (TextView) firtView.findViewById(R.id.tv_name);
             firstItemTextView.getLocationInWindow(firstLocation);
         }
 
@@ -647,7 +644,7 @@ public class DragGridView extends GridView implements View.OnClickListener{
 
     @Override
     public void onClick(View v) {
-       // Log.d("deleteImageButton","ok");
+        // Log.d("deleteImageButton","ok");
         mDragAdapter.removeItem(mDragPosition);
     }
 
@@ -656,7 +653,7 @@ public class DragGridView extends GridView implements View.OnClickListener{
     }
 
     public static void setIsShowDeleteButton (boolean a) {
-         isShowDeleteButton = a;
+        isShowDeleteButton = a;
     }
 
     public void setTouchable(boolean isable) {

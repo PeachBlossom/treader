@@ -60,8 +60,6 @@ public class MainActivity extends BaseActivity
     NavigationView navigationView;
     @Bind(R.id.drawer_layout)
     DrawerLayout drawer;
-//    @Bind(R.id.bookItemLinearLayout)
-//    LinearLayout linearLayout;
     @Bind(R.id.bookShelf)
     DragGridView bookShelf;
 
@@ -110,11 +108,8 @@ public class MainActivity extends BaseActivity
         mWindowManager = (WindowManager) getSystemService(Context.WINDOW_SERVICE);
         wmRootView = new AbsoluteLayout(this);
         rootView = getWindow().getDecorView();
-
-        SQLiteDatabase db = Connector.getDatabase();  //初始化数据库
-
+//        SQLiteDatabase db = Connector.getDatabase();  //初始化数据库
         typeface = Typeface.createFromAsset(getApplicationContext().getAssets(),"font/QH.ttf");
-        bookLists = new ArrayList<>();
         bookLists = DataSupport.findAll(BookList.class);
         adapter = new ShelfAdapter(MainActivity.this,bookLists);
         bookShelf.setAdapter(adapter);
@@ -145,7 +140,7 @@ public class MainActivity extends BaseActivity
                 if (bookLists.size() > position) {
                     itemPosition = position;
                     String bookname = bookLists.get(itemPosition).getBookname();
-                    itemTextView = (TextView) view.findViewById(R.id.imageView1);
+                    itemTextView = (TextView) view.findViewById(R.id.tv_name);
                     //获取item在屏幕中的x，y坐标
                     itemTextView.getLocationInWindow(location);
 
@@ -191,14 +186,16 @@ public class MainActivity extends BaseActivity
 
     @Override
     protected void onRestart(){
-        DragGridView.setIsShowDeleteButton(false);
-        bookLists = new ArrayList<>();
-        bookLists = DataSupport.findAll(BookList.class);
-        adapter = new ShelfAdapter(MainActivity.this,bookLists);
-        bookShelf.setAdapter(adapter);
-        adapter.notifyDataSetChanged();
-        closeBookAnimation();
         super.onRestart();
+        DragGridView.setIsShowDeleteButton(false);
+        bookLists = DataSupport.findAll(BookList.class);
+        adapter.setBookList(bookLists);
+        closeBookAnimation();
+    }
+
+    @Override
+    protected void onResume(){
+        super.onResume();
     }
 
     @Override
@@ -323,7 +320,7 @@ public class MainActivity extends BaseActivity
                 String bookpath = bookLists.get(itemPosition).getBookpath();
                 String bookname = bookLists.get(itemPosition).getBookname();
                 Intent intent = new Intent();
-//                intent.setClass(MainActivity.this, ReadActivity.class);
+                intent.setClass(MainActivity.this, ReadActivity.class);
                 intent.putExtra("bookpath", bookpath);
                 intent.putExtra("bookname", bookname);
                 startActivity(intent);

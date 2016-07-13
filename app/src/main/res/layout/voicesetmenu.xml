@@ -60,7 +60,7 @@
             android:id="@+id/IB_quit"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:background="@drawable/icon_quit"
+            android:background="@mipmap/icon_quit"
             />
         <TextView
             android:textStyle="bold"

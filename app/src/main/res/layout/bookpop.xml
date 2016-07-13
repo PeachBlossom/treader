@@ -16,7 +16,7 @@
             android:id="@+id/pop_return"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:background="@drawable/return_button"
+            android:background="@mipmap/return_button"
             android:layout_marginLeft="10dp"
             android:layout_gravity="center_vertical"
 
@@ -45,7 +45,7 @@ android:layout_gravity是用来设置该view相对与父view 的位置．比如�
             android:layout_height="wrap_content"
             android:layout_gravity="center_vertical"
             android:layout_marginRight="10dp"
-            android:background="@drawable/img_tts"
+            android:background="@mipmap/img_tts"
 
             />
 

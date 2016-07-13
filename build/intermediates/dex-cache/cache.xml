@@ -1,3 +1,26 @@
 <?xml version="1.0" encoding="utf-8"?>
-<items version="2" />
+<items version="2" >
 
+    <item
+        jar="D:\demo\treader\app\libs\Msc.jar"
+        jumboMode="true"
+        revision="23.0.3"
+        sha1="bad3f17744b208362aa7e20242a6261cf2d21977">
+        <dex dex="D:\demo\treader\app\build\intermediates\transforms\dex\debug\folders\1000\2\Msc_8f0d1cb155d177f56cc20446054bd13f161b0dc3\classes.dex" />
+    </item>
+    <item
+        jar="D:\demo\treader\app\build\intermediates\exploded-aar\com.astuetz\pagerslidingtabstrip\1.0.1\jars\classes.jar"
+        jumboMode="true"
+        revision="23.0.3"
+        sha1="7912610ed96381c25c36d986eba422731b9641b6">
+        <dex dex="D:\demo\treader\app\build\intermediates\transforms\dex\debug\folders\1000\10\com.astuetz-pagerslidingtabstrip-1.0.1_4364b613560d8b6ecadd1852a6c3332e61859401\classes.dex" />
+    </item>
+    <item
+        jar="D:\demo\treader\app\build\intermediates\incremental-classes\debug\instant-run-bootstrap.jar"
+        jumboMode="true"
+        revision="23.0.3"
+        sha1="60eb74f48da6129b49f79315ca4dee0fe745cc2f">
+        <dex dex="D:\demo\treader\app\build\intermediates\transforms\dex\debug\folders\1000\10\instant-run-bootstrap_b4cbd51e52314a215bd38d661ef8e69505479247\classes.dex" />
+    </item>
+
+</items>

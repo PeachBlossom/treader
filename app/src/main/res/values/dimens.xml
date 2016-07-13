@@ -6,4 +6,11 @@
     <dimen name="activity_horizontal_margin">16dp</dimen>
     <dimen name="activity_vertical_margin">16dp</dimen>
     <dimen name="fab_margin">16dp</dimen>
+
+    <dimen name="reading_board_battery_border_width">1dp</dimen>
+    <dimen name="readingMarginWidth">10dp</dimen>
+    <dimen name="readingMarginHeight">10dp</dimen>
+    <dimen name="reading_default_text_size">14sp</dimen>
+    <dimen name="reading_min_text_size">10sp</dimen>
+    <dimen name="reading_max_text_size">30sp</dimen>
 </resources>

@@ -17,9 +17,9 @@ import android.os.Environment;
 import android.util.Log;
 import android.widget.EditText;
 
-import com.example.jreader.R;
-import com.example.jreader.ReadActivity;
-import com.example.jreader.database.BookCatalogue;
+import com.zijie.treader.R;
+import com.zijie.treader.ReadActivity;
+import com.zijie.treader.db.BookCatalogue;
 
 import org.litepal.crud.DataSupport;
 

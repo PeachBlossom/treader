@@ -23,6 +23,9 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import butterknife.Bind;
+import butterknife.ButterKnife;
+
 /**
  * Created by Administrator on 2015/12/17.
  */
@@ -30,10 +33,9 @@ public class ShelfAdapter extends BaseAdapter implements DragGridListener {
     private Context mContex;
     private List<BookList> bilist;
     private static LayoutInflater inflater = null;
-    private String booKpath,bookname;
     private int mHidePosition = -1;
     private Typeface typeface;
-    protected List<AsyncTask<Void, Void, Boolean>> myAsyncTasks = new ArrayList<AsyncTask<Void, Void, Boolean>>();
+    protected List<AsyncTask<Void, Void, Boolean>> myAsyncTasks = new ArrayList<>();
     private int[] firstLocation;
     public ShelfAdapter(Context context, List<BookList> bilist){
         this.mContex = context;
@@ -42,19 +44,13 @@ public class ShelfAdapter extends BaseAdapter implements DragGridListener {
         inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
     }
 
-    public ShelfAdapter(Context context){
-        this.mContex = context;
-        inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-    }
-
     @Override
     public int getCount() {
         // TODO Auto-generated method stub
-
-        if(bilist.size()<10){
-            return 10; //背景书架的draw需要用到item的高度
+        //背景书架的draw需要用到item的高度
+        if(bilist.size() < 10){
+            return 10;
         }else{
-
             return bilist.size();
         }
     }
@@ -77,63 +73,43 @@ public class ShelfAdapter extends BaseAdapter implements DragGridListener {
         final ViewHolder viewHolder;
         if (contentView == null) {
             contentView = inflater.inflate(R.layout.shelfitem, null);
-            viewHolder = new ViewHolder();
-            viewHolder.view = (TextView) contentView.findViewById(R.id.imageView1);
-            viewHolder.view.setTypeface(typeface);
-            viewHolder.deleteItem_IB = (ImageButton) contentView.findViewById(R.id.item_close_Im);
+            viewHolder = new ViewHolder(contentView);
+            viewHolder.name.setTypeface(typeface);
             contentView.setTag(viewHolder);
-
-            }
-             else {
+        } else {
             viewHolder = (ViewHolder) contentView.getTag();
+        }
+
+        if(bilist.size() > position){
+            //DragGridView  解决复用问题
+            if(position == mHidePosition){
+                contentView.setVisibility(View.INVISIBLE);
+            }else {
+                contentView.setVisibility(View.VISIBLE);
             }
-
-           if (bilist.size() == 0) {
-           //   viewHolder.view.setBackgroundResource(R.drawable.cover_default_new);
-              viewHolder.view.setClickable(false);
-              viewHolder.view.setVisibility(View.INVISIBLE);
-              viewHolder.deleteItem_IB.setVisibility(View.INVISIBLE);
-
-            } else {
-                if(bilist.size()>position){
-
-                 //   viewHolder.view.setBackgroundResource(R.drawable.cover_default_new);
-                    final String fileName = bilist.get(position).getBookname();
-                    final String filePath = bilist.get(position).getBookpath();
-                    viewHolder.view.setText(fileName);
-
-                    if (DragGridView.getShowDeleteButton()) {
-                        viewHolder.deleteItem_IB.setVisibility(View.VISIBLE);
-                    }else {
-                        viewHolder.deleteItem_IB.setVisibility(View.INVISIBLE);
-                    }
-                    bookname = fileName;
-                    booKpath = filePath;
-
-                    if(position == mHidePosition){
-                        contentView.setVisibility(View.INVISIBLE);
-                    }else {
-                        contentView.setVisibility(View.VISIBLE);//DragGridView  解决复用问题
-
-                    }
-
-                }else {
-                 //   viewHolder.view.setBackgroundResource(R.drawable.cover_default_new);
-                    viewHolder.view.setClickable(false);
-                    viewHolder.deleteItem_IB.setClickable(false);
-                    viewHolder.view.setVisibility(View.GONE);
-                    viewHolder.deleteItem_IB.setVisibility(View.GONE);
-
-                }
-
+            if (DragGridView.getShowDeleteButton()) {
+                viewHolder.deleteItem_IB.setVisibility(View.VISIBLE);
+            }else {
+                viewHolder.deleteItem_IB.setVisibility(View.INVISIBLE);
             }
-
+            viewHolder.name.setVisibility(View.VISIBLE);
+            String fileName = bilist.get(position).getBookname();
+            viewHolder.name.setText(fileName);
+        }else {
+            contentView.setVisibility(View.INVISIBLE);
+        }
         return contentView;
     }
 
-    class ViewHolder {
+    static class ViewHolder {
+        @Bind(R.id.ib_close)
         ImageButton deleteItem_IB;
-        TextView view;
+        @Bind(R.id.tv_name)
+        TextView name;
+
+        public ViewHolder(View view) {
+            ButterKnife.bind(this, view);
+        }
     }
 
     /**
@@ -223,6 +199,10 @@ public class ShelfAdapter extends BaseAdapter implements DragGridListener {
 
     }
 
+    public void setBookList(List<BookList> bookLists){
+        this.bilist = bookLists;
+        notifyDataSetChanged();
+    }
     /**
      * Book打开后位置移动到第一位
      * @param openPosition

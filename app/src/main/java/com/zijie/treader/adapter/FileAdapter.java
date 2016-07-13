@@ -161,7 +161,7 @@ public  class FileAdapter extends BaseAdapter {
     }
 
     private void initCheckBox(File file,ViewHolder viewHolder){
-        if (file != null && checkMap != null && checkMap.get(file) != null) {
+        if (checkMap.get(file) != null) {
             viewHolder.checkBox.setChecked(checkMap.get(file));
         }
     }
@@ -174,7 +174,6 @@ public  class FileAdapter extends BaseAdapter {
             viewHolder.fileIcon.setImageResource(R.mipmap.folder);
             viewHolder.checkBox.setVisibility(View.INVISIBLE);
             viewHolder.textSize.setText("项");
-
         } else {
             viewHolder.fileIcon.setImageResource(R.mipmap.file_type_txt);
             viewHolder.checkBox.setVisibility(View.VISIBLE);

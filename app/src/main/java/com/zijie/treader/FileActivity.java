@@ -66,7 +66,8 @@ public class FileActivity extends BaseActivity {
     private File root;
     private List<File> listFile = new ArrayList<>();
     private static FileAdapter adapter;
-
+    private SearchTextFileTask mSearchTextFileTask;
+    private SaveBookToSqlLiteTask mSaveBookToSqlLiteTask;
     @Override
     public int getLayoutRes() {
         return R.layout.activity_file;
@@ -88,7 +89,7 @@ public class FileActivity extends BaseActivity {
 
         adapter = new FileAdapter(this, listFile);
         lvFileDrawer.setAdapter(adapter);
-        searchFile1();
+        searchFile();
     }
 
     @Override
@@ -136,6 +137,15 @@ public class FileActivity extends BaseActivity {
         });
     }
 
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        mSearchTextFileTask.cancel(true);
+        if (mSaveBookToSqlLiteTask != null){
+            mSaveBookToSqlLiteTask.cancel(true);
+        }
+    }
+
     //保存选择的txt文件
     private void saveBookList(){
         List<File> files = adapter.getCheckFiles();
@@ -148,11 +158,12 @@ public class FileActivity extends BaseActivity {
                 bookList.setBookpath(file.getAbsolutePath());
                 bookLists.add(bookList);
             }
-            new saveBookToSqlLiteTask().execute(bookLists);
+            mSaveBookToSqlLiteTask = new SaveBookToSqlLiteTask();
+            mSaveBookToSqlLiteTask.execute(bookLists);
         }
     }
 
-    private class saveBookToSqlLiteTask extends AsyncTask<List<BookList>,Void,Integer>{
+    private class SaveBookToSqlLiteTask extends AsyncTask<List<BookList>,Void,Integer>{
         private static final int FAIL = 0;
         private static final int SUCCESS = 1;
         private static final int REPEAT = 2;
@@ -188,6 +199,8 @@ public class FileActivity extends BaseActivity {
                     break;
                 case SUCCESS:
                     msg = "添加书本成功";
+                    setAddFileText(0);
+                    adapter.cancel();
                     break;
                 case REPEAT:
                     msg = "书本" + repeatBookList.getBookname() + "重复了";
@@ -207,82 +220,11 @@ public class FileActivity extends BaseActivity {
             }
         });
     }
-    protected void searchFile1(){
-        startTime = System.currentTimeMillis();
-        new SearchTextFileTask().execute();
-    }
-
-    private long startTime;
-    private long endTime;
-    //获取所有的本地text文件
     protected void searchFile(){
-        startTime = System.currentTimeMillis();
-        showProgress(true,"正在扫描txt文件");
-
-        final File file = new File(root.getAbsolutePath());
-        File[] subFiles = file.listFiles(new FileFilter() {
-            @Override
-            public boolean accept(File pathname) {
-                return pathname.isDirectory();
-            }
-        });
-        int fileLength = subFiles.length;
-        List<File> files = new ArrayList<>();
-        int num = 1;
-        for (int i = 0;i < fileLength;i++){
-            if (i < fileLength*num/24 - 1){
-                files.add(subFiles[i]);
-                continue;
-            }
-            if (i == fileLength*num/24 - 1){
-                num++;
-                FileThread fileThread = new FileThread(files);
-                fileThread.start();
-                files = new ArrayList<>();
-            }
-        }
-
+//        startTime = System.currentTimeMillis();
+        mSearchTextFileTask = new SearchTextFileTask();
+        mSearchTextFileTask.execute();
     }
-
-    private class FileThread extends Thread{
-        private List<File> subFiles;
-        public FileThread(List<File> subFiles){
-            this.subFiles = subFiles;
-        }
-
-        @Override
-        public void run() {
-            super.run();
-            List<File> files = new ArrayList<>();
-            for (File file:subFiles){
-                files = FileUtils.getSuffixFile(files, file,".txt");
-            }
-            Message message = new Message();
-            message.obj = files;
-            searchHandler.sendMessage(message);
-        }
-    }
-
-    private Handler searchHandler = new Handler(){
-        private int successNum = 0;
-        private final static int TOTALNUM = 24;
-        @Override
-        public void handleMessage(Message msg) {
-            super.handleMessage(msg);
-            successNum++;
-            if (msg.obj != null) {
-                listFile.addAll((List<File>)msg.obj);
-            }
-            if (successNum == TOTALNUM){
-                hideProgress();
-                successNum = 0;
-                adapter.setFiles(listFile);  //list值传到adapter
-                setAddFileText(0);
-                endTime = System.currentTimeMillis();
-                Log.e("time",endTime - startTime + "");
-            }
-        }
-    };
 
     private class SearchTextFileTask extends AsyncTask<Void,Void,Boolean>{
         @Override
@@ -306,8 +248,8 @@ public class FileActivity extends BaseActivity {
             if (result) {
                 adapter.setFiles(listFile);  //list值传到adapter
                 setAddFileText(0);
-                endTime = System.currentTimeMillis();
-                Log.e("time",endTime - startTime + "");
+//                endTime = System.currentTimeMillis();
+//                Log.e("time",endTime - startTime + "");
             } else {
                 Toast.makeText(FileActivity.this, "本机查不到txt文件", Toast.LENGTH_SHORT)
                         .show();

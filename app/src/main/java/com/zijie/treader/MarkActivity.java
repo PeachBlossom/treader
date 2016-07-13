@@ -16,9 +16,6 @@ import android.widget.ImageButton;
 import android.widget.TextView;
 
 import com.astuetz.PagerSlidingTabStrip;
-import com.example.jreader.adapter.MyPagerAdapter;
-import com.example.jreader.database.BookCatalogue;
-import com.example.jreader.util.CommonUtil;
 
 /**
  * Created by Administrator on 2016/1/6.
@@ -36,22 +33,22 @@ public class MarkActivity extends FragmentActivity implements View.OnClickListen
         protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         requestWindowFeature(Window.FEATURE_NO_TITLE);
-        setContentView(R.layout.markactivity);
-        dm = getResources().getDisplayMetrics();
-        typeface = Typeface.createFromAsset(this.getAssets(),"font/QH.ttf");
-        button_back = (ImageButton) findViewById(R.id.back);
-        title = (TextView) findViewById(R.id.bookname);
-        ViewPager viewPager = (ViewPager) findViewById(R.id.pager);
-        pagerSlidingTabStrip = (PagerSlidingTabStrip) findViewById(R.id.tabs);
-        setTabsValue();
-        Intent intent = getIntent();
-        bookpath_intent = intent.getStringExtra("bookpath");
-        bookname_intent = intent.getStringExtra("bookname");
-        viewPager.setAdapter(new MyPagerAdapter(getSupportFragmentManager()));
-        pagerSlidingTabStrip.setViewPager(viewPager);
-        button_back.setOnClickListener(this);
-        title.setText(bookname_intent);
-        title.setTypeface(typeface);
+        setContentView(R.layout.activity_mark);
+//        dm = getResources().getDisplayMetrics();
+//        typeface = Typeface.createFromAsset(this.getAssets(),"font/QH.ttf");
+//        button_back = (ImageButton) findViewById(R.id.back);
+//        title = (TextView) findViewById(R.id.bookname);
+//        ViewPager viewPager = (ViewPager) findViewById(R.id.pager);
+//        pagerSlidingTabStrip = (PagerSlidingTabStrip) findViewById(R.id.tabs);
+//        setTabsValue();
+//        Intent intent = getIntent();
+//        bookpath_intent = intent.getStringExtra("bookpath");
+//        bookname_intent = intent.getStringExtra("bookname");
+//        viewPager.setAdapter(new MyPagerAdapter(getSupportFragmentManager()));
+//        pagerSlidingTabStrip.setViewPager(viewPager);
+//        button_back.setOnClickListener(this);
+//        title.setText(bookname_intent);
+//        title.setTypeface(typeface);
     }
 
     private void setTabsValue() {

@@ -7,19 +7,13 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 
-import com.example.jreader.MarkActivity;
-import com.example.jreader.fragment.BookMarkFragment;
-import com.example.jreader.fragment.CatalogueFragment;
-import com.example.jreader.fragment.NotesFragment;
-
-
 /**
  * Created by Administrator on 2016/1/12.
  */
 public class MyPagerAdapter extends FragmentPagerAdapter {
-    private BookMarkFragment bookMarkFragment;
-    private CatalogueFragment catalogueFragment;
-    private NotesFragment notesFragment;
+//    private BookMarkFragment bookMarkFragment;
+//    private CatalogueFragment catalogueFragment;
+//    private NotesFragment notesFragment;
     private final String[] titles = { "目录", "书签", "笔记" };
 
     public MyPagerAdapter(FragmentManager fm) {
@@ -38,31 +32,32 @@ public class MyPagerAdapter extends FragmentPagerAdapter {
 
     @Override
     public Fragment getItem(int position) {
-        switch (position) {
-            case 0:
-                if (catalogueFragment == null) {
-                    //  bookMarkFragment = new BookMarkFragment();
-                    //创建bookMarkFragment实例时同时把需要intent中的值传入
-                    catalogueFragment = CatalogueFragment.newInstance(MarkActivity.getBookpath_intent());
-                   // bookMarkFragment = BookMarkFragment.newInstance(MarkActivity.getBookpath_intent());
-                }
-                return catalogueFragment;
-
-            case 1:
-                if (bookMarkFragment == null) {
-                    //catalogueFragment = new CatalogueFragment();
-                  //  catalogueFragment = CatalogueFragment.newInstance(MarkActivity.getBookpath_intent());
-                    bookMarkFragment = BookMarkFragment.newInstance(MarkActivity.getBookpath_intent());
-                }
-                return bookMarkFragment;
-            case 2:
-                if (notesFragment == null) {
-                    notesFragment = new NotesFragment();
-                }
-                return notesFragment;
-            default:
-                return null;
-        }
+//        switch (position) {
+//            case 0:
+//                if (catalogueFragment == null) {
+//                    //  bookMarkFragment = new BookMarkFragment();
+//                    //创建bookMarkFragment实例时同时把需要intent中的值传入
+//                    catalogueFragment = CatalogueFragment.newInstance(MarkActivity.getBookpath_intent());
+//                   // bookMarkFragment = BookMarkFragment.newInstance(MarkActivity.getBookpath_intent());
+//                }
+//                return catalogueFragment;
+//
+//            case 1:
+//                if (bookMarkFragment == null) {
+//                    //catalogueFragment = new CatalogueFragment();
+//                  //  catalogueFragment = CatalogueFragment.newInstance(MarkActivity.getBookpath_intent());
+//                    bookMarkFragment = BookMarkFragment.newInstance(MarkActivity.getBookpath_intent());
+//                }
+//                return bookMarkFragment;
+//            case 2:
+//                if (notesFragment == null) {
+//                    notesFragment = new NotesFragment();
+//                }
+//                return notesFragment;
+//            default:
+//                return null;
+//        }
+        return null;
     }
 
 }
