@@ -64,7 +64,7 @@ import butterknife.Bind;
 public class ReadActivity extends BaseActivity implements OnClickListener,
         SeekBar.OnSeekBarChangeListener {
     @Bind(R.id.ll_read)
-    private RelativeLayout rlayout;
+    protected RelativeLayout rlayout;
 
     private static final String TAG = "ReadActivity";
     private LinearLayout layout;
@@ -166,6 +166,142 @@ public class ReadActivity extends BaseActivity implements OnClickListener,
         isNight = getDayOrNight();
         count = sp.getLong(bookPath + "count", 1);
 
+        //改变屏幕亮度
+        lp = getWindow().getAttributes();
+        lp.screenBrightness = light / 10.0f < 0.01f ? 0.01f : light / 10.0f;
+        getWindow().setAttributes(lp);
+        //获取intent中的携带的信息
+        Intent intent = getIntent();
+        bookPath = intent.getStringExtra("bookpath");
+        bookName = intent.getStringExtra("bookname");
+        ccc = intent.getStringExtra("ccc");
+        begin1 = intent.getIntExtra("bigin", 0);
+        if(begin1 == 0) {
+            begin = sp.getInt(bookPath + "begin", 0);
+        }else {
+            begin = begin1;
+        }
+
+        //日间或夜间模式设置
+        pagefactory = new BookPageFactory(screenWidth, readHeight,this);// 书工厂
+        if (isNight) {
+            //设置背景
+            pagefactory.setBgBitmap(BookPageFactory.decodeSampledBitmapFromResource(
+                    this.getResources(), R.drawable.main_bg, screenWidth, readHeight));
+            //设置字体颜色
+            pagefactory.setM_textColor(Color.rgb(128, 128, 128));
+        } else {
+            Bitmap bmp = Bitmap.createBitmap(screenWidth,screenHeight, Bitmap.Config.RGB_565);
+            Canvas canvas = new Canvas(bmp);
+            canvas.drawColor(getResources().getColor(R.color.read_background_paperYellow));
+            //设置字体颜色
+            pagefactory.setM_textColor(getResources().getColor(R.color.read_textColor));
+            //设置背景
+            pagefactory.setBgBitmap(bmp);
+        }
+        // 从指定位置打开书籍，默认从开始打开
+        try {
+            pagefactory.openbook(bookPath, begin);
+            pagefactory.setM_fontSize(fontsize);
+            pagefactory.onDraw(mCurPageCanvas);
+            // Log.d("ReadActivity", "sp中的size" + size);
+            word = pagefactory.getFirstTwoLineText();// 获取当前阅读位置的前两行文字,用作书签
+            editor.putInt(bookPath + "begin", begin).apply();
+            // Log.d("ReadActivity", "第一页首两行文字是" + word);
+
+            new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    pagefactory.getBookInfo();  //获取章节目录
+                }
+            }).start();
+        } catch (IOException e1) {
+            Log.e(TAG, "打开电子书失败", e1);
+            Toast.makeText(this, "打开电子书失败", Toast.LENGTH_SHORT).show();
+        }
+
+        //mPageWidget onTouch监听  翻页或显示菜单
+        mPageWidget.setBitmaps(mCurPageBitmap, mCurPageBitmap);
+        mPageWidget.setOnTouchListener(new View.OnTouchListener() {
+
+            @Override
+            public boolean onTouch(View v, MotionEvent e) {
+                boolean ret = false;
+                if (v == mPageWidget) {
+                    if (e.getAction() == MotionEvent.ACTION_DOWN) {
+                        mPageWidget.abortAnimation();
+                        mPageWidget.calcCornerXY(e.getX(), e.getY());
+                        pagefactory.onDraw(mCurPageCanvas);
+                        // Log.d("ReadActivity","action_down");
+                        int x = (int) e.getX();
+                        int y = (int) e.getY();
+                        //Action_Down时在中间位置显示菜单
+                        if (x > screenWidth / 3 && x < screenWidth * 2 / 3 && y > screenHeight / 3 && y < screenHeight * 2 / 3) {
+                            if(!voiceListining && !show) {
+                                showSystemUI();
+                                pop();
+                                show = true;
+                            }else {
+                                if(!voiceSetShow){
+                                    showSystemUI();
+                                    setVoicesetpop();
+                                    if (mTts.isSpeaking()) {
+                                        mTts.pauseSpeaking();
+                                    }
+                                    voiceSetShow = true;
+                                }else {
+                                    hideSystemUI();
+                                    voicesetpop.dismiss();
+                                    mTts.resumeSpeaking();
+                                    voiceSetShow = false;
+                                }
+                            }
+                            return false;//停止向下分发事件
+                        }
+                        if (x < screenWidth / 2) {// 从左翻
+                            if(voiceListining) {
+                                return false ;//如果正在语音朗读不翻页，停止向下分发事件
+                            }
+                            try {
+                                pagefactory.prePage();
+                                begin = pagefactory.getM_mbBufBegin();// 获取当前阅读位置
+                                word = pagefactory.getFirstTwoLineText();// 获取当前阅读位置的首行文字
+                            } catch (IOException e1) {
+                                Log.e(TAG, "onTouch->prePage error", e1);
+                            }
+                            if (pagefactory.isfirstPage()) {
+                                Toast.makeText(mContext, "当前是第一页", Toast.LENGTH_SHORT).show();
+                                return false;
+                            }
+                            pagefactory.onDraw(mNextPageCanvas);
+
+                        } else if (x >= screenWidth / 2) {// 从右翻
+                            if(voiceListining) {
+                                return false ;
+                            }
+                            try {
+                                pagefactory.nextPage();
+                                begin = pagefactory.getM_mbBufBegin();// 获取当前阅读位置
+                                word = pagefactory.getFirstTwoLineText();// 获取当前阅读位置的首行文字
+                            } catch (IOException e1) {
+                                Log.e(TAG, "onTouch->nextPage error", e1);
+                            }
+                            if (pagefactory.islastPage()) {
+                                Toast.makeText(mContext, "已经是最后一页了", Toast.LENGTH_SHORT).show();
+                                return false;
+                            }
+                            pagefactory.onDraw(mNextPageCanvas);
+                        }
+                        mPageWidget.setBitmaps(mCurPageBitmap, mNextPageBitmap);
+                    }
+                    editor.putInt(bookPath + "begin", begin).apply();
+                    ret = mPageWidget.doTouchEvent(e);
+                    return ret;
+                }
+                return false;
+            }
+        });
+
     }
 
     private void initPage(){
@@ -205,192 +341,6 @@ public class ReadActivity extends BaseActivity implements OnClickListener,
 
     }
 
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        //保持屏幕常亮
-        getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
-        hideSystemUI();//隐藏
-        mContext = getBaseContext();
-        typeface = Typeface.createFromAsset(getApplicationContext().getAssets(),"font/QH.ttf");
-        scale = (int)mContext.getResources().getDisplayMetrics().density;
-
-        //初始化语音
-        SpeechUtility.createUtility(ReadActivity.this, SpeechConstant.APPID +"=5695a8b4");//创建语音配置对象
-        mTts = SpeechSynthesizer.createSynthesizer(ReadActivity.this,mTtsInitListener);//初始化合成对象
-        mCloudVoicersEntries = getResources().getStringArray(R.array.voicer_cloud_entries);
-        mCloudVoicersValue = getResources().getStringArray(R.array.voicer_cloud_values);
-        isStart = false;
-        //获取屏幕宽高
-        WindowManager manage = getWindowManager();
-        Display display = manage.getDefaultDisplay();
-        Point displaysize = new Point();
-        display.getSize(displaysize);
-        screenWidth = displaysize.x;
-        screenHeight = displaysize.y;
-        readHeight = screenHeight - screenWidth / 320;
-
-      defaultFontSize = (int) mContext.getResources().getDimension(R.dimen.reading_default_text_size) ;  //text size
-        minFontSize = (int) mContext.getResources().getDimension(R.dimen.reading_min_text_size);
-        maxFontSize = (int) mContext.getResources().getDimension(R.dimen.reading_max_text_size);
-
-
-        mCurPageBitmap = Bitmap.createBitmap(screenWidth, screenHeight, Bitmap.Config.RGB_565);      //android:LargeHeap=true  use in  manifest application
-        mNextPageBitmap = Bitmap.createBitmap(screenWidth, screenHeight, Bitmap.Config.RGB_565);
-        mCurPageCanvas = new Canvas(mCurPageBitmap);
-        mNextPageCanvas = new Canvas(mNextPageBitmap);
-
-        mPageWidget = new PageWidget(this, screenWidth, readHeight);// 页面
-        RelativeLayout rlayout = (RelativeLayout) findViewById(R.id.ll_read);
-        rlayout.addView(mPageWidget);
-
-        setPop(); //初始化POPUPWINDOW
-        initVoiceSetPop();
-        audio = (AudioManager) getSystemService(Service.AUDIO_SERVICE);
-
-        // 提取记录在sharedpreferences的各种状态
-        sp = getSharedPreferences("config", MODE_PRIVATE);
-        editor = sp.edit();
-        fontsize = getSize();// 获取配置文件中的size大小
-        light = getLight();// 获取配置文件中的light值
-        isNight = getDayOrNight();
-        count = sp.getLong(bookPath + "count", 1);
-
-        lp = getWindow().getAttributes();
-        lp.screenBrightness = light / 10.0f < 0.01f ? 0.01f : light / 10.0f;
-        getWindow().setAttributes(lp);
-        //获取intent中的携带的信息
-        Intent intent = getIntent();
-        bookPath = intent.getStringExtra("bookpath");
-        bookName = intent.getStringExtra("bookname");
-        ccc = intent.getStringExtra("ccc");
-        begin1 = intent.getIntExtra("bigin", 0);
-        if(begin1 == 0) {
-            begin = sp.getInt(bookPath + "begin", 0);
-        }else {
-            begin = begin1;
-        }
-
-        //日间或夜间模式设置
-        pagefactory = new BookPageFactory(screenWidth, readHeight,this);// 书工厂
-        if (isNight) {
-            pagefactory.setBgBitmap(BookPageFactory.decodeSampledBitmapFromResource(
-                    this.getResources(), R.drawable.main_bg, screenWidth, readHeight));
-            pagefactory.setM_textColor(Color.rgb(128, 128, 128));
-        } else {
-        //  pagefactory.setBgBitmap(BitmapFactory.decodeResource(this.getResources(), R.drawable.bg));
-           // pagefactory.setBgBitmap(BookPageFactory.decodeSampledBitmapFromResource(
-                 //   this.getResources(),R.drawable.bg,screenWidth,readHeight));
-            Bitmap bmp = Bitmap.createBitmap(screenWidth,screenHeight, Bitmap.Config.RGB_565);
-            Canvas canvas = new Canvas(bmp);
-           // canvas.drawColor(Color.rgb(250, 249, 222));
-            canvas.drawColor(getResources().getColor(R.color.read_background_paperYellow));
-            pagefactory.setM_textColor(getResources().getColor(R.color.read_textColor));
-            pagefactory.setBgBitmap(bmp);
-         //   pagefactory.setM_textColor(Color.rgb(28, 28, 28));
-        }
-        // 从指定位置打开书籍，默认从开始打开
-        try {
-            pagefactory.openbook(bookPath, begin);
-            pagefactory.setM_fontSize(fontsize);
-            pagefactory.onDraw(mCurPageCanvas);
-            // Log.d("ReadActivity", "sp中的size" + size);
-            word = pagefactory.getFirstTwoLineText();// 获取当前阅读位置的前两行文字,用作书签
-            editor.putInt(bookPath + "begin", begin).apply();
-           // Log.d("ReadActivity", "第一页首两行文字是" + word);
-
-            new Thread(new Runnable() {
-                @Override
-                public void run() {
-                    pagefactory.getBookInfo();  //获取章节目录
-                }
-            }).start();
-        } catch (IOException e1) {
-            Log.e(TAG, "打开电子书失败", e1);
-            Toast.makeText(this, "打开电子书失败", Toast.LENGTH_SHORT).show();
-        }
-        //mPageWidget onTouch监听  翻页或显示菜单
-        mPageWidget.setBitmaps(mCurPageBitmap, mCurPageBitmap);
-        mPageWidget.setOnTouchListener(new View.OnTouchListener() {
-
-            @Override
-            public boolean onTouch(View v, MotionEvent e) {
-                boolean ret = false;
-                if (v == mPageWidget) {
-                        if (e.getAction() == MotionEvent.ACTION_DOWN) {
-                            mPageWidget.abortAnimation();
-                            mPageWidget.calcCornerXY(e.getX(), e.getY());
-                            pagefactory.onDraw(mCurPageCanvas);
-                           // Log.d("ReadActivity","action_down");
-                            int x = (int) e.getX();
-                            int y = (int) e.getY();
-                            //Action_Down时在中间位置显示菜单
-                            if (x > screenWidth / 3 && x < screenWidth * 2 / 3 && y > screenHeight / 3 && y < screenHeight * 2 / 3) {
-                                if(!voiceListining && !show) {
-                                        showSystemUI();
-                                        pop();
-                                        show = true;
-                                }else {
-                                    if(!voiceSetShow){
-                                        showSystemUI();
-                                        setVoicesetpop();
-                                        if (mTts.isSpeaking()) {
-                                            mTts.pauseSpeaking();
-                                        }
-                                        voiceSetShow = true;
-                                    }else {
-                                         hideSystemUI();
-                                         voicesetpop.dismiss();
-                                         mTts.resumeSpeaking();
-                                         voiceSetShow = false;
-                                    }
-                                }
-                                return false;//停止向下分发事件
-                            }
-                            if (x < screenWidth / 2) {// 从左翻
-                                if(voiceListining) {
-                                    return false ;//如果正在语音朗读不翻页，停止向下分发事件
-                                    }
-                                    try {
-                                        pagefactory.prePage();
-                                        begin = pagefactory.getM_mbBufBegin();// 获取当前阅读位置
-                                        word = pagefactory.getFirstTwoLineText();// 获取当前阅读位置的首行文字
-                                    } catch (IOException e1) {
-                                        Log.e(TAG, "onTouch->prePage error", e1);
-                                    }
-                                    if (pagefactory.isfirstPage()) {
-                                        Toast.makeText(mContext, "当前是第一页", Toast.LENGTH_SHORT).show();
-                                        return false;
-                                    }
-                                    pagefactory.onDraw(mNextPageCanvas);
-
-                                } else if (x >= screenWidth / 2) {// 从右翻
-                                    if(voiceListining) {
-                                        return false ;
-                                    }
-                                    try {
-                                        pagefactory.nextPage();
-                                        begin = pagefactory.getM_mbBufBegin();// 获取当前阅读位置
-                                        word = pagefactory.getFirstTwoLineText();// 获取当前阅读位置的首行文字
-                                    } catch (IOException e1) {
-                                        Log.e(TAG, "onTouch->nextPage error", e1);
-                                    }
-                                    if (pagefactory.islastPage()) {
-                                        Toast.makeText(mContext, "已经是最后一页了", Toast.LENGTH_SHORT).show();
-                                        return false;
-                                    }
-                                    pagefactory.onDraw(mNextPageCanvas);
-                                }
-                           mPageWidget.setBitmaps(mCurPageBitmap, mNextPageBitmap);
-                        }
-                        editor.putInt(bookPath + "begin", begin).apply();
-                        ret = mPageWidget.doTouchEvent(e);
-                        return ret;
-                }
-                return false;
-            }
-        });
-    }
 
     /**
      * 记录数据 并清空popupwindow
