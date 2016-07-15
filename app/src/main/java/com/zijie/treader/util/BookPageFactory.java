@@ -114,7 +114,6 @@ public class BookPageFactory {
         mBatterryPaint.setTextAlign(Paint.Align.LEFT);
         mBatterryPaint.setColor(m_textColor);
 
-        // Log.d("BookPageFactory","mBorderWidth"+mBorderWidth);
     }
 
 
@@ -127,10 +126,11 @@ public class BookPageFactory {
         if (m_lines.size() == 0)
             m_lines = pageDown();
         if (m_lines.size() > 0) {
-            if (m_book_bg == null)
-               c.drawColor(m_backColor);
-            else
-               c.drawBitmap(m_book_bg, 0, 0, null);
+            if (m_book_bg == null) {
+                c.drawColor(m_backColor);
+            } else {
+                c.drawBitmap(m_book_bg, 0, 0, null);
+            }
 
             int y = marginHeight;
             for (String strLine : m_lines) {
@@ -310,6 +310,7 @@ public class BookPageFactory {
             }
         }
     }
+
     /**
      * 得到上上页的结束位置
      */
