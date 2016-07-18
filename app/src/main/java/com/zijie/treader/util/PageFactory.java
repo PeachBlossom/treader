@@ -14,12 +14,17 @@ import android.graphics.RectF;
 import android.graphics.Region;
 import android.graphics.Typeface;
 import android.os.Environment;
+import android.util.DisplayMetrics;
 import android.util.Log;
+import android.view.WindowManager;
 import android.widget.EditText;
+import android.widget.Toast;
 
+import com.zijie.treader.Config;
 import com.zijie.treader.R;
 import com.zijie.treader.ReadActivity;
 import com.zijie.treader.db.BookCatalogue;
+import com.zijie.treader.view.BookPageWidget;
 
 import org.litepal.crud.DataSupport;
 
@@ -39,7 +44,7 @@ import java.util.Vector;
 /**
  * Created by Administrator on 2016/1/3.
  */
-public class BookPageFactory {
+public class PageFactory {
     private StringBuilder word;
     private Context mcontext;
     private static final String TAG = "BookPageFactory";
@@ -84,10 +89,18 @@ public class BookPageFactory {
     private RectF rect1 = new RectF();
     private RectF rect2 = new RectF();
 
-    public BookPageFactory(int w, int h, Context context) {
-        mWidth = w;
-        mHeight = h;
-        mcontext = context;
+    private static PageFactory pageFactory;
+    private Config config;
+    private BookPageWidget mBookPageWidget;
+
+    private PageFactory(Context context) {
+        config = Config.getInstance();
+        WindowManager wm = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
+        DisplayMetrics metric = new DisplayMetrics();
+        wm.getDefaultDisplay().getMetrics(metric);
+        mWidth = metric.widthPixels;
+        mHeight = metric.heightPixels;
+        mcontext = context.getApplicationContext();
         m_fontSize = (int) context.getResources().getDimension(R.dimen.reading_default_text_size);
         sdf = new SimpleDateFormat("HH:mm");//HH:mm为24小时制,hh:mm为12小时制
         date = sdf.format(new java.util.Date());
@@ -113,14 +126,50 @@ public class BookPageFactory {
         mBatterryPaint.setTypeface(typeface);
         mBatterryPaint.setTextAlign(Paint.Align.LEFT);
         mBatterryPaint.setColor(m_textColor);
+        initBg();
     }
 
+    //初始化背景
+    private void initBg(){
+        if (config.getDayOrNight()) {
+            //设置背景
+            setBgBitmap(BookPageFactory.decodeSampledBitmapFromResource(
+                    mcontext.getResources(), R.drawable.main_bg, mWidth, mHeight));
+            //设置字体颜色
+            setM_textColor(Color.rgb(128, 128, 128));
+        } else {
+            Bitmap bmp = Bitmap.createBitmap(mWidth,mHeight, Bitmap.Config.RGB_565);
+            Canvas canvas = new Canvas(bmp);
+            canvas.drawColor(mcontext.getResources().getColor(R.color.read_background_paperYellow));
+            //设置字体颜色
+            setM_textColor(mcontext.getResources().getColor(R.color.read_textColor));
+            //设置背景
+            setBgBitmap(bmp);
+        }
+    }
+
+    public static synchronized PageFactory getInstance(){
+        return pageFactory;
+    }
+
+    public static synchronized PageFactory createPageFactory(Context context){
+        if (pageFactory == null){
+            pageFactory = new PageFactory(context);
+        }
+
+        return pageFactory;
+    }
+
+    public void setPageWidget(BookPageWidget mBookPageWidget){
+        this.mBookPageWidget = mBookPageWidget;
+
+    }
 
     public void onDraw(Canvas c) {
         word = new StringBuilder();
         int size = getM_fontSize();
         mPaint.setTextSize(size);
-       // mLineCount =  (int) (mVisibleHeight / size) - 1;
+        // mLineCount =  (int) (mVisibleHeight / size) - 1;
         mPaint.setColor(m_textColor);
         if (m_lines.size() == 0)
             m_lines = pageDown();
@@ -177,7 +226,6 @@ public class BookPageFactory {
         rect2.right = rect1.right + mBorderWidth;
         rect2.bottom = rect2.bottom - poleHeight/4;
         c.drawRect(rect2, mBatterryPaint);
-
     }
 
     /**
@@ -203,7 +251,19 @@ public class BookPageFactory {
             m_mbBufEnd = begin;
         } else {
         }
-       // getBookInfo();
+        setM_fontSize(config.getFontSize());
+
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                getBookInfo();
+            }
+        }).start();
+
+        if (mBookPageWidget != null){
+            Canvas canvas = new Canvas(mBookPageWidget.getCurPage());
+            onDraw(canvas);
+        }
     }
 
     /**
@@ -265,7 +325,7 @@ public class BookPageFactory {
     }
 
     /**
-    *   提取章节目录及值
+     *   提取章节目录及值
      */
     public void getBookInfo() {
         String strParagraph = "";
@@ -347,7 +407,7 @@ public class BookPageFactory {
             lines.add("\n\n");
 
             if(lines.size() > mLineCount) {
-              //  break;
+                //  break;
             }
         }
 
@@ -372,13 +432,18 @@ public class BookPageFactory {
         if (m_mbBufBegin <= 0) {
             m_mbBufBegin = 0;
             m_isfirstPage = true;
+            Toast.makeText(mcontext, "当前是第一页", Toast.LENGTH_SHORT).show();
             return;
-        } else
+        } else {
             m_isfirstPage = false;
+        }
+        onDraw(new Canvas(mBookPageWidget.getCurPage()));
+
         m_lines.clear();
         pageUp();
         m_lines = pageDown();
 
+        onDraw(new Canvas(mBookPageWidget.getNextPage()));
     }
 
     /**
@@ -389,13 +454,17 @@ public class BookPageFactory {
     public void nextPage() throws IOException {
         if (m_mbBufEnd >= m_mbBufLen) {
             m_islastPage = true;
+            Toast.makeText(mcontext, "已经是最后一页了", Toast.LENGTH_SHORT).show();
             return;
-        } else
+        } else {
             m_islastPage = false;
+        }
+        onDraw(new Canvas(mBookPageWidget.getCurPage()));
+
         m_lines.clear();
         m_mbBufBegin = m_mbBufEnd;// 当前页结束位置作为向前翻页的开始位置
         m_lines = pageDown();
-
+        onDraw(new Canvas(mBookPageWidget.getNextPage()));
     }
 
     public void currentPage() throws IOException {
@@ -534,15 +603,15 @@ public class BookPageFactory {
 
         if (height > reqHeight || width > reqWidth) {
 
-         /**   final int halfHeight = height / 2;
-            final int halfWidth = width / 2;
+            /**   final int halfHeight = height / 2;
+             final int halfWidth = width / 2;
 
-            // Calculate the largest inSampleSize value that is a power of 2 and keeps both
-            // height and width larger than the requested height and width.
-            while ((halfHeight / inSampleSize) > reqHeight
-                    && (halfWidth / inSampleSize) > reqWidth) {
-                inSampleSize *= 2;
-            } */
+             // Calculate the largest inSampleSize value that is a power of 2 and keeps both
+             // height and width larger than the requested height and width.
+             while ((halfHeight / inSampleSize) > reqHeight
+             && (halfWidth / inSampleSize) > reqWidth) {
+             inSampleSize *= 2;
+             } */
             final int heightRatio = Math.round((float) height / (float) reqHeight);
             final int widthRatio = Math.round((float) width / (float) reqWidth);
             // 选择宽和高中最小的比率作为inSampleSize的值，这样可以保证最终图片的宽和高
@@ -582,7 +651,7 @@ public class BookPageFactory {
 
         // Determine how much to scale down the image
         int scaleFactor = Math.min(photoW/reqWidth, photoH/reqHeight);
-      //  bmOptions.inSampleSize = calculateInSampleSize(bmOptions, reqWidth, reqHeight);
+        //  bmOptions.inSampleSize = calculateInSampleSize(bmOptions, reqWidth, reqHeight);
         // Decode the image file into a Bitmap sized to fill the View
         bmOptions.inJustDecodeBounds = false;
         bmOptions.inSampleSize = scaleFactor;

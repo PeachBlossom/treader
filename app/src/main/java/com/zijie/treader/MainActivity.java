@@ -317,14 +317,7 @@ public class MainActivity extends BaseActivity
             if (animationCount >= 2) {
                 mIsOpen = true;
                 adapter.setItemToFirst(itemPosition);
-                String bookpath = bookLists.get(itemPosition).getBookpath();
-                String bookname = bookLists.get(itemPosition).getBookname();
-                Intent intent = new Intent();
-                intent.setClass(MainActivity.this, ReadActivity.class);
-                intent.putExtra("bookpath", bookpath);
-                intent.putExtra("bookname", bookname);
-                startActivity(intent);
-                overridePendingTransition(android.support.v7.appcompat.R.anim.abc_grow_fade_in_from_bottom, android.support.v7.appcompat.R.anim.abc_shrink_fade_out_from_bottom);
+                ReadActivity1.openBook(bookLists.get(itemPosition),MainActivity.this);
             }
 
         } else {

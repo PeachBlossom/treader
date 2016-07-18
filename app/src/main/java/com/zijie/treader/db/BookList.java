@@ -2,13 +2,16 @@ package com.zijie.treader.db;
 
 import org.litepal.crud.DataSupport;
 
+import java.io.Serializable;
+
 /**
  * Created by Administrator on 2015/12/27.
  */
-public class BookList extends DataSupport {
+public class BookList extends DataSupport implements Serializable{
     private int id;
     private String bookname;
     private String bookpath;
+    private long begin;
 
     public String getBookname() {
         return this.bookname;
@@ -34,4 +37,11 @@ public class BookList extends DataSupport {
         this.id = id;
     }
 
-   }
+    public long getBegin() {
+        return begin;
+    }
+
+    public void setBegin(long begin) {
+        this.begin = begin;
+    }
+}

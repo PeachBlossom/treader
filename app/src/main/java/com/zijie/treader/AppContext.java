@@ -1,6 +1,7 @@
 package com.zijie.treader;
 
 import com.zijie.treader.db.BookList;
+import com.zijie.treader.util.PageFactory;
 
 import org.litepal.LitePalApplication;
 import org.litepal.crud.DataSupport;
@@ -18,6 +19,8 @@ public class AppContext extends LitePalApplication {
     public void onCreate() {
         super.onCreate();
         LitePalApplication.initialize(this);
+        Config.createConfig(this);
+        PageFactory.createPageFactory(this);
     }
 
     public List<BookList> getBookList(){

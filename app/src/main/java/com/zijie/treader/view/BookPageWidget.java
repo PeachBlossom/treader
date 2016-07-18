@@ -115,6 +115,14 @@ public class BookPageWidget extends View {
         mNextPageBitmap = Bitmap.createBitmap(mScreenWidth, mScreenHeight, Bitmap.Config.RGB_565);
     }
 
+    public Bitmap getCurPage(){
+        return mCurPageBitmap;
+    }
+
+    public Bitmap getNextPage(){
+        return mNextPageBitmap;
+    }
+
     /**
      * 创建阴影的GradientDrawable
      */
@@ -517,6 +525,29 @@ public class BookPageWidget extends View {
 
         }
 
+    }
+
+    /**
+     * 计算拖拽点对应的拖拽脚
+     *
+     * @param x
+     * @param y
+     */
+    public void calcCornerXY(float x, float y) {
+        //  Log.i("hck", "PageWidget x:" + x + "      y" + y);
+        if (x <= mScreenWidth / 2)
+            mCornerX = 0;
+        else
+            mCornerX = mScreenWidth;
+        if (y <= mScreenHeight / 2)
+            mCornerY = 0;
+        else
+            mCornerY = mScreenHeight;
+        if ((mCornerX == 0 && mCornerY == mScreenHeight)
+                || (mCornerX == mScreenWidth && mCornerY == 0))
+            mIsRTandLB = true;
+        else
+            mIsRTandLB = false;
     }
 
     private void calcPoints() {
