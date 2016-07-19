@@ -16,6 +16,13 @@
     <string name="bookpop_card">书签</string>
     <string name="bookpop_send">跳转</string>
 
+    <string name="read_setting_directory">目录</string>
+    <string name="read_setting_night">夜间</string>
+    <string name="read_setting_day">日间</string>
+    <string name="read_setting_set">设置</string>
+    <string name="read_setting_pre">上一章</string>
+    <string name="read_setting_next">下一章</string>
+
     <string name="readseting">设置</string>
     <string-array name="voicer_cloud_entries">
         <item>小燕—女青、中英、普通话</item>

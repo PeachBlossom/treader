@@ -808,7 +808,7 @@ public class ReadActivity extends BaseActivity implements OnClickListener,
         toolpop = this.getLayoutInflater().inflate(R.layout.toolpop, null);
         mPopupWindow = new PopupWindow(popupwindwow, LayoutParams.MATCH_PARENT,
                 LayoutParams.WRAP_CONTENT);
-      //  mPopupWindow.setAnimationStyle(R.style.popwin_anim_style);
+//        mPopupWindow.setAnimationStyle(R.style.popwin_anim_style);
         mToolpop = new PopupWindow(toolpop, LayoutParams.MATCH_PARENT,
                 LayoutParams.WRAP_CONTENT);
         toolpop1 = this.getLayoutInflater().inflate(R.layout.tool_size, null);

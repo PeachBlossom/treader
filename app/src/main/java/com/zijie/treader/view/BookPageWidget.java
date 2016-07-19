@@ -191,6 +191,30 @@ public class BookPageWidget extends View {
 
     }
 
+    @Override
+    public boolean onTouchEvent(MotionEvent event) {
+        super.onTouchEvent(event);
+        if (event.getAction() == MotionEvent.ACTION_DOWN){
+            int x = (int) event.getX();
+            int y = (int) event.getY();
+            //Action_Down时在中间位置显示菜单
+            if (x > mScreenWidth / 3 && x < mScreenWidth * 2 / 3 && y > mScreenHeight / 3 && y < mScreenHeight * 2 / 3) {
+
+                return false;
+            }
+            abortAnimation();
+
+            calcCornerXY(event.getX(), event.getY());
+            if (x < mScreenWidth / 2) {// 从左翻
+
+            }else{// 从右翻
+
+            }
+        }
+        return doTouchEvent(event);
+
+    }
+
     public boolean doTouchEvent(MotionEvent event) {
 
         if (event.getAction() == MotionEvent.ACTION_MOVE) {
@@ -206,14 +230,14 @@ public class BookPageWidget extends View {
             actiondownY = event.getY();
         }
         if (event.getAction() == MotionEvent.ACTION_UP) {
-            startAnimation(1200);
+            startAnimation(600);
             this.postInvalidate();
         }
         if (event.getAction() == MotionEvent.ACTION_MOVE
                 && event.getMetaState() == 1) {
             mTouch.x = event.getX();
             mTouch.y = event.getY();
-            startAnimation(1200);
+            startAnimation(600);
             this.postInvalidate();
         }
         // return super.onTouchEvent(event);
@@ -242,6 +266,10 @@ public class BookPageWidget extends View {
         if (!mScroller.isFinished()) {
             mScroller.abortAnimation();
         }
+    }
+
+    public boolean isFinishAnim(){
+        return mScroller.isFinished();
     }
 
     /**

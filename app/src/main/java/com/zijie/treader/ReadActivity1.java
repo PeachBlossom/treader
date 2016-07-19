@@ -14,6 +14,7 @@ import android.widget.Toast;
 
 import com.zijie.treader.base.BaseActivity;
 import com.zijie.treader.db.BookList;
+import com.zijie.treader.dialog.ReadSettingDialog;
 import com.zijie.treader.util.PageFactory;
 import com.zijie.treader.view.BookPageWidget;
 
@@ -27,8 +28,8 @@ import butterknife.ButterKnife;
  */
 public class ReadActivity1 extends BaseActivity {
     private static final String TAG = "ReadActivity";
-
     private final static String EXTRA_BOOK = "bookList";
+
     @Bind(R.id.bookpage)
     BookPageWidget bookpage;
 
@@ -37,6 +38,9 @@ public class ReadActivity1 extends BaseActivity {
     private BookList bookList;
     private PageFactory pageFactory;
     private int screenWidth,screenHeight;
+    // popwindow是否显示
+    private Boolean isShow = false;
+    private ReadSettingDialog mReadSettingDialog;
 
     @Override
     public int getLayoutRes() {
@@ -48,6 +52,7 @@ public class ReadActivity1 extends BaseActivity {
         config = Config.getInstance();
         pageFactory = PageFactory.getInstance();
 
+        mReadSettingDialog = new ReadSettingDialog(bookpage);
         //获取屏幕宽高
         WindowManager manage = getWindowManager();
         Display display = manage.getDefaultDisplay();
@@ -55,15 +60,14 @@ public class ReadActivity1 extends BaseActivity {
         display.getSize(displaysize);
         screenWidth = displaysize.x;
         screenHeight = displaysize.y;
-
         //保持屏幕常亮
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         //隐藏
         hideSystemUI();
         //改变屏幕亮度
-        lp = getWindow().getAttributes();
+//        lp = getWindow().getAttributes();
 //        lp.screenBrightness = config.getLight() / 10.0f < 0.01f ? 0.01f : config.getLight() / 10.0f;
-        getWindow().setAttributes(lp);
+//        getWindow().setAttributes(lp);
         //获取intent中的携带的信息
         Intent intent = getIntent();
         bookList = (BookList) intent.getSerializableExtra(EXTRA_BOOK);
@@ -76,22 +80,75 @@ public class ReadActivity1 extends BaseActivity {
             e.printStackTrace();
             Toast.makeText(this, "打开电子书失败", Toast.LENGTH_SHORT).show();
         }
-
+        
     }
 
     @Override
     protected void initListener() {
+        mReadSettingDialog.setSettingListener(new ReadSettingDialog.SettingListener() {
+            @Override
+            public void back() {
+                finish();
+            }
+
+            @Override
+            public void blank() {
+                hideSystemUI();
+                mReadSettingDialog.dismiss();
+                isShow = false;
+            }
+
+            @Override
+            public void pre() {
+
+            }
+
+            @Override
+            public void next() {
+
+            }
+
+            @Override
+            public void directory() {
+
+            }
+
+            @Override
+            public void dayorNight() {
+
+            }
+
+            @Override
+            public void setting() {
+
+            }
+        });
+
         bookpage.setOnTouchListener(new View.OnTouchListener() {
 
             @Override
             public boolean onTouch(View v, MotionEvent e) {
-                boolean ret = false;
                 if (v.equals(bookpage)) {
+//                    if (!bookpage.isFinishAnim()){
+//                        return false;
+//                    }
                     if (e.getAction() == MotionEvent.ACTION_DOWN) {
                         int x = (int) e.getX();
                         int y = (int) e.getY();
                         //Action_Down时在中间位置显示菜单
                         if (x > screenWidth / 3 && x < screenWidth * 2 / 3 && y > screenHeight / 3 && y < screenHeight * 2 / 3) {
+//                            if (!bookpage.isFinishAnim()){
+//                                return false;
+//                            }
+                            if (isShow){
+                                hideSystemUI();
+                                mReadSettingDialog.dismiss();
+                                isShow = false;
+                            }else{
+                                showSystemUI();
+                                mReadSettingDialog.show();
+                                isShow = true;
+                            }
                             return false;//停止向下分发事件
                         }
                         bookpage.abortAnimation();
@@ -122,6 +179,16 @@ public class ReadActivity1 extends BaseActivity {
                 return false;
             }
         });
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        if (mReadSettingDialog.isShow()){
+            mReadSettingDialog.dismiss();
+            mReadSettingDialog = null;
+        }
+        pageFactory.setPageWidget(null);
     }
 
     public static void openBook(BookList bookList, Activity context){

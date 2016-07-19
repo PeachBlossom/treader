@@ -165,7 +165,8 @@ public class PageFactory {
 
     }
 
-    public void onDraw(Canvas c) {
+    public void onDraw(Bitmap bitmap) {
+        Canvas c = new Canvas(bitmap);
         word = new StringBuilder();
         int size = getM_fontSize();
         mPaint.setTextSize(size);
@@ -239,6 +240,8 @@ public class PageFactory {
      */
     @SuppressWarnings("resource")
     public void openbook(String strFilePath, int begin) throws IOException {
+        m_lines.clear();
+
         book_file = new File(strFilePath);
         long lLen = book_file.length();
         m_mbBufLen = (int) lLen;
@@ -261,8 +264,7 @@ public class PageFactory {
         }).start();
 
         if (mBookPageWidget != null){
-            Canvas canvas = new Canvas(mBookPageWidget.getCurPage());
-            onDraw(canvas);
+            onDraw(mBookPageWidget.getCurPage());
         }
     }
 
@@ -437,13 +439,13 @@ public class PageFactory {
         } else {
             m_isfirstPage = false;
         }
-        onDraw(new Canvas(mBookPageWidget.getCurPage()));
+        onDraw(mBookPageWidget.getCurPage());
 
         m_lines.clear();
         pageUp();
         m_lines = pageDown();
 
-        onDraw(new Canvas(mBookPageWidget.getNextPage()));
+        onDraw(mBookPageWidget.getNextPage());
     }
 
     /**
@@ -459,12 +461,12 @@ public class PageFactory {
         } else {
             m_islastPage = false;
         }
-        onDraw(new Canvas(mBookPageWidget.getCurPage()));
+        onDraw(mBookPageWidget.getCurPage());
 
         m_lines.clear();
         m_mbBufBegin = m_mbBufEnd;// 当前页结束位置作为向前翻页的开始位置
         m_lines = pageDown();
-        onDraw(new Canvas(mBookPageWidget.getNextPage()));
+        onDraw(mBookPageWidget.getNextPage());
     }
 
     public void currentPage() throws IOException {
