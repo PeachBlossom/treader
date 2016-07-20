@@ -27,8 +27,10 @@ import com.zijie.treader.db.BookCatalogue;
 import com.zijie.treader.view.BookPageWidget;
 
 import org.litepal.crud.DataSupport;
+import org.mozilla.universalchardet.UniversalDetector;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.RandomAccessFile;
@@ -45,14 +47,15 @@ import java.util.Vector;
  * Created by Administrator on 2016/1/3.
  */
 public class PageFactory {
+    private static final String TAG = "BookPageFactory";
+
     private StringBuilder word;
     private Context mcontext;
-    private static final String TAG = "BookPageFactory";
     private File book_file = null;
     private int m_backColor = 0xffff9e85; // 背景颜色
     private Bitmap m_book_bg = null;
     private int m_fontSize ;
-    private int lineSpace = 5;
+//    private int lineSpace = 5;
     private boolean m_isfirstPage, m_islastPage;
     private Vector<String> m_lines = new Vector<String>();
     private MappedByteBuffer m_mbBuf = null;// 内存中的图书字符
@@ -70,6 +73,8 @@ public class PageFactory {
     private static Typeface typeface;
     private int marginHeight ; // 上下与边缘的距离
     private int marginWidth ; // 左右与边缘的距离
+    //行间距
+    private int lineSpace;
     private int mHeight;
     private int mLineCount; // 每页可以显示的行数
     private Paint mPaint;
@@ -108,6 +113,7 @@ public class PageFactory {
         mBorderWidth = context.getResources().getDimension(R.dimen.reading_board_battery_border_width);
         marginWidth = (int) context.getResources().getDimension(R.dimen.readingMarginWidth);
         marginHeight = (int) context.getResources().getDimension(R.dimen.readingMarginHeight);
+        lineSpace = (int) context.getResources().getDimension(R.dimen.reading_line_spacing);
         typeface = Typeface.createFromAsset(context.getAssets(), "font/QH.ttf");
         mPaint = new Paint(Paint.ANTI_ALIAS_FLAG);// 画笔
         mPaint.setTextAlign(Paint.Align.LEFT);// 左对齐
@@ -117,7 +123,7 @@ public class PageFactory {
         mPaint.setSubpixelText(true);// 设置该项为true，将有助于文本在LCD屏幕上的显示效果
         mVisibleWidth = mWidth - marginWidth * 2;
         mVisibleHeight = mHeight - marginHeight * 2;
-        mLineCount = (int) (mVisibleHeight / m_fontSize) - 1; // 可显示的行数,-1是因为底部显示进度的位置容易被遮住
+        mLineCount = (int) (mVisibleHeight / (m_fontSize + lineSpace)); // 可显示的行数,-1是因为底部显示进度的位置容易被遮住
         batteryInfoIntent = context.getApplicationContext().registerReceiver(null,
                 new IntentFilter(Intent.ACTION_BATTERY_CHANGED)) ;//注册广播,随时获取到电池电量信息
 
@@ -183,11 +189,11 @@ public class PageFactory {
 
             int y = marginHeight;
             for (String strLine : m_lines) {
-                y += m_fontSize;
+                y += m_fontSize + lineSpace;
                 c.drawText(strLine, marginWidth, y, mPaint);
                 word.append(strLine);
             }
-            ReadActivity.words=word.toString();
+//            ReadActivity.words=word.toString();
             word=null;
         }
         //画进度及时间
@@ -242,11 +248,15 @@ public class PageFactory {
     public void openbook(String strFilePath, int begin) throws IOException {
         m_lines.clear();
 
+        m_strCharsetName = getCharset(strFilePath);
+        if (m_strCharsetName == null){
+            m_strCharsetName = "utf-8";
+        }
+
         book_file = new File(strFilePath);
         long lLen = book_file.length();
         m_mbBufLen = (int) lLen;
-        m_mbBuf = new RandomAccessFile(book_file, "r").getChannel().map(
-                FileChannel.MapMode.READ_ONLY, 0, lLen);
+        m_mbBuf = new RandomAccessFile(book_file, "r").getChannel().map(FileChannel.MapMode.READ_ONLY, 0, lLen);
         // Log.d(TAG, "total lenth：" + m_mbBufLen);
         // 设置已读进度
         if (begin >= 0) {
@@ -269,6 +279,33 @@ public class PageFactory {
     }
 
     /**
+     * 获取文件编码
+     * @param fileName
+     * @return
+     * @throws IOException
+     */
+    public String getCharset(String fileName) throws IOException{
+        String charset;
+        FileInputStream fis = new FileInputStream(fileName);
+        byte[] buf = new byte[4096];
+        // (1)
+        UniversalDetector detector = new UniversalDetector(null);
+        // (2)
+        int nread;
+        while ((nread = fis.read(buf)) > 0 && !detector.isDone()) {
+            detector.handleData(buf, 0, nread);
+        }
+        // (3)
+        detector.dataEnd();
+        // (4)
+        charset = detector.getDetectedCharset();
+        // (5)
+        detector.reset();
+
+        return charset;
+    }
+
+    /**
      * 画指定页的下一页
      *
      * @return 下一页的内容 Vector<String>
@@ -277,7 +314,7 @@ public class PageFactory {
         mPaint.setTextSize(m_fontSize);
         mPaint.setColor(m_textColor);
         String strParagraph = "";
-        Vector<String> lines = new Vector<String>();
+        Vector<String> lines = new Vector<>();
         while (lines.size() < mLineCount && m_mbBufEnd < m_mbBufLen) {
             byte[] paraBuf = readParagraphForward(m_mbBufEnd);
             m_mbBufEnd += paraBuf.length;// 每次读取后，记录结束点位置，该位置是段落结束位置
@@ -307,7 +344,6 @@ public class PageFactory {
                 strParagraph = strParagraph.substring(nSize);// 得到剩余的文字
                 // 超出最大行数则不再画
                 if (lines.size() >= mLineCount) {
-
                     break;
                 }
             }
@@ -408,9 +444,9 @@ public class PageFactory {
             lines.addAll(0, paraLines);
             lines.add("\n\n");
 
-            if(lines.size() > mLineCount) {
-                //  break;
-            }
+//            if(lines.size() > mLineCount) {
+//                  break;
+//            }
         }
 
         while (lines.size() > mLineCount) {
@@ -668,7 +704,7 @@ public class PageFactory {
 
     public void setM_fontSize(int m_fontSize) {
         this.m_fontSize = m_fontSize;
-        mLineCount = (int) (mVisibleHeight / m_fontSize) - 1;
+        mLineCount = (int) (mVisibleHeight / (m_fontSize + lineSpace));
     }
     public int getM_fontSize() {
         return this.m_fontSize; //2016.1.4

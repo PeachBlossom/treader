@@ -71,6 +71,7 @@ public class BookPageWidget extends View {
     Scroller mScroller;
 
     private float actiondownX,actiondownY;
+    private TouchListener mTouchListener;
 
     public BookPageWidget(Context context) {
         this(context,null);
@@ -199,20 +200,45 @@ public class BookPageWidget extends View {
             int y = (int) event.getY();
             //Action_Down时在中间位置显示菜单
             if (x > mScreenWidth / 3 && x < mScreenWidth * 2 / 3 && y > mScreenHeight / 3 && y < mScreenHeight * 2 / 3) {
-
+                if (mTouchListener != null){
+                    mTouchListener.center();
+                }
                 return false;
             }
             abortAnimation();
 
-            calcCornerXY(event.getX(), event.getY());
+            //如果touchLister翻页返回false表示不翻页，则不执行翻页动画
             if (x < mScreenWidth / 2) {// 从左翻
-
+                if (mTouchListener != null){
+                    Boolean isPre = mTouchListener.prePage();
+                    if (!isPre){
+                        return false;
+                    }
+                }
             }else{// 从右翻
-
+                if (mTouchListener != null){
+                    Boolean isNext = mTouchListener.nextPage();
+                    if (!isNext){
+                        return isNext;
+                    }
+                }
             }
+
+            calcCornerXY(event.getX(), event.getY());
         }
+
         return doTouchEvent(event);
 
+    }
+
+    public void setTouchListener(TouchListener mTouchListener){
+        this.mTouchListener = mTouchListener;
+    }
+
+    public interface TouchListener{
+        void center();
+        Boolean prePage();
+        Boolean nextPage();
     }
 
     public boolean doTouchEvent(MotionEvent event) {

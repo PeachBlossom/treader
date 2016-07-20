@@ -124,61 +124,48 @@ public class ReadActivity1 extends BaseActivity {
             }
         });
 
-        bookpage.setOnTouchListener(new View.OnTouchListener() {
+        bookpage.setTouchListener(new BookPageWidget.TouchListener() {
+            @Override
+            public void center() {
+                if (isShow){
+                    hideSystemUI();
+                    mReadSettingDialog.dismiss();
+                    isShow = false;
+                }else{
+                    showSystemUI();
+                    mReadSettingDialog.show();
+                    isShow = true;
+                }
+            }
 
             @Override
-            public boolean onTouch(View v, MotionEvent e) {
-                if (v.equals(bookpage)) {
-//                    if (!bookpage.isFinishAnim()){
-//                        return false;
-//                    }
-                    if (e.getAction() == MotionEvent.ACTION_DOWN) {
-                        int x = (int) e.getX();
-                        int y = (int) e.getY();
-                        //Action_Down时在中间位置显示菜单
-                        if (x > screenWidth / 3 && x < screenWidth * 2 / 3 && y > screenHeight / 3 && y < screenHeight * 2 / 3) {
-//                            if (!bookpage.isFinishAnim()){
-//                                return false;
-//                            }
-                            if (isShow){
-                                hideSystemUI();
-                                mReadSettingDialog.dismiss();
-                                isShow = false;
-                            }else{
-                                showSystemUI();
-                                mReadSettingDialog.show();
-                                isShow = true;
-                            }
-                            return false;//停止向下分发事件
-                        }
-                        bookpage.abortAnimation();
-                        bookpage.calcCornerXY(e.getX(), e.getY());
-                        if (x < screenWidth / 2) {// 从左翻
-                            try {
-                                pageFactory.prePage();
-                            } catch (IOException e1) {
-                                Log.e(TAG, "onTouch->prePage error", e1);
-                            }
-                            if (pageFactory.isfirstPage()) {
-                                return false;
-                            }
-
-                        } else if (x >= screenWidth / 2) {// 从右翻
-                            try {
-                                pageFactory.nextPage();
-                            } catch (IOException e1) {
-                                Log.e(TAG, "onTouch->nextPage error", e1);
-                            }
-                            if (pageFactory.islastPage()) {
-                                return false;
-                            }
-                        }
-                    }
-                    return bookpage.doTouchEvent(e);
+            public Boolean prePage() {
+                try {
+                    pageFactory.prePage();
+                } catch (IOException e1) {
+                    Log.e(TAG, "onTouch->prePage error", e1);
                 }
-                return false;
+                if (pageFactory.isfirstPage()) {
+                    return false;
+                }
+
+                return true;
+            }
+
+            @Override
+            public Boolean nextPage() {
+                try {
+                    pageFactory.nextPage();
+                } catch (IOException e1) {
+                    Log.e(TAG, "onTouch->nextPage error", e1);
+                }
+                if (pageFactory.islastPage()) {
+                    return false;
+                }
+                return true;
             }
         });
+
     }
 
     @Override
