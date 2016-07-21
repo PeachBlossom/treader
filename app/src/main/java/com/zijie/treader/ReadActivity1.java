@@ -16,6 +16,7 @@ import com.zijie.treader.base.BaseActivity;
 import com.zijie.treader.db.BookList;
 import com.zijie.treader.dialog.ReadSettingDialog;
 import com.zijie.treader.util.PageFactory;
+import com.zijie.treader.util.PageFactory1;
 import com.zijie.treader.view.BookPageWidget;
 
 import java.io.IOException;
@@ -36,7 +37,7 @@ public class ReadActivity1 extends BaseActivity {
     private Config config;
     private WindowManager.LayoutParams lp;
     private BookList bookList;
-    private PageFactory pageFactory;
+    private PageFactory1 pageFactory;
     private int screenWidth,screenHeight;
     // popwindow是否显示
     private Boolean isShow = false;
@@ -50,7 +51,7 @@ public class ReadActivity1 extends BaseActivity {
     @Override
     protected void initData() {
         config = Config.getInstance();
-        pageFactory = PageFactory.getInstance();
+        pageFactory = PageFactory1.getInstance();
 
         mReadSettingDialog = new ReadSettingDialog(bookpage);
         //获取屏幕宽高
@@ -75,7 +76,7 @@ public class ReadActivity1 extends BaseActivity {
         pageFactory.setPageWidget(bookpage);
 
         try {
-            pageFactory.openbook(bookList.getBookpath(), (int) bookList.getBegin());
+            pageFactory.openBook(bookList.getBookpath(), (int) bookList.getBegin());
         } catch (IOException e) {
             e.printStackTrace();
             Toast.makeText(this, "打开电子书失败", Toast.LENGTH_SHORT).show();

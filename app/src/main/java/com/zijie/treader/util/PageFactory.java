@@ -325,12 +325,15 @@ public class PageFactory {
             }
             String strReturn = "";
             // 替换掉回车换行符,防止段落发生错乱
-            if (strParagraph.indexOf("\r\n") != -1) {   //windows
+            if (strParagraph.indexOf("\r\n") != -1) {   //linux
                 strReturn = "\r\n";
                 strParagraph = strParagraph.replaceAll("\r\n","");
-            } else if (strParagraph.indexOf("\n") != -1) {    //linux
+            } else if (strParagraph.indexOf("\n") != -1) {    //windows
                 strReturn = "\n";
                 strParagraph = strParagraph.replaceAll("\n", "");
+            } else if (strParagraph.indexOf("\n") != -1){    //mac
+                strReturn = "\r";
+                strParagraph.replaceAll("\r","");
             }
 
             if (strParagraph.length() == 0) {

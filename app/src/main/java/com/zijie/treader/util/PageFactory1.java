@@ -3,6 +3,7 @@ package com.zijie.treader.util;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
@@ -13,17 +14,29 @@ import android.graphics.Typeface;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.WindowManager;
+import android.widget.EditText;
 import android.widget.Toast;
 
 import com.zijie.treader.Config;
 import com.zijie.treader.R;
+import com.zijie.treader.ReadActivity;
+import com.zijie.treader.db.BookCatalogue;
 import com.zijie.treader.view.BookPageWidget;
 
+import org.litepal.crud.DataSupport;
+import org.mozilla.universalchardet.UniversalDetector;
+
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.RandomAccessFile;
 import java.io.UnsupportedEncodingException;
 import java.nio.MappedByteBuffer;
+import java.nio.channels.FileChannel;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Vector;
 
 /**
@@ -35,6 +48,8 @@ public class PageFactory1 {
 
     private Context mContext;
     private Config config;
+    //当前的书本
+    private File book_file = null;
     // 默认背景颜色
     private int m_backColor = 0xffff9e85;
     //页面宽
@@ -102,6 +117,9 @@ public class PageFactory1 {
     private boolean m_islastPage;
     //书本widget
     private BookPageWidget mBookPageWidget;
+    private int mstartpos = 0;
+    private static List<String> bookCatalogue = new ArrayList<>();
+    private static List<Integer> bookCatalogueStartPos = new ArrayList<>();
 
     public static synchronized PageFactory1 getInstance(){
         return pageFactory;
@@ -178,15 +196,16 @@ public class PageFactory1 {
 
     public void onDraw(Bitmap bitmap) {
         Canvas c = new Canvas(bitmap);
+        c.drawBitmap(getBgBitmap(), 0, 0, null);
         word.setLength(0);
         mPaint.setTextSize(getFontSize());
         mPaint.setColor(getTextColor());
         if (m_lines.size() == 0) {
-            m_lines = pageDown();
+//            m_lines = pageDown();
+            return;
         }
 
         if (m_lines.size() > 0) {
-            c.drawBitmap(getBgBitmap(), 0, 0, null);
             float y = marginHeight;
             for (String strLine : m_lines) {
                 y += m_fontSize + lineSpace;
@@ -233,11 +252,167 @@ public class PageFactory1 {
     }
 
     /**
+     * 向前翻页
+     *
+     * @throws IOException
+     */
+    public void prePage() throws IOException {
+        if (m_mbBufBegin <= 0) {
+            m_mbBufBegin = 0;
+            m_isfirstPage = true;
+            Toast.makeText(mContext, "当前是第一页", Toast.LENGTH_SHORT).show();
+            return;
+        } else {
+            m_isfirstPage = false;
+        }
+        onDraw(mBookPageWidget.getCurPage());
+        m_lines = pageUp();
+        Log.e("prepage",m_lines.toString());
+        onDraw(mBookPageWidget.getNextPage());
+    }
+
+    /**
+     * 向后翻页
+     *
+     * @throws IOException
+     */
+    public void nextPage() throws IOException {
+        if (m_mbBufEnd >= m_mbBufLen) {
+            m_islastPage = true;
+            Toast.makeText(mContext, "已经是最后一页了", Toast.LENGTH_SHORT).show();
+            return;
+        } else {
+            m_islastPage = false;
+        }
+        onDraw(mBookPageWidget.getCurPage());
+        m_lines = pageDown();
+        Log.e("nextPage",m_lines.toString());
+        onDraw(mBookPageWidget.getNextPage());
+    }
+
+    /**
+     *
+     * @param strFilePath
+     * @param begin
+     *            表示书签记录的位置，读取书签时，将begin值给m_mbBufEnd，在读取nextpage，及成功读取到了书签
+     *            记录时将m_mbBufBegin开始位置作为书签记录
+     *
+     * @throws IOException
+     */
+    @SuppressWarnings("resource")
+    public void openBook(String strFilePath, int begin) throws IOException {
+        m_strCharsetName = getCharset(strFilePath);
+        if (m_strCharsetName == null){
+            m_strCharsetName = "utf-8";
+        }
+
+        book_file = new File(strFilePath);
+        long lLen = book_file.length();
+        m_mbBufLen = (int) lLen;
+        m_mbBuf = new RandomAccessFile(book_file, "r").getChannel().map(FileChannel.MapMode.READ_ONLY, 0, lLen);
+        if (begin >= 0) {
+            m_mbBufBegin = begin;
+            m_mbBufEnd = begin;
+        } else {
+            m_mbBufBegin = 0;
+            m_mbBufEnd = 0;
+        }
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                getBookInfo();
+            }
+        }).start();
+
+        if (mBookPageWidget != null){
+//            pageDown();
+//            onDraw(mBookPageWidget.getCurPage());
+//            nextPage();
+            m_lines = pageDown();
+            onDraw(mBookPageWidget.getCurPage());
+        }
+    }
+
+    /**
+     *   提取章节目录及值
+     */
+    public void getBookInfo() {
+        String strParagraph = "";
+        while (mstartpos < m_mbBufLen-1) {
+            byte[] paraBuf = readParagraphForward(mstartpos);
+            mstartpos += paraBuf.length;// 每次读取后，记录结束点位置，该位置是段落结束位置
+            try {
+                strParagraph = new String(paraBuf, m_strCharsetName);// 转换成制定GBK编码
+            } catch (UnsupportedEncodingException e) {
+                Log.e(TAG, "pageDown->转换编码失败", e);
+            }
+            EditText editText;
+            String strReturn = "";
+            // 替换掉回车换行符,防止段落发生错乱
+            if (strParagraph.indexOf("\r\n") != -1) {   //windows
+                strReturn = "\r\n";
+                strParagraph = strParagraph.replaceAll("\r\n", "");
+            } else if (strParagraph.indexOf("\n") != -1) {    //linux
+                strReturn = "\n";
+                strParagraph = strParagraph.replaceAll("\n", "");
+            }
+
+            if(strParagraph.contains("第") && strParagraph.contains("章")) {
+                int m_mstartpos = mstartpos-paraBuf.length;//获得章节段落开始位置
+                BookCatalogue bookCatalogue1 = new BookCatalogue();//每次保存后都要新建一个
+                strParagraph = strParagraph.trim();//去除字符串前后空格
+                //去除全角空格
+                while (strParagraph.startsWith("　")) {
+                    strParagraph = strParagraph.substring(1, strParagraph.length()).trim();
+                }
+                bookCatalogue.add(strParagraph);   //保存到数组
+                bookCatalogueStartPos.add(m_mstartpos);
+                bookCatalogue1.setBookCatalogue(strParagraph);  //保存到数据库
+                bookCatalogue1.setBookCatalogueStartPos(m_mstartpos);
+                bookCatalogue1.setBookpath(ReadActivity.getBookPath());
+                String sql = "SELECT id FROM bookcatalogue WHERE bookcatalogue =? and bookCatalogueStartPos =?";
+                Cursor cursor = DataSupport.findBySQL(sql,strParagraph,m_mstartpos +"");
+                if(!cursor.moveToFirst()) {
+                    bookCatalogue1.save();
+                }
+            }
+        }
+    }
+
+    /**
+     * 获取文件编码
+     * @param fileName
+     * @return
+     * @throws IOException
+     */
+    public String getCharset(String fileName) throws IOException{
+        String charset;
+        FileInputStream fis = new FileInputStream(fileName);
+        byte[] buf = new byte[4096];
+        // (1)
+        UniversalDetector detector = new UniversalDetector(null);
+        // (2)
+        int nread;
+        while ((nread = fis.read(buf)) > 0 && !detector.isDone()) {
+            detector.handleData(buf, 0, nread);
+        }
+        // (3)
+        detector.dataEnd();
+        // (4)
+        charset = detector.getDetectedCharset();
+        // (5)
+        detector.reset();
+
+        return charset;
+    }
+
+    /**
      * 画指定页的下一页
      *
      * @return 下一页的内容 Vector<String>
      */
     protected Vector<String> pageDown() {
+        m_mbBufBegin = m_mbBufEnd;// 当前页结束位置作为向前翻页的开始位置
         mPaint.setTextSize(m_fontSize);
         mPaint.setColor(m_textColor);
 
@@ -253,35 +428,42 @@ public class PageFactory1 {
             }
             String strReturn = "";
             // 替换掉回车换行符,防止段落发生错乱
-            if (strParagraph.indexOf("\r\n") != -1) {   //windows
+            if (strParagraph.indexOf("\r\n") != -1) {   //linux
                 strReturn = "\r\n";
                 strParagraph = strParagraph.replaceAll("\r\n","");
-            } else if (strParagraph.indexOf("\n") != -1) {    //linux
+            } else if (strParagraph.indexOf("\n") != -1) {    //windows
                 strReturn = "\n";
                 strParagraph = strParagraph.replaceAll("\n", "");
+            } else if (strParagraph.indexOf("\n") != -1){    //mac
+                strReturn = "\r";
+                strParagraph.replaceAll("\r","");
             }
 
             if (strParagraph.length() == 0) {
                 lines.add(strParagraph);
-            }
-
-            while (strParagraph.length() > 0) {
-                // 画一行文字
-                int nSize = mPaint.breakText(strParagraph, true, mVisibleWidth,null);
-                lines.add(strParagraph.substring(0, nSize));
-                strParagraph = strParagraph.substring(nSize);// 得到剩余的文字
-                // 超出最大行数则不再画
-                if (lines.size() >= mLineCount) {
-                    break;
+            }else {
+                while (strParagraph.length() > 0) {
+                    // 画一行文字
+                    int nSize = mPaint.breakText(strParagraph, true, mVisibleWidth, null);
+                    lines.add(strParagraph.substring(0, nSize));
+                    strParagraph = strParagraph.substring(nSize);// 得到剩余的文字
+                    // 超出最大行数则不再画
+                    if (lines.size() >= mLineCount) {
+                        break;
+                    }
                 }
-            }
-            lines.add("\n\n");//段落间加一个空白行
-            // 如果该页最后一段只显示了一部分，则重新定位结束点位置
-            if (strParagraph.length() != 0) {
-                try {
-                    m_mbBufEnd -= (strParagraph + strReturn).getBytes(m_strCharsetName).length;
-                } catch (UnsupportedEncodingException e) {
-                    Log.e(TAG, "pageDown->记录结束点位置失败", e);
+
+                if (lines.size() < mLineCount) {
+                    lines.add("");//段落间加一个空白行
+                }
+
+                // 如果该页最后一段只显示了一部分，则重新定位结束点位置
+                if (strParagraph.length() != 0) {
+                    try {
+                        m_mbBufEnd -= (strParagraph + strReturn).getBytes(m_strCharsetName).length;
+                    } catch (UnsupportedEncodingException e) {
+                        Log.e(TAG, "pageDown->记录结束点位置失败", e);
+                    }
                 }
             }
 
@@ -291,35 +473,14 @@ public class PageFactory1 {
     }
 
     /**
-     * 向前翻页
-     *
-     * @throws IOException
-     */
-    public void prePage() throws IOException {
-        pageUp();
-
-        if (m_mbBufBegin <= 0) {
-            m_mbBufBegin = 0;
-            m_isfirstPage = true;
-            Toast.makeText(mContext, "当前是第一页", Toast.LENGTH_SHORT).show();
-            return;
-        } else {
-            m_isfirstPage = false;
-        }
-
-        onDraw(mBookPageWidget.getCurPage());
-        m_lines.clear();
-//        m_lines = pageDown();
-        onDraw(mBookPageWidget.getNextPage());
-    }
-
-    /**
      * 得到上上页的结束位置
      */
-    protected void pageUp() {
+    protected Vector<String> pageUp() {
         if (m_mbBufBegin < 0) {
             m_mbBufBegin = 0;
         }
+        m_mbBufEnd = m_mbBufBegin;// 上上一页的结束点等于上一页的起始点
+
         Vector<String> lines = new Vector<>();
         String strParagraph = "";
         while (lines.size() < mLineCount && m_mbBufBegin > 0) {
@@ -331,24 +492,50 @@ public class PageFactory1 {
             } catch (UnsupportedEncodingException e) {
                 Log.e(TAG, "pageUp->转换编码失败", e);
             }
-            strParagraph = strParagraph.replaceAll("\r\n", "");
-            strParagraph = strParagraph.replaceAll("\n", "");
+            String strReturn = "";
+            // 替换掉回车换行符,防止段落发生错乱
+            if (strParagraph.indexOf("\r\n") != -1) {   //linux
+                strReturn = "\r\n";
+                strParagraph = strParagraph.replaceAll("\r\n","");
+            } else if (strParagraph.indexOf("\n") != -1) {    //windows
+                strReturn = "\n";
+                strParagraph = strParagraph.replaceAll("\n", "");
+            } else if (strParagraph.indexOf("\n") != -1){    //mac
+                strReturn = "\r";
+                strParagraph.replaceAll("\r","");
+            }
+
             // 如果是空白行，直接添加
             if (strParagraph.length() == 0) {
-                lines.add(strParagraph);
-            }
-            while (strParagraph.length() > 0) {
-                // 画一行文字
-                int nSize = mPaint.breakText(strParagraph, true, mVisibleWidth,
-                        null);
-                paraLines.add(strParagraph.substring(0, nSize));
-                strParagraph = strParagraph.substring(nSize);
+                lines.add(0,strParagraph);
+            }else {
+                while (strParagraph.length() > 0) {
+                    // 画一行文字
+                    int nSize = mPaint.breakText(strParagraph, true, mVisibleWidth,
+                            null);
+                    paraLines.add(strParagraph.substring(0, nSize));
+                    strParagraph = strParagraph.substring(nSize);
+                }
 
+                //这是一个段落的结尾，如果段落的结尾在页面的结尾不加空行
+                if (!strReturn.isEmpty() && !lines.isEmpty()) {
+                    paraLines.add("");
+                }
+
+                for (int i = paraLines.size() - 1; i >= 0 ;i--){
+                    if (lines.size() < mLineCount) {
+                        lines.add(0, paraLines.get(i));
+                    }else{
+                        try {
+                            m_mbBufBegin += paraLines.get(i).getBytes(m_strCharsetName).length;
+                        } catch (UnsupportedEncodingException e) {
+                            Log.e(TAG, "pageUp->记录起始点位置失败", e);
+                        }
+                    }
+                }
             }
-            lines.addAll(0, paraLines);
-            lines.add("\n\n");
         }
-
+        return lines;
     }
 
     /**
@@ -450,6 +637,13 @@ public class PageFactory1 {
     }
 
 
+    public boolean isfirstPage() {
+        return m_isfirstPage;
+    }
+
+    public boolean islastPage() {
+        return m_islastPage;
+    }
     //设置页面背景
     public void setBgBitmap(Bitmap BG) {
         m_book_bg = BG;
@@ -469,6 +663,10 @@ public class PageFactory1 {
     //获取文字大小
     public float getFontSize() {
         return this.m_fontSize;
+    }
+
+    public void setPageWidget(BookPageWidget mBookPageWidget){
+        this.mBookPageWidget = mBookPageWidget;
     }
 
 }
