@@ -44,13 +44,37 @@ android:layout_gravity是用来设置该view相对与父view 的位置．比如�
                 android:background="@mipmap/img_tts" />
         </LinearLayout>
     </LinearLayout>
-
-    <TextView
-        android:id="@+id/tv_blank"
+    
+    <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_above="@+id/bookpop_bottom"
-        android:layout_below="@+id/linearLayout"/>
+        android:layout_below="@+id/linearLayout">
+        <TextView
+            android:id="@+id/tv_blank"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+
+        <RelativeLayout
+            android:id="@+id/rl_progress"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom|center_horizontal"
+            android:layout_marginBottom="20dp"
+            android:padding="20dp"
+            android:background="@color/black"
+            android:visibility="gone">
+
+            <TextView
+                android:id="@+id/tv_progress"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerInParent="true"
+                android:textColor="@color/white"
+                android:textSize="16sp"
+                android:text="00.00%"/>
+        </RelativeLayout>
+    </FrameLayout>
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -84,7 +108,7 @@ android:layout_gravity是用来设置该view相对与父view 的位置．比如�
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:gravity="center"
-                android:max="30"
+                android:max="10000"
                 android:layout_gravity="center_vertical">
             </SeekBar>
 

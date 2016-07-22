@@ -249,6 +249,8 @@ public class PageFactory1 {
         rect2.right = rect1.right + mBorderWidth;
         rect2.bottom = rect2.bottom - poleHeight/4;
         c.drawRect(rect2, mBatterryPaint);
+
+        mBookPageWidget.postInvalidate();
     }
 
     /**
@@ -325,12 +327,23 @@ public class PageFactory1 {
         }).start();
 
         if (mBookPageWidget != null){
-//            pageDown();
-//            onDraw(mBookPageWidget.getCurPage());
-//            nextPage();
             m_lines = pageDown();
             onDraw(mBookPageWidget.getCurPage());
         }
+    }
+
+    //绘制当前页面
+    public void currentPage(){
+        m_lines = pageDown();
+        onDraw(mBookPageWidget.getCurPage());
+    }
+
+    //改变进度
+    public void changeProgress(float progress){
+        int begin = (int) (m_mbBufLen * progress);
+        m_mbBufBegin = begin;
+        m_mbBufEnd = begin;
+        currentPage();
     }
 
     /**

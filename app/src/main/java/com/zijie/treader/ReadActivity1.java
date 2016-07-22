@@ -123,6 +123,11 @@ public class ReadActivity1 extends BaseActivity {
             public void setting() {
 
             }
+
+            @Override
+            public void changeProgress(float progress) {
+                pageFactory.changeProgress(progress);
+            }
         });
 
         bookpage.setTouchListener(new BookPageWidget.TouchListener() {
