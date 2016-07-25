@@ -5,6 +5,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.Point;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.util.Log;
 import android.view.Display;
 import android.view.MotionEvent;
@@ -30,6 +32,7 @@ import butterknife.ButterKnife;
 public class ReadActivity1 extends BaseActivity {
     private static final String TAG = "ReadActivity";
     private final static String EXTRA_BOOK = "bookList";
+    private final static int MESSAGE_CHANGEPROGRESS = 1;
 
     @Bind(R.id.bookpage)
     BookPageWidget bookpage;
@@ -86,6 +89,16 @@ public class ReadActivity1 extends BaseActivity {
 
     @Override
     protected void initListener() {
+        pageFactory.setPageEvent(new PageFactory1.PageEvent() {
+            @Override
+            public void changeProgress(float progress) {
+                Message message = new Message();
+                message.what = MESSAGE_CHANGEPROGRESS;
+                message.obj = progress;
+                mHandler.sendMessage(message);
+            }
+        });
+
         mReadSettingDialog.setSettingListener(new ReadSettingDialog.SettingListener() {
             @Override
             public void back() {
@@ -146,11 +159,7 @@ public class ReadActivity1 extends BaseActivity {
 
             @Override
             public Boolean prePage() {
-                try {
-                    pageFactory.prePage();
-                } catch (IOException e1) {
-                    Log.e(TAG, "onTouch->prePage error", e1);
-                }
+                pageFactory.prePage();
                 if (pageFactory.isfirstPage()) {
                     return false;
                 }
@@ -160,11 +169,7 @@ public class ReadActivity1 extends BaseActivity {
 
             @Override
             public Boolean nextPage() {
-                try {
-                    pageFactory.nextPage();
-                } catch (IOException e1) {
-                    Log.e(TAG, "onTouch->nextPage error", e1);
-                }
+                pageFactory.nextPage();
                 if (pageFactory.islastPage()) {
                     return false;
                 }
@@ -174,6 +179,19 @@ public class ReadActivity1 extends BaseActivity {
 
     }
 
+    private Handler mHandler = new Handler(){
+        @Override
+        public void handleMessage(Message msg) {
+            super.handleMessage(msg);
+            switch (msg.what){
+                case MESSAGE_CHANGEPROGRESS:
+                    float progress = (float) msg.obj;
+                    mReadSettingDialog.setSeekBarProgress(progress);
+                    break;
+            }
+        }
+    };
+
     @Override
     protected void onDestroy() {
         super.onDestroy();
@@ -181,7 +199,7 @@ public class ReadActivity1 extends BaseActivity {
             mReadSettingDialog.dismiss();
             mReadSettingDialog = null;
         }
-        pageFactory.setPageWidget(null);
+        pageFactory.clear();
     }
 
     public static void openBook(BookList bookList, Activity context){

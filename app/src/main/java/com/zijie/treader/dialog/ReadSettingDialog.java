@@ -97,9 +97,7 @@ public class ReadSettingDialog implements BaseDialog {
         if (rl_Progress.getVisibility() != View.VISIBLE) {
             rl_Progress.setVisibility(View.VISIBLE);
         }
-        DecimalFormat decimalFormat=new DecimalFormat("00.00");//构造方法的字符格式这里如果小数不足2位,会以0补足.
-        String p=decimalFormat.format(progress * 100.0);//format 返回的是字符串
-        tv_Progress.setText(p + "%");
+        setProgress(progress);
     }
 
     public void hideProgress(){
@@ -112,8 +110,14 @@ public class ReadSettingDialog implements BaseDialog {
         mPopupWindow.showAtLocation(mBookPageWidget, Gravity.NO_GRAVITY, 0, 0);
     }
 
-    public void setProgress(float progress){
-        tv_Progress.setText(progress * 100.0 + "%");
+    private void setProgress(float progress){
+        DecimalFormat decimalFormat=new DecimalFormat("00.00");//构造方法的字符格式这里如果小数不足2位,会以0补足.
+        String p=decimalFormat.format(progress * 100.0);//format 返回的是字符串
+        tv_Progress.setText(p + "%");
+    }
+
+    public void setSeekBarProgress(float progress){
+        sb_progress.setProgress((int) (progress * 10000));
     }
 
     @Override

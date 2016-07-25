@@ -192,18 +192,22 @@ public class BookPageWidget extends View {
 
     }
 
+    //是否点击了中间
+    private Boolean isClickCenter = false;
+    private int downX = 0;
+    private int downY = 0;
     @Override
     public boolean onTouchEvent(MotionEvent event) {
         super.onTouchEvent(event);
         if (event.getAction() == MotionEvent.ACTION_DOWN){
             int x = (int) event.getX();
             int y = (int) event.getY();
+            downX = (int) event.getX();
+            downY = (int) event.getY();
             //Action_Down时在中间位置显示菜单
             if (x > mScreenWidth / 3 && x < mScreenWidth * 2 / 3 && y > mScreenHeight / 3 && y < mScreenHeight * 2 / 3) {
-                if (mTouchListener != null){
-                    mTouchListener.center();
-                }
-                return false;
+                isClickCenter = true;
+                return true;
             }
             abortAnimation();
 
@@ -227,6 +231,37 @@ public class BookPageWidget extends View {
             calcCornerXY(event.getX(), event.getY());
         }
 
+        if (event.getAction() == MotionEvent.ACTION_MOVE) {
+            if (isClickCenter == true && Math.abs(event.getX() - downX) > 6 && Math.abs(event.getY() - downY) > 6) {
+                if (mTouchListener != null) {
+                    if ((event.getX() - downX) > 0) {
+                        Boolean isPre = mTouchListener.prePage();
+                        if (!isPre) {
+                            return false;
+                        }
+                    } else {
+                        Boolean isNext = mTouchListener.nextPage();
+                        if (!isNext) {
+                            return isNext;
+                        }
+                    }
+                }
+                isClickCenter = false;
+                abortAnimation();
+                calcCornerXY(event.getX(), event.getY());
+            }else if (isClickCenter == true){
+                return true;
+            }
+        }
+
+        if (event.getAction() == MotionEvent.ACTION_UP) {
+            if (isClickCenter){
+                if (mTouchListener != null){
+                    mTouchListener.center();
+                }
+                return true;
+            }
+        }
         return doTouchEvent(event);
 
     }
