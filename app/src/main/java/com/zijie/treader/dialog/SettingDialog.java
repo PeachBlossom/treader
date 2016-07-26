@@ -46,6 +46,8 @@ public class SettingDialog extends Dialog {
     TextView tv_wawa;
 
     private Config config;
+    private Boolean isSystem;
+    private SettingListener mSettingListener;
 
     private SettingDialog(Context context, boolean flag, OnCancelListener listener) {
         super(context, flag, listener);
@@ -77,8 +79,28 @@ public class SettingDialog extends Dialog {
         getWindow().setAttributes(p);
 
         config = Config.getInstance();
-        setTextViewSelect(tv_xitong,config.isSystemLight());
+        isSystem = config.isSystemLight();
+        setTextViewSelect(tv_xitong,isSystem);
         setBrightness(config.getLight());
+
+        sb_brightness.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                if (progress > 10) {
+                    changeBright(false, progress);
+                }
+            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+
+            }
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+
+            }
+        });
     }
 
 
@@ -119,6 +141,8 @@ public class SettingDialog extends Dialog {
             case R.id.tv_bright:
                 break;
             case R.id.tv_xitong:
+                isSystem = !isSystem;
+                changeBright(isSystem,sb_brightness.getProgress());
                 break;
             case R.id.tv_subtract:
                 break;
@@ -131,5 +155,24 @@ public class SettingDialog extends Dialog {
             case R.id.tv_wawa:
                 break;
         }
+    }
+
+    //改变亮度
+    public void changeBright(Boolean isSystem,int brightness){
+        float light = (float) (brightness / 100.0);
+        setTextViewSelect(tv_xitong,isSystem);
+        config.setSystemLight(isSystem);
+        config.setLight(light);
+        if (mSettingListener != null){
+            mSettingListener.changeSystemBright(isSystem, light);
+        }
+    }
+
+    public void setSettingListener(SettingListener settingListener){
+        this.mSettingListener = settingListener;
+    }
+
+    public interface SettingListener{
+        void changeSystemBright(Boolean isSystem,float brightness);
     }
 }

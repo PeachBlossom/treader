@@ -73,9 +73,7 @@ public class ReadActivity1 extends BaseActivity {
         hideSystemUI();
         //改变屏幕亮度
         if (!config.isSystemLight()){
-            lp = getWindow().getAttributes();
-            lp.screenBrightness = config.getLight();
-            getWindow().setAttributes(lp);
+            setBrightness(config.getLight());
         }
         //获取intent中的携带的信息
         Intent intent = getIntent();
@@ -94,6 +92,15 @@ public class ReadActivity1 extends BaseActivity {
 
     @Override
     protected void initListener() {
+        mSettingDialog.setSettingListener(new SettingDialog.SettingListener() {
+            @Override
+            public void changeSystemBright(Boolean isSystem, float brightness) {
+                if (!isSystem){
+                    setBrightness(brightness);
+                }
+            }
+        });
+
         pageFactory.setPageEvent(new PageFactory1.PageEvent() {
             @Override
             public void changeProgress(float progress) {
@@ -219,6 +226,20 @@ public class ReadActivity1 extends BaseActivity {
 
     public BookPageWidget getPageWidget(){
         return bookpage;
+    }
+
+    /**
+     * 设置亮度
+     *
+     * @param brightness
+     */
+    public void setBrightness(float brightness) {
+        // Settings.System.putInt(activity.getContentResolver(),
+        // Settings.System.SCREEN_BRIGHTNESS_MODE,
+        // Settings.System.SCREEN_BRIGHTNESS_MODE_MANUAL);
+        WindowManager.LayoutParams lp = this.getWindow().getAttributes();
+        lp.screenBrightness = brightness;
+        this.getWindow().setAttributes(lp);
     }
 
     /**

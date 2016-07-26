@@ -88,7 +88,7 @@ public class Config {
     }
 
     public void setSystemLight(Boolean isSystemLight){
-        sp.edit().putBoolean(SYSTEM_LIGHT_KEY,isSystemLight);
+        sp.edit().putBoolean(SYSTEM_LIGHT_KEY,isSystemLight).commit();
     }
 
     public float getLight(){
@@ -100,8 +100,8 @@ public class Config {
     /**
      * 记录配置文件中亮度值
      */
-    public void setLight(int light) {
+    public void setLight(float light) {
         this.light = light;
-        sp.edit().putInt(LIGHT_KEY,light).commit();
+        sp.edit().putFloat(LIGHT_KEY,light).commit();
     }
 }
