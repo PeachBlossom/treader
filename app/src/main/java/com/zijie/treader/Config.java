@@ -15,6 +15,7 @@ public class Config {
     private final static String FONT_SIZE_KEY = "fontsize";
     private final static String NIGHT_KEY = "night";
     private final static String LIGHT_KEY = "light";
+    private final static String SYSTEM_LIGHT_KEY = "systemlight";
     //默认字体大小
     public static int DEFAULT_FONT_SIZE = 0;
     //最小字体大小
@@ -54,7 +55,7 @@ public class Config {
 
     public Typeface getTypeface(){
         if (typeface == null) {
-            typeface = Typeface.createFromAsset(mContext.getAssets(), "font/QH.ttf");
+            typeface = Typeface.createFromAsset(mContext.getAssets(), "font/qihei.ttf");
         }
         return typeface;
     }
@@ -72,14 +73,22 @@ public class Config {
     }
 
     /**
-     * 获取夜间还是白天阅读模式
+     * 获取夜间还是白天阅读模式,true为夜晚，false为白天
      */
     public boolean getDayOrNight() {
         return sp.getBoolean(NIGHT_KEY, false);
     }
 
     public void setDayOrNight(boolean isNight){
-        sp.edit().putBoolean(NIGHT_KEY,isNight);
+        sp.edit().putBoolean(NIGHT_KEY,isNight).commit();
+    }
+
+    public Boolean isSystemLight(){
+       return sp.getBoolean(SYSTEM_LIGHT_KEY,true);
+    }
+
+    public void setSystemLight(Boolean isSystemLight){
+        sp.edit().putBoolean(SYSTEM_LIGHT_KEY,isSystemLight);
     }
 
     public float getLight(){

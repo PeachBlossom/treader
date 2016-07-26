@@ -12,6 +12,7 @@ import android.widget.RelativeLayout;
 import android.widget.SeekBar;
 import android.widget.TextView;
 
+import com.zijie.treader.Config;
 import com.zijie.treader.R;
 import com.zijie.treader.view.BookPageWidget;
 
@@ -58,15 +59,19 @@ public class ReadSettingDialog implements BaseDialog {
     private BookPageWidget mBookPageWidget;
     private View view;
     private SettingListener mSettingListener;
-
+    private Context mContext;
+    private Config config;
+    private Boolean mDayOrNight;
 
     public ReadSettingDialog(BookPageWidget bookPageWidget) {
         this.mBookPageWidget = bookPageWidget;
+        mContext = bookPageWidget.getContext();
         LayoutInflater layoutInflater = (LayoutInflater) bookPageWidget.getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         view = layoutInflater.inflate(R.layout.dialog_read_setting, null);
         ButterKnife.bind(this, view);
         mPopupWindow = new PopupWindow(view, ViewGroup.LayoutParams.MATCH_PARENT,
                 ViewGroup.LayoutParams.WRAP_CONTENT);
+        config = Config.getInstance();
 
         sb_progress.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             float pro;
@@ -91,8 +96,35 @@ public class ReadSettingDialog implements BaseDialog {
                 }
             }
         });
+
+        initDayOrNight();
     }
 
+    public void initDayOrNight(){
+        mDayOrNight = config.getDayOrNight();
+        if (mDayOrNight){
+            tv_dayornight.setText(mContext.getResources().getString(R.string.read_setting_day));
+        }else{
+            tv_dayornight.setText(mContext.getResources().getString(R.string.read_setting_night));
+        }
+    }
+
+    //改变显示模式
+    public void changeDayOrNight(){
+        if (mDayOrNight){
+            mDayOrNight = false;
+            tv_dayornight.setText(mContext.getResources().getString(R.string.read_setting_night));
+        }else{
+            mDayOrNight = true;
+            tv_dayornight.setText(mContext.getResources().getString(R.string.read_setting_day));
+        }
+        config.setDayOrNight(mDayOrNight);
+        if (mSettingListener != null) {
+            mSettingListener.dayorNight(mDayOrNight);
+        }
+    }
+
+    //显示书本进度
     public void showProgress(float progress){
         if (rl_Progress.getVisibility() != View.VISIBLE) {
             rl_Progress.setVisibility(View.VISIBLE);
@@ -100,6 +132,7 @@ public class ReadSettingDialog implements BaseDialog {
         setProgress(progress);
     }
 
+    //隐藏书本进度
     public void hideProgress(){
         rl_Progress.setVisibility(View.GONE);
     }
@@ -166,9 +199,7 @@ public class ReadSettingDialog implements BaseDialog {
                 }
                 break;
             case R.id.tv_dayornight:
-                if (mSettingListener != null) {
-                    mSettingListener.dayorNight();
-                }
+                changeDayOrNight();
                 break;
             case R.id.tv_setting:
                 if (mSettingListener != null) {
@@ -193,7 +224,7 @@ public class ReadSettingDialog implements BaseDialog {
 
         void directory();
 
-        void dayorNight();
+        void dayorNight(Boolean isNight);
 
         void setting();
 

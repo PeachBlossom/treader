@@ -17,6 +17,7 @@ import android.widget.Toast;
 import com.zijie.treader.base.BaseActivity;
 import com.zijie.treader.db.BookList;
 import com.zijie.treader.dialog.ReadSettingDialog;
+import com.zijie.treader.dialog.SettingDialog;
 import com.zijie.treader.util.PageFactory;
 import com.zijie.treader.util.PageFactory1;
 import com.zijie.treader.view.BookPageWidget;
@@ -45,6 +46,7 @@ public class ReadActivity1 extends BaseActivity {
     // popwindow是否显示
     private Boolean isShow = false;
     private ReadSettingDialog mReadSettingDialog;
+    private SettingDialog mSettingDialog;
 
     @Override
     public int getLayoutRes() {
@@ -57,6 +59,7 @@ public class ReadActivity1 extends BaseActivity {
         pageFactory = PageFactory1.getInstance();
 
         mReadSettingDialog = new ReadSettingDialog(bookpage);
+        mSettingDialog = new SettingDialog(this);
         //获取屏幕宽高
         WindowManager manage = getWindowManager();
         Display display = manage.getDefaultDisplay();
@@ -69,9 +72,11 @@ public class ReadActivity1 extends BaseActivity {
         //隐藏
         hideSystemUI();
         //改变屏幕亮度
-//        lp = getWindow().getAttributes();
-//        lp.screenBrightness = config.getLight() / 10.0f < 0.01f ? 0.01f : config.getLight() / 10.0f;
-//        getWindow().setAttributes(lp);
+        if (!config.isSystemLight()){
+            lp = getWindow().getAttributes();
+            lp.screenBrightness = config.getLight();
+            getWindow().setAttributes(lp);
+        }
         //获取intent中的携带的信息
         Intent intent = getIntent();
         bookList = (BookList) intent.getSerializableExtra(EXTRA_BOOK);
@@ -128,13 +133,15 @@ public class ReadActivity1 extends BaseActivity {
             }
 
             @Override
-            public void dayorNight() {
-
+            public void dayorNight(Boolean isNight) {
+                pageFactory.setDayOrNight(isNight);
             }
 
             @Override
             public void setting() {
-
+                mReadSettingDialog.dismiss();
+                hideSystemUI();
+                mSettingDialog.show();
             }
 
             @Override

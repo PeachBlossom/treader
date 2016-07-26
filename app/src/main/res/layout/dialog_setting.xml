@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_gravity="bottom"
+    android:background="@color/read_dialog_bg"
+    android:paddingLeft="10dp"
+    android:paddingRight="10dp"
+    android:orientation="vertical">
+    
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/setting_height"
+        android:orientation="horizontal">
+        <TextView
+            android:id="@+id/tv_dark"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:text="@string/setting_dark"
+            android:textAlignment="center"
+            android:textSize="16sp"
+            android:textColor="@color/white"
+            android:layout_gravity="center_vertical"
+            />
+
+        <SeekBar
+            android:id="@+id/sb_brightness"
+            android:layout_width="150dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:gravity="center"
+            android:max="100"
+            android:layout_gravity="center_vertical">
+        </SeekBar>
+
+        <TextView
+            android:id="@+id/tv_bright"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:gravity="center"
+            android:layout_weight="1"
+            android:text="@string/setting_bright"
+            android:textAlignment="center"
+            android:textSize="16sp"
+            android:textColor="@color/white"
+            android:layout_gravity="center_vertical"
+            />
+        
+        <TextView
+            android:id="@+id/tv_xitong"
+            style="@style/setting_dialog_button"
+            android:layout_marginLeft="10dp"
+            android:textSize="16sp"
+            android:text="@string/setting_system" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/setting_height"
+        android:orientation="horizontal">
+        <TextView
+            android:id="@+id/tv_subtract"
+            style="@style/setting_dialog_button"
+            android:layout_weight="1"
+            android:text="@string/setting_subtract" />
+        <TextView
+            android:id="@+id/tv_size"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:layout_gravity="center_vertical"
+            android:gravity="center"
+            android:textColor="@color/white"
+            android:textSize="16sp"
+            android:text="64" />
+
+        <TextView
+            android:id="@+id/tv_add"
+            style="@style/setting_dialog_button"
+            android:layout_weight="1"
+            android:text="@string/setting_add" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/setting_height"
+        android:orientation="horizontal">
+        <TextView
+            android:id="@+id/tv_qihei"
+            style="@style/setting_dialog_button"
+            android:layout_weight="1"
+            android:layout_marginRight="10dp"
+            android:text="@string/font_qihei" />
+        <TextView
+            android:id="@+id/tv_xinshou"
+            style="@style/setting_dialog_button"
+            android:layout_weight="1"
+            android:layout_marginLeft="10dp"
+            android:layout_marginRight="10dp"
+            android:text="@string/font_xinshou" />
+        <TextView
+            android:id="@+id/tv_wawa"
+            style="@style/setting_dialog_button"
+            android:layout_weight="1"
+            android:layout_marginLeft="10dp"
+            android:text="@string/font_wawa" />
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/setting_height"
+        android:orientation="horizontal">
+        <TextView
+            style="@style/setting_dialog_button"
+            android:layout_weight="1"
+            android:layout_marginRight="10dp"
+            android:text="@string/setting_subtract" />
+        <TextView
+            style="@style/setting_dialog_button"
+            android:layout_weight="1"
+            android:layout_marginLeft="10dp"
+            android:layout_marginRight="10dp"
+            android:text="@string/setting_subtract" />
+        <TextView
+            style="@style/setting_dialog_button"
+            android:layout_weight="1"
+            android:layout_marginLeft="10dp"
+            android:text="@string/setting_subtract"/>
+    </LinearLayout>
+</LinearLayout>

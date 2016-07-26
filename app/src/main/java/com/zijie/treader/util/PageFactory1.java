@@ -179,12 +179,12 @@ public class PageFactory1 {
         batteryInfoIntent = context.getApplicationContext().registerReceiver(null,
                 new IntentFilter(Intent.ACTION_BATTERY_CHANGED)) ;//注册广播,随时获取到电池电量信息
 
-        initBg();
+        initBg(config.getDayOrNight());
     }
 
     //初始化背景
-    private void initBg(){
-        if (config.getDayOrNight()) {
+    private void initBg(Boolean isNight){
+        if (isNight) {
             //设置背景
             setBgBitmap(BookPageFactory.decodeSampledBitmapFromResource(
                     mContext.getResources(), R.drawable.main_bg, mWidth, mHeight));
@@ -478,6 +478,11 @@ public class PageFactory1 {
         currentPage();
     }
 
+    //设置日间或者夜间模式
+    public void setDayOrNight(Boolean isNgiht){
+        initBg(isNgiht);
+        currentPage();
+    }
     /**
      *   提取章节目录及值
      */
@@ -562,10 +567,11 @@ public class PageFactory1 {
         }
     }
 
+    //是否是第一页
     public boolean isfirstPage() {
         return m_isfirstPage;
     }
-
+    //是否是最后一页
     public boolean islastPage() {
         return m_islastPage;
     }

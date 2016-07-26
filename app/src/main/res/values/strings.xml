@@ -23,6 +23,16 @@
     <string name="read_setting_pre">上一章</string>
     <string name="read_setting_next">下一章</string>
 
+    <string name="setting_system">系统</string>
+    <string name="setting_dark">暗</string>
+    <string name="setting_bright">亮</string>
+    <string name="setting_add">加</string>
+    <string name="setting_subtract">减</string>
+
+    <string name="font_qihei">羿创旗黑</string>
+    <string name="font_xinshou">新宋体</string>
+    <string name="font_wawa">娃娃体</string>
+
     <string name="readseting">设置</string>
     <string-array name="voicer_cloud_entries">
         <item>小燕—女青、中英、普通话</item>

@@ -9,7 +9,7 @@
         android:layout_width="match_parent"
         android:layout_height="50dp"
         android:layout_alignParentTop="true"
-        android:background="@drawable/tmall_bar_bg"
+        android:background="@color/read_dialog_bg"
         android:orientation="horizontal"
         android:id="@+id/linearLayout">
         <ImageButton
@@ -81,7 +81,7 @@ android:layout_gravity是用来设置该view相对与父view 的位置．比如�
         android:layout_height="wrap_content"
         android:id="@+id/bookpop_bottom"
         android:baselineAligned="false"
-        android:background="@drawable/tmall_bar_bg"
+        android:background="@color/read_dialog_bg"
         android:layout_alignParentBottom="true"
         android:orientation="vertical">
 

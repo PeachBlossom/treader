@@ -38,7 +38,9 @@
     <color name="read_background">#FAF9DE</color>
     <color name="read_background_paperYellow">#D4C5A3</color>
     <color name="read_textColor">#3B3A38</color>
-
+    
+    <color name="read_dialog_bg">#2C2C2C</color>
+    <color name="read_dialog_button_select">#E25754</color>
     <!-- UI Color -->
     <color name="myPrimaryColor">#4284F5</color>
     <color name="myPrimaryDarkColor">#3870d0</color>
