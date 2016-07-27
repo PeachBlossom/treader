@@ -2,6 +2,7 @@ package com.zijie.treader;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.graphics.Bitmap;
 import android.graphics.Typeface;
 import android.util.Log;
 
@@ -12,16 +13,23 @@ import com.zijie.treader.util.DisplayUtils;
  */
 public class Config {
     private final static String SP_NAME = "config";
+    private final static String BOOK_BG_KEY = "bookbg";
+    private final static String FONT_TYPE_KEY = "fonttype";
     private final static String FONT_SIZE_KEY = "fontsize";
     private final static String NIGHT_KEY = "night";
     private final static String LIGHT_KEY = "light";
     private final static String SYSTEM_LIGHT_KEY = "systemlight";
-    //默认字体大小
-    public static int DEFAULT_FONT_SIZE = 0;
-    //最小字体大小
-    public static int MIN_FONT_SIZE = 0;
-    //最大字体大小
-    public static int MAX_FONT_SIZE = 0;
+
+    public final static String FONTTYPE_DEFAULT = "";
+    public final static String FONTTYPE_QIHEI = "font/qihei.ttf";
+    public final static String FONTTYPE_XINSHOU = "font/font1.ttf";
+    public final static String FONTTYPE_WAWA = "font/font2.ttf";
+
+    public final static int BOOK_BG_DEFAULT = 0;
+    public final static int BOOK_BG_1 = 1;
+    public final static int BOOK_BG_2 = 2;
+    public final static int BOOK_BG_3 = 3;
+    public final static int BOOK_BG_4 = 4;
 
     private Context mContext;
     private static Config config;
@@ -29,16 +37,14 @@ public class Config {
     //字体
     private Typeface typeface;
     //字体大小
-    private int mFontSize = 0;
+    private float mFontSize = 0;
     //亮度值
     private float light = 0;
+    private int bookBG;
 
     private Config(Context mContext){
         this.mContext = mContext.getApplicationContext();
         sp = this.mContext.getSharedPreferences(SP_NAME,Context.MODE_PRIVATE);
-        DEFAULT_FONT_SIZE = DisplayUtils.sp2px(mContext,20);
-        MIN_FONT_SIZE = DisplayUtils.sp2px(mContext,10);
-        MAX_FONT_SIZE = DisplayUtils.sp2px(mContext,30);
     }
 
     public static synchronized Config getInstance(){
@@ -53,23 +59,74 @@ public class Config {
         return config;
     }
 
+    public int getBookBgType(){
+        return sp.getInt(BOOK_BG_KEY,BOOK_BG_DEFAULT);
+    }
+
+//    public Bitmap getBookBg(){
+//        return getBookBg(sp.getInt(BOOK_BG_KEY,BOOK_BG_DEFAULT));
+//    }
+
+//    public Bitmap getBookBg(int type){
+//        Bitmap bitmap = null;
+//        switch (type){
+//            case BOOK_BG_DEFAULT:
+//                break;
+//            case BOOK_BG_1:
+//                break;
+//            case BOOK_BG_2:
+//                break;
+//            case BOOK_BG_3:
+//                break;
+//            case BOOK_BG_4:
+//                break;
+//        }
+//
+//        return bitmap;
+//    }
+
+    public void setBookBg(int type){
+        sp.edit().putInt(BOOK_BG_KEY,type).commit();
+    }
+
     public Typeface getTypeface(){
         if (typeface == null) {
-            typeface = Typeface.createFromAsset(mContext.getAssets(), "font/qihei.ttf");
+            String typePath = sp.getString(FONT_TYPE_KEY,FONTTYPE_QIHEI);
+            typeface = getTypeface(typePath);
         }
         return typeface;
     }
 
-    public int getFontSize(){
+    public String getTypefacePath(){
+        String path = sp.getString(FONT_TYPE_KEY,FONTTYPE_QIHEI);
+        return path;
+    }
+
+    public Typeface getTypeface(String typeFacePath){
+        Typeface mTypeface;
+        if (typeFacePath.equals(FONTTYPE_DEFAULT)){
+            mTypeface = Typeface.DEFAULT;
+        }else{
+            mTypeface = Typeface.createFromAsset(mContext.getAssets(),typeFacePath);
+        }
+        return mTypeface;
+    }
+
+    public void setTypeface(String typefacePath){
+        typeface = getTypeface(typefacePath);
+        sp.edit().putString(FONT_TYPE_KEY,typefacePath).commit();
+    }
+
+    public float getFontSize(){
         if (mFontSize == 0){
-            mFontSize = sp.getInt(FONT_SIZE_KEY, DEFAULT_FONT_SIZE);
+            mFontSize = sp.getFloat(FONT_SIZE_KEY, mContext.getResources().getDimension(R.dimen.reading_default_text_size));
         }
         return mFontSize;
     }
 
-    public void setFontSize(int fontSize){
+    public void setFontSize(float fontSize){
         mFontSize = fontSize;
-        sp.edit().putInt(FONT_SIZE_KEY,fontSize).commit();
+        sp.edit().putFloat(FONT_SIZE_KEY,fontSize).commit();
     }
 
     /**

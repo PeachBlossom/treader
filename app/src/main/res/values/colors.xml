@@ -41,6 +41,12 @@
     
     <color name="read_dialog_bg">#2C2C2C</color>
     <color name="read_dialog_button_select">#E25754</color>
+
+    <color name="read_bg_default">#CEC29C</color>
+    <color name="read_bg_1">#CCEBCC</color>
+    <color name="read_bg_2">#37342F</color>
+    <color name="read_bg_3">#D1CEC5</color>
+    <color name="read_bg_4">#001C27</color>
     <!-- UI Color -->
     <color name="myPrimaryColor">#4284F5</color>
     <color name="myPrimaryDarkColor">#3870d0</color>

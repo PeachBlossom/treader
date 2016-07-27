@@ -93,6 +93,7 @@ public class MainActivity extends BaseActivity
 
     private static Boolean isExit = false;
 
+    private Config config;
     @Override
     public int getLayoutRes() {
         return R.layout.activity_main;
@@ -103,13 +104,14 @@ public class MainActivity extends BaseActivity
         setSupportActionBar(toolbar);
         toolbar.setNavigationIcon(R.drawable.ic_menu_white_24dp);//设置导航图标
 
+        config = Config.getInstance();
         // 删除窗口背景
         getWindow().setBackgroundDrawable(null);
         mWindowManager = (WindowManager) getSystemService(Context.WINDOW_SERVICE);
         wmRootView = new AbsoluteLayout(this);
         rootView = getWindow().getDecorView();
 //        SQLiteDatabase db = Connector.getDatabase();  //初始化数据库
-        typeface = Typeface.createFromAsset(getApplicationContext().getAssets(),"font/QH.ttf");
+        typeface = config.getTypeface();
         bookLists = DataSupport.findAll(BookList.class);
         adapter = new ShelfAdapter(MainActivity.this,bookLists);
         bookShelf.setAdapter(adapter);

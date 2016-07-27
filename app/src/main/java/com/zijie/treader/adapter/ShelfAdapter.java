@@ -11,6 +11,7 @@ import android.widget.BaseAdapter;
 import android.widget.ImageButton;
 import android.widget.TextView;
 
+import com.zijie.treader.Config;
 import com.zijie.treader.R;
 import com.zijie.treader.db.BookList;
 import com.zijie.treader.view.DragGridListener;
@@ -37,10 +38,12 @@ public class ShelfAdapter extends BaseAdapter implements DragGridListener {
     private Typeface typeface;
     protected List<AsyncTask<Void, Void, Boolean>> myAsyncTasks = new ArrayList<>();
     private int[] firstLocation;
+    private Config config;
     public ShelfAdapter(Context context, List<BookList> bilist){
         this.mContex = context;
         this.bilist = bilist;
-        typeface = Typeface.createFromAsset(mContex.getAssets(),"font/QH.ttf");
+        config = Config.getInstance();
+        typeface = config.getTypeface();
         inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
     }
 

@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Point;
+import android.graphics.Typeface;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -18,6 +19,7 @@ import com.zijie.treader.base.BaseActivity;
 import com.zijie.treader.db.BookList;
 import com.zijie.treader.dialog.ReadSettingDialog;
 import com.zijie.treader.dialog.SettingDialog;
+import com.zijie.treader.util.BrightnessUtil;
 import com.zijie.treader.util.PageFactory;
 import com.zijie.treader.util.PageFactory1;
 import com.zijie.treader.view.BookPageWidget;
@@ -73,7 +75,7 @@ public class ReadActivity1 extends BaseActivity {
         hideSystemUI();
         //改变屏幕亮度
         if (!config.isSystemLight()){
-            setBrightness(config.getLight());
+            BrightnessUtil.setBrightness(this,config.getLight());
         }
         //获取intent中的携带的信息
         Intent intent = getIntent();
@@ -92,12 +94,30 @@ public class ReadActivity1 extends BaseActivity {
 
     @Override
     protected void initListener() {
-        mSettingDialog.setSettingListener(new SettingDialog.SettingListener() {
+                    mSettingDialog.setSettingListener(new SettingDialog.SettingListener() {
             @Override
             public void changeSystemBright(Boolean isSystem, float brightness) {
                 if (!isSystem){
-                    setBrightness(brightness);
+                    BrightnessUtil.setBrightness(ReadActivity1.this,brightness);
+                }else{
+                    int bh = BrightnessUtil.getScreenBrightness(ReadActivity1.this);
+                    BrightnessUtil.setBrightness(ReadActivity1.this,bh);
                 }
+            }
+
+            @Override
+            public void changeFontSize(int fontSize) {
+                pageFactory.changeFontSize(fontSize);
+            }
+
+            @Override
+            public void changeTypeFace(Typeface typeface) {
+                pageFactory.changeTypeface(typeface);
+            }
+
+            @Override
+            public void changeBookBg(int type) {
+                pageFactory.changeBookBg(type);
             }
         });
 
@@ -147,7 +167,7 @@ public class ReadActivity1 extends BaseActivity {
             @Override
             public void setting() {
                 mReadSettingDialog.dismiss();
-                hideSystemUI();
+                isShow = false;
                 mSettingDialog.show();
             }
 
@@ -226,20 +246,6 @@ public class ReadActivity1 extends BaseActivity {
 
     public BookPageWidget getPageWidget(){
         return bookpage;
-    }
-
-    /**
-     * 设置亮度
-     *
-     * @param brightness
-     */
-    public void setBrightness(float brightness) {
-        // Settings.System.putInt(activity.getContentResolver(),
-        // Settings.System.SCREEN_BRIGHTNESS_MODE,
-        // Settings.System.SCREEN_BRIGHTNESS_MODE_MANUAL);
-        WindowManager.LayoutParams lp = this.getWindow().getAttributes();
-        lp.screenBrightness = brightness;
-        this.getWindow().setAttributes(lp);
     }
 
     /**

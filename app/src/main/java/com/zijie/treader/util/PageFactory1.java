@@ -3,8 +3,10 @@ package com.zijie.treader.util;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.res.Resources;
 import android.database.Cursor;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
@@ -78,7 +80,7 @@ public class PageFactory1 {
     //行间距
     private float lineSpace;
     //字体
-    private static Typeface typeface;
+    private Typeface typeface;
     //文字画笔
     private Paint mPaint;
     //文字颜色
@@ -122,6 +124,9 @@ public class PageFactory1 {
     List<String> allParagraph;
     //书本所有行
     List<String> allLines;
+    //现在的进度
+    private float currentProgress;
+
     private int mstartpos = 0;
     private static List<String> bookCatalogue = new ArrayList<>();
     private static List<Integer> bookCatalogueStartPos = new ArrayList<>();
@@ -161,14 +166,14 @@ public class PageFactory1 {
         mVisibleHeight = mHeight - marginHeight * 2;
 
         typeface = config.getTypeface();
-        m_fontSize = mContext.getResources().getDimension(R.dimen.reading_default_text_size);
+        m_fontSize = config.getFontSize();
         mPaint = new Paint(Paint.ANTI_ALIAS_FLAG);// 画笔
         mPaint.setTextAlign(Paint.Align.LEFT);// 左对齐
         mPaint.setTextSize(m_fontSize);// 字体大小
         mPaint.setColor(m_textColor);// 字体颜色
         mPaint.setTypeface(typeface);
         mPaint.setSubpixelText(true);// 设置该项为true，将有助于文本在LCD屏幕上的显示效果
-        mLineCount = (int) (mVisibleHeight / (m_fontSize + lineSpace));// 可显示的行数
+        calculateLineCount();
 
         mBorderWidth = mContext.getResources().getDimension(R.dimen.reading_board_battery_border_width);
         mBatterryPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
@@ -186,19 +191,20 @@ public class PageFactory1 {
     private void initBg(Boolean isNight){
         if (isNight) {
             //设置背景
-            setBgBitmap(BookPageFactory.decodeSampledBitmapFromResource(
+            setBgBitmap(decodeSampledBitmapFromResource(
                     mContext.getResources(), R.drawable.main_bg, mWidth, mHeight));
             //设置字体颜色
             setM_textColor(Color.rgb(128, 128, 128));
         } else {
-            Bitmap bmp = Bitmap.createBitmap(mWidth,mHeight, Bitmap.Config.RGB_565);
-            Canvas canvas = new Canvas(bmp);
-            canvas.drawColor(mContext.getResources().getColor(R.color.read_background_paperYellow));
+            //设置背景
+            setBookBg(config.getBookBgType());
             //设置字体颜色
             setM_textColor(mContext.getResources().getColor(R.color.read_textColor));
-            //设置背景
-            setBgBitmap(bmp);
         }
+    }
+
+    private void calculateLineCount(){
+        mLineCount = (int) (mVisibleHeight / (m_fontSize + lineSpace));// 可显示的行数
     }
 
     public void onDraw(Bitmap bitmap,List<String> m_lines) {
@@ -223,6 +229,7 @@ public class PageFactory1 {
         //画进度及时间
         int dateWith = (int) (mBatterryPaint.measureText(date)+mBorderWidth);//时间宽度
         float fPercent = (float) (m_mbBufBegin * 1.0 / allLines.size());//进度
+        currentProgress = fPercent;
         if (mPageEvent != null){
             mPageEvent.changeProgress(fPercent);
         }
@@ -478,6 +485,60 @@ public class PageFactory1 {
         currentPage();
     }
 
+    //改变字体大小
+    public void changeFontSize(int fontSize){
+        this.m_fontSize = fontSize;
+        mPaint.setTextSize(m_fontSize);
+        calculateLineCount();
+        allLines = null;
+        allLines = branch(allParagraph);
+        long begin = (long) (m_mbBufLen * currentProgress);
+        m_mbBufBegin = getBeginForLineNum(getLineNum(begin));
+        m_mbBufEnd = getEndLine(m_mbBufBegin);
+        currentPage();
+    }
+
+    //改变字体
+    public void changeTypeface(Typeface typeface){
+        this.typeface = typeface;
+        mPaint.setTypeface(typeface);
+        allLines = null;
+        allLines = branch(allParagraph);
+        long begin = (long) (m_mbBufLen * currentProgress);
+        m_mbBufBegin = getBeginForLineNum(getLineNum(begin));
+        m_mbBufEnd = getEndLine(m_mbBufBegin);
+        currentPage();
+    }
+
+    public void changeBookBg(int type){
+        setBookBg(type);
+        currentPage();
+    }
+
+    public void setBookBg(int type){
+        Bitmap bitmap = Bitmap.createBitmap(mWidth,mHeight, Bitmap.Config.RGB_565);
+        Canvas canvas = new Canvas(bitmap);
+        switch (type){
+            case Config.BOOK_BG_DEFAULT:
+                bitmap = BookPageFactory.decodeSampledBitmapFromResource(
+                        mContext.getResources(), R.drawable.paper, mWidth, mHeight);
+                break;
+            case Config.BOOK_BG_1:
+                canvas.drawColor(mContext.getResources().getColor(R.color.read_bg_1));
+                break;
+            case Config.BOOK_BG_2:
+                canvas.drawColor(mContext.getResources().getColor(R.color.read_bg_2));
+                break;
+            case Config.BOOK_BG_3:
+                canvas.drawColor(mContext.getResources().getColor(R.color.read_bg_3));
+                break;
+            case Config.BOOK_BG_4:
+                canvas.drawColor(mContext.getResources().getColor(R.color.read_bg_4));
+                break;
+        }
+        setBgBitmap(bitmap);
+    }
+
     //设置日间或者夜间模式
     public void setDayOrNight(Boolean isNgiht){
         initBg(isNgiht);
@@ -607,4 +668,50 @@ public class PageFactory1 {
     public interface PageEvent{
         void changeProgress(float progress);
     }
+
+    public static Bitmap decodeSampledBitmapFromResource(Resources res, int resId,
+                                                         int reqWidth, int reqHeight) {
+
+        // First decode with inJustDecodeBounds=true to check dimensions
+        final BitmapFactory.Options options = new BitmapFactory.Options();
+        options.inJustDecodeBounds = true;
+        BitmapFactory.decodeResource(res, resId, options);
+
+        // Calculate inSampleSize
+        options.inSampleSize = calculateInSampleSize(options, reqWidth, reqHeight);
+
+        // Decode bitmap with inSampleSize set
+        options.inJustDecodeBounds = false;
+        return BitmapFactory.decodeResource(res, resId, options);
+    }
+
+    public static int calculateInSampleSize(
+            BitmapFactory.Options options, int reqWidth, int reqHeight) {
+        // Raw height and width of image
+        final int height = options.outHeight;
+        final int width = options.outWidth;
+        int inSampleSize = 1;
+
+        if (height > reqHeight || width > reqWidth) {
+
+            /**   final int halfHeight = height / 2;
+             final int halfWidth = width / 2;
+
+             // Calculate the largest inSampleSize value that is a power of 2 and keeps both
+             // height and width larger than the requested height and width.
+             while ((halfHeight / inSampleSize) > reqHeight
+             && (halfWidth / inSampleSize) > reqWidth) {
+             inSampleSize *= 2;
+             } */
+            final int heightRatio = Math.round((float) height / (float) reqHeight);
+            final int widthRatio = Math.round((float) width / (float) reqWidth);
+            // 选择宽和高中最小的比率作为inSampleSize的值，这样可以保证最终图片的宽和高
+            // 一定都不会大于等于目标的宽和高。
+            inSampleSize = heightRatio < widthRatio ? heightRatio : widthRatio;
+
+        }
+
+        return inSampleSize;
+    }
+
 }

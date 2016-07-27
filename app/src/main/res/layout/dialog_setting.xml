@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_gravity="bottom"
@@ -69,7 +70,7 @@
             android:id="@+id/tv_size"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
+            android:layout_weight="3"
             android:layout_gravity="center_vertical"
             android:gravity="center"
             android:textColor="@color/white"
@@ -88,10 +89,19 @@
         android:layout_height="@dimen/setting_height"
         android:orientation="horizontal">
         <TextView
-            android:id="@+id/tv_qihei"
+            android:id="@+id/tv_default"
             style="@style/setting_dialog_button"
             android:layout_weight="1"
             android:layout_marginRight="10dp"
+            android:textSize="16sp"
+            android:text="@string/font_default" />
+        <TextView
+            android:id="@+id/tv_qihei"
+            style="@style/setting_dialog_button"
+            android:layout_weight="1"
+            android:layout_marginLeft="10dp"
+            android:layout_marginRight="10dp"
+            android:textSize="16sp"
             android:text="@string/font_qihei" />
         <TextView
             android:id="@+id/tv_xinshou"
@@ -99,12 +109,14 @@
             android:layout_weight="1"
             android:layout_marginLeft="10dp"
             android:layout_marginRight="10dp"
+            android:textSize="16sp"
             android:text="@string/font_xinshou" />
         <TextView
             android:id="@+id/tv_wawa"
             style="@style/setting_dialog_button"
             android:layout_weight="1"
             android:layout_marginLeft="10dp"
+            android:textSize="16sp"
             android:text="@string/font_wawa" />
     </LinearLayout>
 
@@ -112,21 +124,35 @@
         android:layout_width="match_parent"
         android:layout_height="@dimen/setting_height"
         android:orientation="horizontal">
-        <TextView
-            style="@style/setting_dialog_button"
+
+        <com.zijie.treader.view.CircleImageView
+            android:id="@+id/iv_bg_default"
+            style="@style/setting_dialog_iv"
             android:layout_weight="1"
-            android:layout_marginRight="10dp"
-            android:text="@string/setting_subtract" />
-        <TextView
-            style="@style/setting_dialog_button"
+            android:src="@color/read_bg_default" />
+
+        <com.zijie.treader.view.CircleImageView
+            android:id="@+id/iv_bg_1"
+            style="@style/setting_dialog_iv"
             android:layout_weight="1"
-            android:layout_marginLeft="10dp"
-            android:layout_marginRight="10dp"
-            android:text="@string/setting_subtract" />
-        <TextView
-            style="@style/setting_dialog_button"
+            android:src="@color/read_bg_1" />
+
+        <com.zijie.treader.view.CircleImageView
+            android:id="@+id/iv_bg_2"
+            style="@style/setting_dialog_iv"
             android:layout_weight="1"
-            android:layout_marginLeft="10dp"
-            android:text="@string/setting_subtract"/>
+            android:src="@color/read_bg_2" />
+
+        <com.zijie.treader.view.CircleImageView
+            android:id="@+id/iv_bg_3"
+            style="@style/setting_dialog_iv"
+            android:layout_weight="1"
+            android:src="@color/read_bg_3" />
+
+        <com.zijie.treader.view.CircleImageView
+            android:id="@+id/iv_bg_4"
+            style="@style/setting_dialog_iv"
+            android:layout_weight="1"
+            android:src="@color/read_bg_4" />
     </LinearLayout>
 </LinearLayout>

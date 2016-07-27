@@ -29,6 +29,7 @@
     <string name="setting_add">加</string>
     <string name="setting_subtract">减</string>
 
+    <string name="font_default">默认</string>
     <string name="font_qihei">羿创旗黑</string>
     <string name="font_xinshou">新宋体</string>
     <string name="font_wawa">娃娃体</string>

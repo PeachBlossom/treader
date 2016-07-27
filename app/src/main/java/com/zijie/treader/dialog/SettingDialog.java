@@ -2,6 +2,8 @@ package com.zijie.treader.dialog;
 
 import android.app.Dialog;
 import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.Typeface;
 import android.os.Build;
 import android.os.Bundle;
 import android.view.Display;
@@ -14,6 +16,8 @@ import android.widget.TextView;
 
 import com.zijie.treader.Config;
 import com.zijie.treader.R;
+import com.zijie.treader.util.DisplayUtils;
+import com.zijie.treader.view.CircleImageView;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
@@ -44,10 +48,25 @@ public class SettingDialog extends Dialog {
     TextView tv_xinshou;
     @Bind(R.id.tv_wawa)
     TextView tv_wawa;
+    @Bind(R.id.tv_default)
+    TextView tv_default;
+    @Bind(R.id.iv_bg_default)
+    CircleImageView iv_bg_default;
+    @Bind(R.id.iv_bg_1)
+    CircleImageView iv_bg1;
+    @Bind(R.id.iv_bg_2)
+    CircleImageView iv_bg2;
+    @Bind(R.id.iv_bg_3)
+    CircleImageView iv_bg3;
+    @Bind(R.id.iv_bg_4)
+    CircleImageView iv_bg4;
 
     private Config config;
     private Boolean isSystem;
     private SettingListener mSettingListener;
+    private int FONT_SIZE_MIN;
+    private int FONT_SIZE_MAX;
+    private int currentFontSize;
 
     private SettingDialog(Context context, boolean flag, OnCancelListener listener) {
         super(context, flag, listener);
@@ -66,7 +85,7 @@ public class SettingDialog extends Dialog {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         this.requestWindowFeature(Window.FEATURE_NO_TITLE);//去掉标题栏
-        applyCompat();
+//        applyCompat();
         getWindow().setGravity(Gravity.BOTTOM);
         setContentView(R.layout.dialog_setting);
         // 初始化View注入
@@ -78,10 +97,28 @@ public class SettingDialog extends Dialog {
         p.width = d.getWidth();
         getWindow().setAttributes(p);
 
+        FONT_SIZE_MIN = (int) getContext().getResources().getDimension(R.dimen.reading_min_text_size);
+        FONT_SIZE_MAX = (int) getContext().getResources().getDimension(R.dimen.reading_max_text_size);
+
         config = Config.getInstance();
+
+        //初始化亮度
         isSystem = config.isSystemLight();
-        setTextViewSelect(tv_xitong,isSystem);
+        setTextViewSelect(tv_xitong, isSystem);
         setBrightness(config.getLight());
+
+        //初始化字体大小
+        currentFontSize = (int) config.getFontSize();
+        tv_size.setText(currentFontSize + "");
+
+        //初始化字体
+        tv_default.setTypeface(config.getTypeface(Config.FONTTYPE_DEFAULT));
+        tv_qihei.setTypeface(config.getTypeface(Config.FONTTYPE_QIHEI));
+        tv_xinshou.setTypeface(config.getTypeface(Config.FONTTYPE_XINSHOU));
+        tv_wawa.setTypeface(config.getTypeface(Config.FONTTYPE_WAWA));
+        selectTypeface(config.getTypefacePath());
+
+        selectBg(config.getBookBgType());
 
         sb_brightness.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
@@ -103,18 +140,99 @@ public class SettingDialog extends Dialog {
         });
     }
 
+    private void selectBg(int type){
+        switch (type){
+            case Config.BOOK_BG_DEFAULT:
+                iv_bg_default.setBorderWidth(DisplayUtils.dp2px(getContext(),2));
+                iv_bg1.setBorderWidth(DisplayUtils.dp2px(getContext(),0));
+                iv_bg2.setBorderWidth(DisplayUtils.dp2px(getContext(),0));
+                iv_bg3.setBorderWidth(DisplayUtils.dp2px(getContext(),0));
+                iv_bg4.setBorderWidth(DisplayUtils.dp2px(getContext(),0));
+                break;
+            case Config.BOOK_BG_1:
+                iv_bg_default.setBorderWidth(DisplayUtils.dp2px(getContext(),0));
+                iv_bg1.setBorderWidth(DisplayUtils.dp2px(getContext(),2));
+                iv_bg2.setBorderWidth(DisplayUtils.dp2px(getContext(),0));
+                iv_bg3.setBorderWidth(DisplayUtils.dp2px(getContext(),0));
+                iv_bg4.setBorderWidth(DisplayUtils.dp2px(getContext(),0));
+                break;
+            case Config.BOOK_BG_2:
+                iv_bg_default.setBorderWidth(DisplayUtils.dp2px(getContext(),0));
+                iv_bg1.setBorderWidth(DisplayUtils.dp2px(getContext(),0));
+                iv_bg2.setBorderWidth(DisplayUtils.dp2px(getContext(),2));
+                iv_bg3.setBorderWidth(DisplayUtils.dp2px(getContext(),0));
+                iv_bg4.setBorderWidth(DisplayUtils.dp2px(getContext(),0));
+                break;
+            case Config.BOOK_BG_3:
+                iv_bg_default.setBorderWidth(DisplayUtils.dp2px(getContext(),0));
+                iv_bg1.setBorderWidth(DisplayUtils.dp2px(getContext(),0));
+                iv_bg2.setBorderWidth(DisplayUtils.dp2px(getContext(),0));
+                iv_bg3.setBorderWidth(DisplayUtils.dp2px(getContext(),2));
+                iv_bg4.setBorderWidth(DisplayUtils.dp2px(getContext(),0));
+                break;
+            case Config.BOOK_BG_4:
+                iv_bg_default.setBorderWidth(DisplayUtils.dp2px(getContext(),0));
+                iv_bg1.setBorderWidth(DisplayUtils.dp2px(getContext(),0));
+                iv_bg2.setBorderWidth(DisplayUtils.dp2px(getContext(),0));
+                iv_bg3.setBorderWidth(DisplayUtils.dp2px(getContext(),0));
+                iv_bg4.setBorderWidth(DisplayUtils.dp2px(getContext(),2));
+                break;
+        }
+    }
+
+    //设置字体
+    public void setBookBg(int type) {
+        config.setBookBg(type);
+        if (mSettingListener != null) {
+            mSettingListener.changeBookBg(type);
+        }
+    }
+
+    //选择字体
+    private void selectTypeface(String typeface) {
+        if (typeface.equals(Config.FONTTYPE_DEFAULT)) {
+            setTextViewSelect(tv_default, true);
+            setTextViewSelect(tv_qihei, false);
+            setTextViewSelect(tv_xinshou, false);
+            setTextViewSelect(tv_wawa, false);
+        } else if (typeface.equals(Config.FONTTYPE_QIHEI)) {
+            setTextViewSelect(tv_default, false);
+            setTextViewSelect(tv_qihei, true);
+            setTextViewSelect(tv_xinshou, false);
+            setTextViewSelect(tv_wawa, false);
+        } else if (typeface.equals(Config.FONTTYPE_XINSHOU)) {
+            setTextViewSelect(tv_default, false);
+            setTextViewSelect(tv_qihei, false);
+            setTextViewSelect(tv_xinshou, true);
+            setTextViewSelect(tv_wawa, false);
+        } else if (typeface.equals(Config.FONTTYPE_WAWA)) {
+            setTextViewSelect(tv_default, false);
+            setTextViewSelect(tv_qihei, false);
+            setTextViewSelect(tv_xinshou, false);
+            setTextViewSelect(tv_wawa, true);
+        }
+    }
+
+    //设置字体
+    public void setTypeface(String typeface) {
+        config.setTypeface(typeface);
+        Typeface tface = config.getTypeface(typeface);
+        if (mSettingListener != null) {
+            mSettingListener.changeTypeFace(tface);
+        }
+    }
 
     //设置亮度
-    public void setBrightness(float brightness){
+    public void setBrightness(float brightness) {
         sb_brightness.setProgress((int) (brightness * 100));
     }
 
-   //设置按钮选择的背景
-    private void setTextViewSelect(TextView textView,Boolean isSelect){
-        if (isSelect){
+    //设置按钮选择的背景
+    private void setTextViewSelect(TextView textView, Boolean isSelect) {
+        if (isSelect) {
             textView.setBackgroundDrawable(getContext().getResources().getDrawable(R.drawable.button_select_bg));
             textView.setTextColor(getContext().getResources().getColor(R.color.read_dialog_button_select));
-        }else{
+        } else {
             textView.setBackgroundDrawable(getContext().getResources().getDrawable(R.drawable.button_bg));
             textView.setTextColor(getContext().getResources().getColor(R.color.white));
         }
@@ -133,7 +251,8 @@ public class SettingDialog extends Dialog {
     }
 
 
-    @OnClick({R.id.tv_dark, R.id.tv_bright, R.id.tv_xitong, R.id.tv_subtract, R.id.tv_add, R.id.tv_qihei, R.id.tv_xinshou, R.id.tv_wawa})
+    @OnClick({R.id.tv_dark, R.id.tv_bright, R.id.tv_xitong, R.id.tv_subtract, R.id.tv_add, R.id.tv_qihei, R.id.tv_xinshou, R.id.tv_wawa,
+            R.id.tv_default,R.id.iv_bg_default,R.id.iv_bg_1,R.id.iv_bg_2,R.id.iv_bg_3,R.id.iv_bg_4})
     public void onClick(View view) {
         switch (view.getId()) {
             case R.id.tv_dark:
@@ -142,37 +261,99 @@ public class SettingDialog extends Dialog {
                 break;
             case R.id.tv_xitong:
                 isSystem = !isSystem;
-                changeBright(isSystem,sb_brightness.getProgress());
+                changeBright(isSystem, sb_brightness.getProgress());
                 break;
             case R.id.tv_subtract:
+                subtractFontSize();
                 break;
             case R.id.tv_add:
+                addFontSize();
                 break;
             case R.id.tv_qihei:
+                selectTypeface(Config.FONTTYPE_QIHEI);
+                setTypeface(Config.FONTTYPE_QIHEI);
                 break;
             case R.id.tv_xinshou:
+                selectTypeface(Config.FONTTYPE_XINSHOU);
+                setTypeface(Config.FONTTYPE_XINSHOU);
                 break;
             case R.id.tv_wawa:
+                selectTypeface(Config.FONTTYPE_WAWA);
+                setTypeface(Config.FONTTYPE_WAWA);
                 break;
+            case R.id.tv_default:
+                selectTypeface(Config.FONTTYPE_DEFAULT);
+                setTypeface(Config.FONTTYPE_DEFAULT);
+                break;
+            case R.id.iv_bg_default:
+                setBookBg(Config.BOOK_BG_DEFAULT);
+                selectBg(Config.BOOK_BG_DEFAULT);
+                break;
+            case R.id.iv_bg_1:
+                setBookBg(Config.BOOK_BG_1);
+                selectBg(Config.BOOK_BG_1);
+                break;
+            case R.id.iv_bg_2:
+                setBookBg(Config.BOOK_BG_2);
+                selectBg(Config.BOOK_BG_2);
+                break;
+            case R.id.iv_bg_3:
+                setBookBg(Config.BOOK_BG_3);
+                selectBg(Config.BOOK_BG_3);
+                break;
+            case R.id.iv_bg_4:
+                setBookBg(Config.BOOK_BG_4);
+                selectBg(Config.BOOK_BG_4);
+                break;
+        }
+    }
+
+    //变大书本字体
+    private void addFontSize() {
+        if (currentFontSize < FONT_SIZE_MAX) {
+            currentFontSize += 1;
+            tv_size.setText(currentFontSize + "");
+            config.setFontSize(currentFontSize);
+            if (mSettingListener != null) {
+                mSettingListener.changeFontSize(currentFontSize);
+            }
+        }
+    }
+
+    //变小书本字体
+    private void subtractFontSize() {
+        if (currentFontSize > FONT_SIZE_MIN) {
+            currentFontSize -= 1;
+            tv_size.setText(currentFontSize + "");
+            config.setFontSize(currentFontSize);
+            if (mSettingListener != null) {
+                mSettingListener.changeFontSize(currentFontSize);
+            }
         }
     }
 
     //改变亮度
-    public void changeBright(Boolean isSystem,int brightness){
+    public void changeBright(Boolean isSystem, int brightness) {
         float light = (float) (brightness / 100.0);
-        setTextViewSelect(tv_xitong,isSystem);
+        setTextViewSelect(tv_xitong, isSystem);
         config.setSystemLight(isSystem);
         config.setLight(light);
-        if (mSettingListener != null){
+        if (mSettingListener != null) {
             mSettingListener.changeSystemBright(isSystem, light);
         }
     }
 
-    public void setSettingListener(SettingListener settingListener){
+    public void setSettingListener(SettingListener settingListener) {
         this.mSettingListener = settingListener;
     }
 
-    public interface SettingListener{
-        void changeSystemBright(Boolean isSystem,float brightness);
+    public interface SettingListener {
+        void changeSystemBright(Boolean isSystem, float brightness);
+
+        void changeFontSize(int fontSize);
+
+        void changeTypeFace(Typeface typeface);
+
+        void changeBookBg(int type);
     }
 }

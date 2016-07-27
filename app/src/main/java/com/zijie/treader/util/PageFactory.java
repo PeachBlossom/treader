@@ -264,7 +264,7 @@ public class PageFactory {
             m_mbBufEnd = begin;
         } else {
         }
-        setM_fontSize(config.getFontSize());
+        setM_fontSize((int) config.getFontSize());
 
         new Thread(new Runnable() {
             @Override
