@@ -428,7 +428,11 @@ public class PageFactory1 {
             String[] paragraphs = data.split(pgStr);
             for (String paragraph : paragraphs){
                 //每段缩进首行缩进两个汉字的距离
-                list.add("\u3000\u3000" + paragraph);
+                if (paragraph.startsWith("\u3000")) {
+                    list.add(paragraph);
+                }else{
+                    list.add("\u3000\u3000" + paragraph);
+                }
             }
         }else{
             list .add(data);
@@ -444,10 +448,14 @@ public class PageFactory1 {
         }
         List<String> allLines = new ArrayList<>();
         for (String paragraph : list){
-            List<String> lines = separateParagraphtoLines(paragraph);
-            allLines.addAll(lines);
-            //每段结尾加一个空行
-            allLines.add("");
+            if (!paragraph.isEmpty()) {
+                List<String> lines = separateParagraphtoLines(paragraph);
+                allLines.addAll(lines);
+                //每段结尾加一个空行
+                allLines.add("");
+            }else{
+                allLines.add(paragraph);
+            }
         }
         return allLines;
     }

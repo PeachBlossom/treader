@@ -2,6 +2,7 @@ package com.zijie.treader;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Point;
 import android.graphics.Typeface;
@@ -94,7 +95,14 @@ public class ReadActivity1 extends BaseActivity {
 
     @Override
     protected void initListener() {
-                    mSettingDialog.setSettingListener(new SettingDialog.SettingListener() {
+        mSettingDialog.setOnCancelListener(new DialogInterface.OnCancelListener() {
+            @Override
+            public void onCancel(DialogInterface dialog) {
+                hideSystemUI();
+            }
+        });
+
+        mSettingDialog.setSettingListener(new SettingDialog.SettingListener() {
             @Override
             public void changeSystemBright(Boolean isSystem, float brightness) {
                 if (!isSystem){
