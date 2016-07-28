@@ -221,6 +221,7 @@ public class BookPageWidget extends View {
                 }
             }else{// 从右翻
                 if (mTouchListener != null){
+                    Log.e("onTouchEvent","nextPage1");
                     Boolean isNext = mTouchListener.nextPage();
                     if (!isNext){
                         return isNext;
@@ -240,6 +241,7 @@ public class BookPageWidget extends View {
                             return false;
                         }
                     } else {
+                        Log.e("onTouchEvent","nextPage2");
                         Boolean isNext = mTouchListener.nextPage();
                         if (!isNext) {
                             return isNext;
@@ -259,6 +261,7 @@ public class BookPageWidget extends View {
                 if (mTouchListener != null){
                     mTouchListener.center();
                 }
+                isClickCenter = false;
                 return true;
             }
         }

@@ -1,99 +1,74 @@
 package com.zijie.treader;
 
-import android.content.Intent;
-import android.graphics.Color;
-import android.graphics.Typeface;
 import android.os.Bundle;
-import android.support.v4.app.FragmentActivity;
-import android.support.v4.app.NavUtils;
-import android.support.v4.app.TaskStackBuilder;
-import android.support.v4.view.ViewPager;
-import android.util.DisplayMetrics;
-import android.util.TypedValue;
 import android.view.View;
-import android.view.Window;
+import android.widget.AdapterView;
 import android.widget.ImageButton;
+import android.widget.ListView;
 import android.widget.TextView;
 
-import com.astuetz.PagerSlidingTabStrip;
+import com.zijie.treader.adapter.CatalogueAdapter;
+import com.zijie.treader.base.BaseActivity;
+import com.zijie.treader.db.BookCatalogue;
+import com.zijie.treader.util.FileUtils;
+import com.zijie.treader.util.PageFactory;
+import com.zijie.treader.util.PageFactory1;
+
+import java.util.List;
+
+import butterknife.Bind;
+import butterknife.ButterKnife;
+import butterknife.OnClick;
 
 /**
  * Created by Administrator on 2016/1/6.
  */
-public class MarkActivity extends FragmentActivity implements View.OnClickListener {
+public class MarkActivity extends BaseActivity {
 
-    private PagerSlidingTabStrip pagerSlidingTabStrip;
-    private DisplayMetrics dm;
-    private ImageButton button_back;
-    private TextView title;
-    private static String bookpath_intent,bookname_intent;
-    private Typeface typeface;
+    @Bind(R.id.btn_back)
+    ImageButton btn_back;
+    @Bind(R.id.tv_bookname)
+    TextView tv_bookname;
+    @Bind(R.id.lv_catalogue)
+    ListView lv_catalogue;
 
-    @Override
-        protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        requestWindowFeature(Window.FEATURE_NO_TITLE);
-        setContentView(R.layout.activity_mark);
-//        dm = getResources().getDisplayMetrics();
-//        typeface = Typeface.createFromAsset(this.getAssets(),"font/QH.ttf");
-//        button_back = (ImageButton) findViewById(R.id.back);
-//        title = (TextView) findViewById(R.id.bookname);
-//        ViewPager viewPager = (ViewPager) findViewById(R.id.pager);
-//        pagerSlidingTabStrip = (PagerSlidingTabStrip) findViewById(R.id.tabs);
-//        setTabsValue();
-//        Intent intent = getIntent();
-//        bookpath_intent = intent.getStringExtra("bookpath");
-//        bookname_intent = intent.getStringExtra("bookname");
-//        viewPager.setAdapter(new MyPagerAdapter(getSupportFragmentManager()));
-//        pagerSlidingTabStrip.setViewPager(viewPager);
-//        button_back.setOnClickListener(this);
-//        title.setText(bookname_intent);
-//        title.setTypeface(typeface);
-    }
-
-    private void setTabsValue() {
-        // 设置Tab是自动填充满屏幕的
-        pagerSlidingTabStrip.setShouldExpand(true);//所有初始化要在setViewPager方法之前
-        // 设置Tab的分割线是透明的
-        pagerSlidingTabStrip.setDividerColor(Color.TRANSPARENT);
-        // 设置Tab底部线的高度
-        pagerSlidingTabStrip.setUnderlineHeight((int) TypedValue.applyDimension(
-                TypedValue.COMPLEX_UNIT_DIP, 1, dm));
-        // 设置Tab Indicator的高度
-        pagerSlidingTabStrip.setIndicatorHeight((int) TypedValue.applyDimension(
-                TypedValue.COMPLEX_UNIT_DIP, 4, dm));
-        // 设置Tab标题文字的大小
-        pagerSlidingTabStrip.setTextSize((int) TypedValue.applyDimension(
-                TypedValue.COMPLEX_UNIT_SP, 16, dm));
-        //设置Tab标题文字的字体
-        pagerSlidingTabStrip.setTypeface(typeface,0);
-        // 设置Tab Indicator的颜色
-        pagerSlidingTabStrip.setIndicatorColor(Color.parseColor("#45c01a"));
-        // 设置选中Tab文字的颜色 (这是我自定义的一个方法)
-    //    pagerSlidingTabStrip.setSelectedTextColor(Color.parseColor("#45c01a"));
-        // 取消点击Tab时的背景色
-        pagerSlidingTabStrip.setTabBackground(0);
-
-       // pagerSlidingTabStrip.setDividerPadding(18);
-    }
-
+    PageFactory1 pageFactory;
+    List<BookCatalogue> catalogueList;
 
     @Override
-    public void onClick (View view) {
-        Intent upIntent = NavUtils.getParentActivityIntent(this);
-        if (NavUtils.shouldUpRecreateTask(this, upIntent)) {
-            TaskStackBuilder.create(this).addNextIntentWithParentStack(upIntent)
-                    .startActivities();
-        } else {
-            upIntent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-            NavUtils.navigateUpTo(this, upIntent);
+    public int getLayoutRes() {
+        return R.layout.activity_mark;
+    }
+
+    @Override
+    protected void initData() {
+        pageFactory = PageFactory1.getInstance();
+        catalogueList = pageFactory.getDirectoryList();
+        CatalogueAdapter catalogueAdapter = new CatalogueAdapter(this,catalogueList);
+        lv_catalogue.setAdapter(catalogueAdapter);
+
+        tv_bookname.setText(FileUtils.getFileName(pageFactory.getBookPath()));
+
+    }
+
+    @Override
+    protected void initListener() {
+        lv_catalogue.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                pageFactory.changeChapter(catalogueList.get(position).getBookCatalogueStartPos());
+                MarkActivity.this.finish();
+            }
+        });
+    }
+
+    @OnClick(R.id.btn_back)
+    public void onClick(View view) {
+        switch (view.getId()) {
+            case R.id.btn_back:
+                finish();
+                break;
         }
-        finish();
-
-    }
-
-    public static String getBookpath_intent(){
-        return bookpath_intent;
     }
 
 }

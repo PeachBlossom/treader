@@ -154,17 +154,18 @@ public class ReadActivity1 extends BaseActivity {
 
             @Override
             public void pre() {
-
+                pageFactory.preChapter();
             }
 
             @Override
             public void next() {
-
+                pageFactory.nextChapter();
             }
 
             @Override
             public void directory() {
-
+                Intent intent = new Intent(ReadActivity1.this,MarkActivity.class);
+                startActivity(intent);
             }
 
             @Override
@@ -211,6 +212,7 @@ public class ReadActivity1 extends BaseActivity {
 
             @Override
             public Boolean nextPage() {
+                Log.e("setTouchListener","nextPage");
                 pageFactory.nextPage();
                 if (pageFactory.islastPage()) {
                     return false;

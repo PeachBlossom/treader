@@ -2,7 +2,6 @@ package com.zijie.treader.dialog;
 
 import android.app.Dialog;
 import android.content.Context;
-import android.graphics.Bitmap;
 import android.graphics.Typeface;
 import android.os.Build;
 import android.os.Bundle;
@@ -60,6 +59,9 @@ public class SettingDialog extends Dialog {
     CircleImageView iv_bg3;
     @Bind(R.id.iv_bg_4)
     CircleImageView iv_bg4;
+    @Bind(R.id.tv_size_default)
+    TextView tv_size_default;
+
 
     private Config config;
     private Boolean isSystem;
@@ -140,42 +142,43 @@ public class SettingDialog extends Dialog {
         });
     }
 
-    private void selectBg(int type){
-        switch (type){
+    //选择背景
+    private void selectBg(int type) {
+        switch (type) {
             case Config.BOOK_BG_DEFAULT:
-                iv_bg_default.setBorderWidth(DisplayUtils.dp2px(getContext(),2));
-                iv_bg1.setBorderWidth(DisplayUtils.dp2px(getContext(),0));
-                iv_bg2.setBorderWidth(DisplayUtils.dp2px(getContext(),0));
-                iv_bg3.setBorderWidth(DisplayUtils.dp2px(getContext(),0));
-                iv_bg4.setBorderWidth(DisplayUtils.dp2px(getContext(),0));
+                iv_bg_default.setBorderWidth(DisplayUtils.dp2px(getContext(), 2));
+                iv_bg1.setBorderWidth(DisplayUtils.dp2px(getContext(), 0));
+                iv_bg2.setBorderWidth(DisplayUtils.dp2px(getContext(), 0));
+                iv_bg3.setBorderWidth(DisplayUtils.dp2px(getContext(), 0));
+                iv_bg4.setBorderWidth(DisplayUtils.dp2px(getContext(), 0));
                 break;
             case Config.BOOK_BG_1:
-                iv_bg_default.setBorderWidth(DisplayUtils.dp2px(getContext(),0));
-                iv_bg1.setBorderWidth(DisplayUtils.dp2px(getContext(),2));
-                iv_bg2.setBorderWidth(DisplayUtils.dp2px(getContext(),0));
-                iv_bg3.setBorderWidth(DisplayUtils.dp2px(getContext(),0));
-                iv_bg4.setBorderWidth(DisplayUtils.dp2px(getContext(),0));
+                iv_bg_default.setBorderWidth(DisplayUtils.dp2px(getContext(), 0));
+                iv_bg1.setBorderWidth(DisplayUtils.dp2px(getContext(), 2));
+                iv_bg2.setBorderWidth(DisplayUtils.dp2px(getContext(), 0));
+                iv_bg3.setBorderWidth(DisplayUtils.dp2px(getContext(), 0));
+                iv_bg4.setBorderWidth(DisplayUtils.dp2px(getContext(), 0));
                 break;
             case Config.BOOK_BG_2:
-                iv_bg_default.setBorderWidth(DisplayUtils.dp2px(getContext(),0));
-                iv_bg1.setBorderWidth(DisplayUtils.dp2px(getContext(),0));
-                iv_bg2.setBorderWidth(DisplayUtils.dp2px(getContext(),2));
-                iv_bg3.setBorderWidth(DisplayUtils.dp2px(getContext(),0));
-                iv_bg4.setBorderWidth(DisplayUtils.dp2px(getContext(),0));
+                iv_bg_default.setBorderWidth(DisplayUtils.dp2px(getContext(), 0));
+                iv_bg1.setBorderWidth(DisplayUtils.dp2px(getContext(), 0));
+                iv_bg2.setBorderWidth(DisplayUtils.dp2px(getContext(), 2));
+                iv_bg3.setBorderWidth(DisplayUtils.dp2px(getContext(), 0));
+                iv_bg4.setBorderWidth(DisplayUtils.dp2px(getContext(), 0));
                 break;
             case Config.BOOK_BG_3:
-                iv_bg_default.setBorderWidth(DisplayUtils.dp2px(getContext(),0));
-                iv_bg1.setBorderWidth(DisplayUtils.dp2px(getContext(),0));
-                iv_bg2.setBorderWidth(DisplayUtils.dp2px(getContext(),0));
-                iv_bg3.setBorderWidth(DisplayUtils.dp2px(getContext(),2));
-                iv_bg4.setBorderWidth(DisplayUtils.dp2px(getContext(),0));
+                iv_bg_default.setBorderWidth(DisplayUtils.dp2px(getContext(), 0));
+                iv_bg1.setBorderWidth(DisplayUtils.dp2px(getContext(), 0));
+                iv_bg2.setBorderWidth(DisplayUtils.dp2px(getContext(), 0));
+                iv_bg3.setBorderWidth(DisplayUtils.dp2px(getContext(), 2));
+                iv_bg4.setBorderWidth(DisplayUtils.dp2px(getContext(), 0));
                 break;
             case Config.BOOK_BG_4:
-                iv_bg_default.setBorderWidth(DisplayUtils.dp2px(getContext(),0));
-                iv_bg1.setBorderWidth(DisplayUtils.dp2px(getContext(),0));
-                iv_bg2.setBorderWidth(DisplayUtils.dp2px(getContext(),0));
-                iv_bg3.setBorderWidth(DisplayUtils.dp2px(getContext(),0));
-                iv_bg4.setBorderWidth(DisplayUtils.dp2px(getContext(),2));
+                iv_bg_default.setBorderWidth(DisplayUtils.dp2px(getContext(), 0));
+                iv_bg1.setBorderWidth(DisplayUtils.dp2px(getContext(), 0));
+                iv_bg2.setBorderWidth(DisplayUtils.dp2px(getContext(), 0));
+                iv_bg3.setBorderWidth(DisplayUtils.dp2px(getContext(), 0));
+                iv_bg4.setBorderWidth(DisplayUtils.dp2px(getContext(), 2));
                 break;
         }
     }
@@ -251,8 +254,8 @@ public class SettingDialog extends Dialog {
     }
 
 
-    @OnClick({R.id.tv_dark, R.id.tv_bright, R.id.tv_xitong, R.id.tv_subtract, R.id.tv_add, R.id.tv_qihei, R.id.tv_xinshou, R.id.tv_wawa,
-            R.id.tv_default,R.id.iv_bg_default,R.id.iv_bg_1,R.id.iv_bg_2,R.id.iv_bg_3,R.id.iv_bg_4})
+    @OnClick({R.id.tv_dark, R.id.tv_bright, R.id.tv_xitong, R.id.tv_subtract, R.id.tv_add, R.id.tv_size_default, R.id.tv_qihei, R.id.tv_xinshou, R.id.tv_wawa,
+            R.id.tv_default, R.id.iv_bg_default, R.id.iv_bg_1, R.id.iv_bg_2, R.id.iv_bg_3, R.id.iv_bg_4})
     public void onClick(View view) {
         switch (view.getId()) {
             case R.id.tv_dark:
@@ -268,6 +271,9 @@ public class SettingDialog extends Dialog {
                 break;
             case R.id.tv_add:
                 addFontSize();
+                break;
+            case R.id.tv_size_default:
+                defaultFontSize();
                 break;
             case R.id.tv_qihei:
                 selectTypeface(Config.FONTTYPE_QIHEI);
@@ -320,6 +326,15 @@ public class SettingDialog extends Dialog {
         }
     }
 
+    private void defaultFontSize(){
+        currentFontSize = (int) getContext().getResources().getDimension(R.dimen.reading_default_text_size);
+        tv_size.setText(currentFontSize + "");
+        config.setFontSize(currentFontSize);
+        if (mSettingListener != null) {
+            mSettingListener.changeFontSize(currentFontSize);
+        }
+    }
+
     //变小书本字体
     private void subtractFontSize() {
         if (currentFontSize > FONT_SIZE_MIN) {
@@ -356,4 +371,5 @@ public class SettingDialog extends Dialog {
 
         void changeBookBg(int type);
     }
+
 }

@@ -41,6 +41,7 @@ import java.nio.charset.Charset;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Vector;
 
@@ -126,10 +127,10 @@ public class PageFactory1 {
     List<String> allLines;
     //现在的进度
     private float currentProgress;
-
-    private int mstartpos = 0;
-    private static List<String> bookCatalogue = new ArrayList<>();
-    private static List<Integer> bookCatalogueStartPos = new ArrayList<>();
+    //目录
+    private List<BookCatalogue> directoryList = new ArrayList<>();
+    private String bookPath = "";
+    private int currentCharter = 0;
 
     private PageEvent mPageEvent;
 
@@ -198,8 +199,6 @@ public class PageFactory1 {
         } else {
             //设置背景
             setBookBg(config.getBookBgType());
-            //设置字体颜色
-            setM_textColor(mContext.getResources().getColor(R.color.read_textColor));
         }
     }
 
@@ -208,6 +207,10 @@ public class PageFactory1 {
     }
 
     public void onDraw(Bitmap bitmap,List<String> m_lines) {
+        if (getCurrentCharter() > 0) {
+            currentCharter = getCurrentCharter();
+        }
+
         Canvas c = new Canvas(bitmap);
         c.drawBitmap(getBgBitmap(), 0, 0, null);
         word.setLength(0);
@@ -283,6 +286,7 @@ public class PageFactory1 {
         m_mbBufEnd = m_mbBufBegin - 1;
         m_mbBufBegin = m_mbBufBegin - mLineCount;
         onDraw(mBookPageWidget.getNextPage(),getPage(m_mbBufBegin,m_mbBufEnd));
+
     }
 
     //向后翻页
@@ -298,6 +302,7 @@ public class PageFactory1 {
         m_mbBufBegin = m_mbBufEnd + 1;
         m_mbBufEnd = getEndLine(m_mbBufBegin);
         onDraw(mBookPageWidget.getNextPage(),getPage(m_mbBufBegin,m_mbBufEnd));
+        Log.e("nextPage","nextPagenextPagenextPagenextPagenextPagenextPage");
     }
 
     /**
@@ -307,6 +312,9 @@ public class PageFactory1 {
      * @throws IOException
      */
     public void openBook(String strFilePath, long begin) throws IOException {
+        directoryList.clear();
+        currentCharter = 0;
+        bookPath = strFilePath;
         m_strCharsetName = getCharset(strFilePath);
         if (m_strCharsetName == null){
             m_strCharsetName = "utf-8";
@@ -324,13 +332,6 @@ public class PageFactory1 {
             m_mbBufBegin = 0;
             m_mbBufEnd = getEndLine(m_mbBufEnd);
         }
-
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                getBookInfo();
-            }
-        }).start();
 
         if (mBookPageWidget != null){
             currentPage();
@@ -427,10 +428,11 @@ public class PageFactory1 {
         if (!pgStr.isEmpty()){
             String[] paragraphs = data.split(pgStr);
             for (String paragraph : paragraphs){
+                paragraph = paragraph.trim();
                 //每段缩进首行缩进两个汉字的距离
                 if (paragraph.startsWith("\u3000")) {
                     list.add(paragraph);
-                }else{
+                }else if (!paragraph.trim().isEmpty()){
                     list.add("\u3000\u3000" + paragraph);
                 }
             }
@@ -448,14 +450,20 @@ public class PageFactory1 {
         }
         List<String> allLines = new ArrayList<>();
         for (String paragraph : list){
-            if (!paragraph.isEmpty()) {
-                List<String> lines = separateParagraphtoLines(paragraph);
-                allLines.addAll(lines);
-                //每段结尾加一个空行
-                allLines.add("");
-            }else{
-                allLines.add(paragraph);
+            //分章
+            if (paragraph.matches(".*第.{1,8}章.*")){
+                Integer sizeL = new Integer(allLines.size() + 1);
+                BookCatalogue bookCatalogue = new BookCatalogue();
+                bookCatalogue.setBookCatalogueStartPos(sizeL);
+                bookCatalogue.setBookCatalogue(paragraph);
+                bookCatalogue.setBookpath(bookPath);
+                directoryList.add(bookCatalogue);
             }
+
+            List<String> lines = separateParagraphtoLines(paragraph);
+            allLines.addAll(lines);
+            //每段结尾加一个空行
+            allLines.add("");
         }
         return allLines;
     }
@@ -479,6 +487,45 @@ public class PageFactory1 {
         return linesdata;
     }
 
+    //上一章
+    public void preChapter(){
+        if (directoryList.size() > 0){
+            int num = currentCharter;
+            num --;
+            if (num >= 0){
+                m_mbBufBegin = getBeginForLineNum(directoryList.get(num).getBookCatalogueStartPos());
+                m_mbBufEnd = getEndLine(m_mbBufBegin);
+                currentPage();
+                currentCharter = num;
+            }
+        }
+    }
+
+    //下一章
+    public void nextChapter(){
+        int num = currentCharter;
+        num ++;
+        if (num < directoryList.size()){
+            m_mbBufBegin = getBeginForLineNum(directoryList.get(num).getBookCatalogueStartPos());
+            m_mbBufEnd = getEndLine(m_mbBufBegin);
+            currentPage();
+            currentCharter = num;
+        }
+    }
+
+    //获取现在的章
+    public int getCurrentCharter(){
+        int num = 0;
+        for (int i = 0;directoryList.size() > i;i++){
+            BookCatalogue bookCatalogue = directoryList.get(i);
+            if (m_mbBufBegin <= bookCatalogue.getBookCatalogueStartPos() && m_mbBufEnd >= bookCatalogue.getBookCatalogueStartPos()){
+                num = i;
+                break;
+            }
+        }
+        return num;
+    }
+
     //绘制当前页面
     public void currentPage(){
         onDraw(mBookPageWidget.getCurPage(),getPage(m_mbBufBegin,m_mbBufEnd));
@@ -489,6 +536,13 @@ public class PageFactory1 {
     public void changeProgress(float progress){
         long begin = (long) (m_mbBufLen * progress);
         m_mbBufBegin = getBeginForLineNum(getLineNum(begin));
+        m_mbBufEnd = getEndLine(m_mbBufBegin);
+        currentPage();
+    }
+
+    //改变进度
+    public void changeChapter(int lineNum){
+        m_mbBufBegin = getBeginForLineNum(lineNum);
         m_mbBufEnd = getEndLine(m_mbBufBegin);
         currentPage();
     }
@@ -523,79 +577,43 @@ public class PageFactory1 {
         currentPage();
     }
 
+    //设置页面的背景
     public void setBookBg(int type){
         Bitmap bitmap = Bitmap.createBitmap(mWidth,mHeight, Bitmap.Config.RGB_565);
         Canvas canvas = new Canvas(bitmap);
+        int color = 0;
         switch (type){
             case Config.BOOK_BG_DEFAULT:
                 bitmap = BookPageFactory.decodeSampledBitmapFromResource(
                         mContext.getResources(), R.drawable.paper, mWidth, mHeight);
+                color = mContext.getResources().getColor(R.color.read_font_default);
                 break;
             case Config.BOOK_BG_1:
                 canvas.drawColor(mContext.getResources().getColor(R.color.read_bg_1));
+                color = mContext.getResources().getColor(R.color.read_font_1);
                 break;
             case Config.BOOK_BG_2:
                 canvas.drawColor(mContext.getResources().getColor(R.color.read_bg_2));
+                color = mContext.getResources().getColor(R.color.read_font_2);
                 break;
             case Config.BOOK_BG_3:
                 canvas.drawColor(mContext.getResources().getColor(R.color.read_bg_3));
+                color = mContext.getResources().getColor(R.color.read_font_3);
                 break;
             case Config.BOOK_BG_4:
                 canvas.drawColor(mContext.getResources().getColor(R.color.read_bg_4));
+                color = mContext.getResources().getColor(R.color.read_font_4);
                 break;
         }
         setBgBitmap(bitmap);
+        //设置字体颜色
+        setM_textColor(color);
     }
 
     //设置日间或者夜间模式
     public void setDayOrNight(Boolean isNgiht){
         initBg(isNgiht);
         currentPage();
-    }
-    /**
-     *   提取章节目录及值
-     */
-    public void getBookInfo() {
-//        String strParagraph = "";
-//        while (mstartpos < m_mbBufLen-1) {
-//            byte[] paraBuf = readParagraphForward(mstartpos);
-//            mstartpos += paraBuf.length;// 每次读取后，记录结束点位置，该位置是段落结束位置
-//            try {
-//                strParagraph = new String(paraBuf, m_strCharsetName);// 转换成制定GBK编码
-//            } catch (UnsupportedEncodingException e) {
-//                Log.e(TAG, "pageDown->转换编码失败", e);
-//            }
-//            EditText editText;
-//            String strReturn = "";
-//            // 替换掉回车换行符,防止段落发生错乱
-//            if (strParagraph.indexOf("\r\n") != -1) {   //windows
-//                strReturn = "\r\n";
-//                strParagraph = strParagraph.replaceAll("\r\n", "");
-//            } else if (strParagraph.indexOf("\n") != -1) {    //linux
-//                strReturn = "\n";
-//                strParagraph = strParagraph.replaceAll("\n", "");
-//            }
-//
-//            if(strParagraph.contains("第") && strParagraph.contains("章")) {
-//                int m_mstartpos = mstartpos-paraBuf.length;//获得章节段落开始位置
-//                BookCatalogue bookCatalogue1 = new BookCatalogue();//每次保存后都要新建一个
-//                strParagraph = strParagraph.trim();//去除字符串前后空格
-//                //去除全角空格
-//                while (strParagraph.startsWith("　")) {
-//                    strParagraph = strParagraph.substring(1, strParagraph.length()).trim();
-//                }
-//                bookCatalogue.add(strParagraph);   //保存到数组
-//                bookCatalogueStartPos.add(m_mstartpos);
-//                bookCatalogue1.setBookCatalogue(strParagraph);  //保存到数据库
-//                bookCatalogue1.setBookCatalogueStartPos(m_mstartpos);
-//                bookCatalogue1.setBookpath(ReadActivity.getBookPath());
-//                String sql = "SELECT id FROM bookcatalogue WHERE bookcatalogue =? and bookCatalogueStartPos =?";
-//                Cursor cursor = DataSupport.findBySQL(sql,strParagraph,m_mstartpos +"");
-//                if(!cursor.moveToFirst()) {
-//                    bookCatalogue1.save();
-//                }
-//            }
-//        }
     }
 
     /**
@@ -626,6 +644,9 @@ public class PageFactory1 {
     }
 
     public void clear(){
+        directoryList.clear();
+        currentCharter = 0;
+        bookPath = "";
         mBookPageWidget = null;
         mPageEvent = null;
         if (allLines != null){
@@ -636,6 +657,13 @@ public class PageFactory1 {
         }
     }
 
+    public List<BookCatalogue> getDirectoryList(){
+        return directoryList;
+    }
+
+    public String getBookPath(){
+        return bookPath;
+    }
     //是否是第一页
     public boolean isfirstPage() {
         return m_isfirstPage;

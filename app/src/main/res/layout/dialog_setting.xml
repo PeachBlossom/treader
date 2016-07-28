@@ -65,6 +65,9 @@
             android:id="@+id/tv_subtract"
             style="@style/setting_dialog_button"
             android:layout_weight="1"
+            android:textSize="30sp"
+            android:background="@null"
+            android:textColor="@color/read_dialog_button_select"
             android:text="@string/setting_subtract" />
         <TextView
             android:id="@+id/tv_size"
@@ -81,7 +84,16 @@
             android:id="@+id/tv_add"
             style="@style/setting_dialog_button"
             android:layout_weight="1"
+            android:textSize="30sp"
+            android:background="@null"
+            android:textColor="@color/read_dialog_button_select"
             android:text="@string/setting_add" />
+
+        <TextView
+            android:id="@+id/tv_size_default"
+            style="@style/setting_dialog_button"
+            android:layout_marginLeft="20dp"
+            android:text="@string/setting_default" />
     </LinearLayout>
 
     <LinearLayout

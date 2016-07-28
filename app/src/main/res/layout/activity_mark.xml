@@ -9,10 +9,10 @@
         android:layout_width="match_parent"
         android:layout_height="55dip"
         android:orientation="horizontal"
-        android:background="@color/black"
+        android:background="?attr/colorPrimary"
         >
         <ImageButton
-            android:id="@+id/back"
+            android:id="@+id/btn_back"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center_vertical"
@@ -21,30 +21,25 @@
             />
 
         <TextView
-            android:id="@+id/bookname"
-            android:layout_toRightOf="@id/back"
+            android:id="@+id/tv_bookname"
+            android:layout_toRightOf="@id/btn_back"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textSize="16dp"
             android:layout_gravity="center_vertical"
             android:layout_marginLeft="16dp"
-            android:text="三少爷的剑"
+            android:text=""
             android:textStyle="normal"
             android:textColor="@color/white"
             />
 
     </LinearLayout>
 
-    <com.astuetz.PagerSlidingTabStrip
-        android:id="@+id/tabs"
+    <ListView
+        android:id="@+id/lv_catalogue"
         android:layout_width="match_parent"
-        android:layout_height="48dip"
-        android:background="@color/read_background"/>
-
-    <android.support.v4.view.ViewPager
-        android:id="@+id/pager"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/tabs" />
+        android:layout_height="match_parent"
+        android:divider="@color/list_item_divider"
+        android:dividerHeight="1dp"/>
 
 </LinearLayout>
