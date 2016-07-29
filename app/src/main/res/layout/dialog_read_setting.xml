@@ -3,79 +3,33 @@
     android:id="@+id/book_pop"
     android:orientation="vertical"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
+    android:layout_height="wrap_content"
     android:fitsSystemWindows="true">
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="50dp"
-        android:layout_alignParentTop="true"
-        android:background="@color/read_dialog_bg"
-        android:orientation="horizontal"
-        android:id="@+id/linearLayout">
-        <ImageButton
-            android:id="@+id/btn_return"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:background="@mipmap/return_button"
-            android:layout_marginLeft="10dp"
-            android:layout_gravity="center_vertical" />
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:gravity="right"
-            android:orientation="horizontal">
-            <!--    android:gravity　属性是对该view中内容的限定．比如一个button 上面的text. 你可以设置该text 相对于view的靠左，靠右等位置．
-android:layout_gravity是用来设置该view相对与父view 的位置．比如一个button 在linearlayout里，你想把该button放在linearlayout里靠左、靠右等位置就可以通过该属性设置．
-即android:gravity用于设置View中内容相对于View组件的对齐方式，而android:layout_gravity用于设置View组件相对于Container的对齐方式。
-当Linear Layout为水平时，可以设置上下  当Linear Layout为垂直时，可以设置左右      -->
-            <ImageButton
-                android:id="@+id/btn_light"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center_vertical"
-                android:background="@color/black" />
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:orientation="vertical">
+    <RelativeLayout
+        android:id="@+id/rl_progress"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|center_horizontal"
+        android:layout_marginBottom="20dp"
+        android:padding="20dp"
+        android:background="@color/black"
+        android:visibility="gone">
 
-            <ImageButton
-                android:id="@+id/btn_listener_book"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center_vertical"
-                android:layout_marginRight="10dp"
-                android:background="@mipmap/img_tts" />
-        </LinearLayout>
-    </LinearLayout>
-    
-    <FrameLayout
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_above="@+id/bookpop_bottom"
-        android:layout_below="@+id/linearLayout">
         <TextView
-            android:id="@+id/tv_blank"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent" />
-
-        <RelativeLayout
-            android:id="@+id/rl_progress"
+            android:id="@+id/tv_progress"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="bottom|center_horizontal"
-            android:layout_marginBottom="20dp"
-            android:padding="20dp"
-            android:background="@color/black"
-            android:visibility="gone">
-
-            <TextView
-                android:id="@+id/tv_progress"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_centerInParent="true"
-                android:textColor="@color/white"
-                android:textSize="16sp"
-                android:text="00.00%"/>
-        </RelativeLayout>
-    </FrameLayout>
+            android:layout_centerInParent="true"
+            android:textColor="@color/white"
+            android:textSize="16sp"
+            android:text="00.00%"/>
+    </RelativeLayout>
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -83,7 +37,6 @@ android:layout_gravity是用来设置该view相对与父view 的位置．比如�
         android:id="@+id/bookpop_bottom"
         android:baselineAligned="false"
         android:background="@color/read_dialog_bg"
-        android:layout_alignParentBottom="true"
         android:orientation="vertical">
 
         <LinearLayout
@@ -168,5 +121,6 @@ android:layout_gravity是用来设置该view相对与父view 的位置．比如�
             android:paddingRight="10dp"
             android:text="@string/read_setting_set" />
         </RelativeLayout>
+    </LinearLayout>
     </LinearLayout>
 </RelativeLayout>

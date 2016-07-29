@@ -153,4 +153,15 @@ public class CommonUtil {
     {
         return (pxVal / context.getResources().getDisplayMetrics().scaledDensity);
     }
+
+    public static String subString(String text,int num){
+        String content = "";
+        if (text.length() > num){
+            content = text.substring(0,num -1) + "...";
+        }else{
+            content = text;
+        }
+
+        return content;
+    }
 }

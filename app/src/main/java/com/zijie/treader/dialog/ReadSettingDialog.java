@@ -1,8 +1,11 @@
 package com.zijie.treader.dialog;
 
+import android.app.Dialog;
 import android.content.Context;
+import android.graphics.drawable.BitmapDrawable;
 import android.view.Gravity;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
@@ -25,39 +28,23 @@ import butterknife.OnClick;
 /**
  * Created by Administrator on 2016/7/19 0019.
  */
-public class ReadSettingDialog implements BaseDialog {
-    @Bind(R.id.btn_return)
-    ImageButton btn_return;
-    @Bind(R.id.btn_light)
-    ImageButton btn_ight;
-    @Bind(R.id.btn_listener_book)
-    ImageButton btn_listener_book;
-    @Bind(R.id.tv_blank)
-    TextView tv_blank;
-    @Bind(R.id.tv_pre)
-    TextView tv_pre;
-    @Bind(R.id.sb_progress)
-    SeekBar sb_progress;
-    @Bind(R.id.tv_next)
-    TextView tv_next;
-    @Bind(R.id.tv_directory)
-    TextView tv_directory;
-    @Bind(R.id.tv_dayornight)
-    TextView tv_dayornight;
-    @Bind(R.id.tv_setting)
-    TextView tv_setting;
-    @Bind(R.id.tv_progress)
-    TextView tv_Progress;
-    @Bind(R.id.rl_progress)
-    RelativeLayout rl_Progress;
-    @Bind(R.id.bookpop_bottom)
-    LinearLayout bookpopBottom;
-    @Bind(R.id.book_pop)
-    RelativeLayout bookPop;
+public class ReadSettingDialog implements BaseDialog,View.OnClickListener {
 
-    private PopupWindow mPopupWindow;
+    ImageButton btn_return;
+    ImageButton btn_ight;
+    ImageButton btn_listener_book;
+    TextView tv_pre;
+    SeekBar sb_progress;
+    TextView tv_next;
+    TextView tv_directory;
+    TextView tv_dayornight;
+    TextView tv_setting;
+    TextView tv_Progress;
+    RelativeLayout rl_Progress;
+
+    private PopupWindow mPopupWindow,mPopupWindowTop;
     private BookPageWidget mBookPageWidget;
-    private View view;
+    private View view,viewTop;
     private SettingListener mSettingListener;
     private Context mContext;
     private Config config;
@@ -68,9 +55,63 @@ public class ReadSettingDialog implements BaseDialog {
         mContext = bookPageWidget.getContext();
         LayoutInflater layoutInflater = (LayoutInflater) bookPageWidget.getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         view = layoutInflater.inflate(R.layout.dialog_read_setting, null);
-        ButterKnife.bind(this, view);
+        viewTop = layoutInflater.inflate(R.layout.dialog_read_setting_top, null);
+
+        btn_return = (ImageButton) viewTop.findViewById(R.id.btn_return);
+        btn_ight = (ImageButton) viewTop.findViewById(R.id.btn_light);
+        btn_listener_book = (ImageButton) viewTop.findViewById(R.id.btn_listener_book);
+        tv_pre = (TextView) view.findViewById(R.id.tv_pre);
+        sb_progress = (SeekBar) view.findViewById(R.id.sb_progress);
+        tv_next = (TextView) view.findViewById(R.id.tv_next);
+        tv_directory = (TextView) view.findViewById(R.id.tv_directory);
+        tv_dayornight = (TextView) view.findViewById(R.id.tv_dayornight);
+        tv_setting = (TextView) view.findViewById(R.id.tv_setting);
+        tv_Progress = (TextView) view.findViewById(R.id.tv_progress);
+        rl_Progress = (RelativeLayout) view.findViewById(R.id.rl_progress);
+
+        btn_return.setOnClickListener(this);
+        btn_ight.setOnClickListener(this);
+        btn_listener_book.setOnClickListener(this);
+        tv_pre.setOnClickListener(this);
+        sb_progress.setOnClickListener(this);
+        tv_next.setOnClickListener(this);
+        tv_directory.setOnClickListener(this);
+        tv_dayornight.setOnClickListener(this);
+        tv_setting.setOnClickListener(this);
+        tv_Progress.setOnClickListener(this);
+        rl_Progress.setOnClickListener(this);
+
+
         mPopupWindow = new PopupWindow(view, ViewGroup.LayoutParams.MATCH_PARENT,
                 ViewGroup.LayoutParams.WRAP_CONTENT);
+        mPopupWindowTop = new PopupWindow(viewTop, ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT);
+
+        mPopupWindow.setOutsideTouchable(true);
+        mPopupWindow.setBackgroundDrawable(new BitmapDrawable());
+        mPopupWindow.setOutsideTouchable(true);
+        mPopupWindow.setFocusable(true);// menu菜单获得焦点 如果没有获得焦点menu菜单中的控件事件无法响应
+        mPopupWindow.update();
+
+        mPopupWindowTop.setOutsideTouchable(true);
+        mPopupWindowTop.setBackgroundDrawable(new BitmapDrawable());
+        mPopupWindowTop.setOutsideTouchable(true);
+        mPopupWindowTop.setFocusable(true);// menu菜单获得焦点 如果没有获得焦点menu菜单中的控件事件无法响应
+        mPopupWindowTop.update();
+
+        view.setOnTouchListener(new View.OnTouchListener()// 需要设置，点击之后取消popupview，即使点击外面，也可以捕获事件
+        {
+            public boolean onTouch(View v, MotionEvent event)
+            {
+                if (isShow())
+                {
+                    dismiss();
+                }
+                return false;
+            }
+        });
+
+
         config = Config.getInstance();
 
         sb_progress.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
@@ -140,7 +181,8 @@ public class ReadSettingDialog implements BaseDialog {
     @Override
     public void show() {
         hideProgress();
-        mPopupWindow.showAtLocation(mBookPageWidget, Gravity.NO_GRAVITY, 0, 0);
+        mPopupWindowTop.showAtLocation(mBookPageWidget, Gravity.TOP, 0, 0);
+        mPopupWindow.showAtLocation(mBookPageWidget, Gravity.BOTTOM, 0, 0);
     }
 
     private void setProgress(float progress){
@@ -155,15 +197,16 @@ public class ReadSettingDialog implements BaseDialog {
 
     @Override
     public void dismiss() {
+        mPopupWindowTop.dismiss();
         mPopupWindow.dismiss();
     }
 
     @Override
     public Boolean isShow() {
-        return mPopupWindow.isShowing();
+        return mPopupWindow.isShowing() || mPopupWindowTop.isShowing();
     }
 
-    @OnClick({R.id.btn_return, R.id.btn_light, R.id.btn_listener_book, R.id.tv_blank, R.id.tv_pre, R.id.sb_progress, R.id.tv_next, R.id.tv_directory, R.id.tv_dayornight, R.id.tv_setting})
+    @Override
     public void onClick(View view) {
         switch (view.getId()) {
             case R.id.btn_return:
@@ -174,11 +217,6 @@ public class ReadSettingDialog implements BaseDialog {
             case R.id.btn_light:
                 break;
             case R.id.btn_listener_book:
-                break;
-            case R.id.tv_blank:
-                if (mSettingListener != null) {
-                    mSettingListener.blank();
-                }
                 break;
             case R.id.tv_pre:
                 if (mSettingListener != null) {
@@ -216,9 +254,9 @@ public class ReadSettingDialog implements BaseDialog {
     public interface SettingListener {
         void back();
 
-        void blank();
-
         void pre();
+
+        void dismiss();
 
         void next();
 

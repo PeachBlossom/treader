@@ -1,7 +1,6 @@
 package com.zijie.treader;
 
 import android.app.Activity;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Point;
@@ -9,11 +8,19 @@ import android.graphics.Typeface;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.support.design.widget.AppBarLayout;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Display;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.WindowManager;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
+import android.widget.ImageButton;
+import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
+import android.widget.SeekBar;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.zijie.treader.base.BaseActivity;
@@ -21,14 +28,15 @@ import com.zijie.treader.db.BookList;
 import com.zijie.treader.dialog.ReadSettingDialog;
 import com.zijie.treader.dialog.SettingDialog;
 import com.zijie.treader.util.BrightnessUtil;
-import com.zijie.treader.util.PageFactory;
 import com.zijie.treader.util.PageFactory1;
 import com.zijie.treader.view.BookPageWidget;
 
 import java.io.IOException;
+import java.text.DecimalFormat;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
+import butterknife.OnClick;
 
 /**
  * Created by Administrator on 2016/7/15 0015.
@@ -40,16 +48,44 @@ public class ReadActivity1 extends BaseActivity {
 
     @Bind(R.id.bookpage)
     BookPageWidget bookpage;
+//    @Bind(R.id.btn_return)
+//    ImageButton btn_return;
+//    @Bind(R.id.ll_top)
+//    LinearLayout ll_top;
+    @Bind(R.id.tv_progress)
+    TextView tv_progress;
+    @Bind(R.id.rl_progress)
+    RelativeLayout rl_progress;
+    @Bind(R.id.tv_pre)
+    TextView tv_pre;
+    @Bind(R.id.sb_progress)
+    SeekBar sb_progress;
+    @Bind(R.id.tv_next)
+    TextView tv_next;
+    @Bind(R.id.tv_directory)
+    TextView tv_directory;
+    @Bind(R.id.tv_dayornight)
+    TextView tv_dayornight;
+    @Bind(R.id.tv_setting)
+    TextView tv_setting;
+    @Bind(R.id.bookpop_bottom)
+    LinearLayout bookpop_bottom;
+    @Bind(R.id.rl_bottom)
+    RelativeLayout rl_bottom;
+    @Bind(R.id.toolbar)
+    Toolbar toolbar;
+    @Bind(R.id.appbar)
+    AppBarLayout appbar;
 
     private Config config;
     private WindowManager.LayoutParams lp;
     private BookList bookList;
     private PageFactory1 pageFactory;
-    private int screenWidth,screenHeight;
+    private int screenWidth, screenHeight;
     // popwindow是否显示
     private Boolean isShow = false;
-    private ReadSettingDialog mReadSettingDialog;
     private SettingDialog mSettingDialog;
+    private Boolean mDayOrNight;
 
     @Override
     public int getLayoutRes() {
@@ -58,10 +94,19 @@ public class ReadActivity1 extends BaseActivity {
 
     @Override
     protected void initData() {
+        toolbar.setTitle("");
+        setSupportActionBar(toolbar);
+        toolbar.setNavigationIcon(R.mipmap.return_button);
+        toolbar.setNavigationOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                finish();
+            }
+        });
+
         config = Config.getInstance();
         pageFactory = PageFactory1.getInstance();
 
-        mReadSettingDialog = new ReadSettingDialog(bookpage);
         mSettingDialog = new SettingDialog(this);
         //获取屏幕宽高
         WindowManager manage = getWindowManager();
@@ -75,8 +120,8 @@ public class ReadActivity1 extends BaseActivity {
         //隐藏
         hideSystemUI();
         //改变屏幕亮度
-        if (!config.isSystemLight()){
-            BrightnessUtil.setBrightness(this,config.getLight());
+        if (!config.isSystemLight()) {
+            BrightnessUtil.setBrightness(this, config.getLight());
         }
         //获取intent中的携带的信息
         Intent intent = getIntent();
@@ -90,7 +135,31 @@ public class ReadActivity1 extends BaseActivity {
             e.printStackTrace();
             Toast.makeText(this, "打开电子书失败", Toast.LENGTH_SHORT).show();
         }
-        
+
+
+        sb_progress.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            float pro;
+            // 触发操作，拖动
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                pro = (float) (progress / 10000.0);
+                showProgress(pro);
+            }
+
+            // 表示进度条刚开始拖动，开始拖动时候触发的操作
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+
+            }
+
+            // 停止拖动时候
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+                pageFactory.changeProgress(pro);
+            }
+        });
+
+        initDayOrNight();
     }
 
     @Override
@@ -105,11 +174,11 @@ public class ReadActivity1 extends BaseActivity {
         mSettingDialog.setSettingListener(new SettingDialog.SettingListener() {
             @Override
             public void changeSystemBright(Boolean isSystem, float brightness) {
-                if (!isSystem){
-                    BrightnessUtil.setBrightness(ReadActivity1.this,brightness);
-                }else{
+                if (!isSystem) {
+                    BrightnessUtil.setBrightness(ReadActivity1.this, brightness);
+                } else {
                     int bh = BrightnessUtil.getScreenBrightness(ReadActivity1.this);
-                    BrightnessUtil.setBrightness(ReadActivity1.this,bh);
+                    BrightnessUtil.setBrightness(ReadActivity1.this, bh);
                 }
             }
 
@@ -139,64 +208,13 @@ public class ReadActivity1 extends BaseActivity {
             }
         });
 
-        mReadSettingDialog.setSettingListener(new ReadSettingDialog.SettingListener() {
-            @Override
-            public void back() {
-                finish();
-            }
-
-            @Override
-            public void blank() {
-                hideSystemUI();
-                mReadSettingDialog.dismiss();
-                isShow = false;
-            }
-
-            @Override
-            public void pre() {
-                pageFactory.preChapter();
-            }
-
-            @Override
-            public void next() {
-                pageFactory.nextChapter();
-            }
-
-            @Override
-            public void directory() {
-                Intent intent = new Intent(ReadActivity1.this,MarkActivity.class);
-                startActivity(intent);
-            }
-
-            @Override
-            public void dayorNight(Boolean isNight) {
-                pageFactory.setDayOrNight(isNight);
-            }
-
-            @Override
-            public void setting() {
-                mReadSettingDialog.dismiss();
-                isShow = false;
-                mSettingDialog.show();
-            }
-
-            @Override
-            public void changeProgress(float progress) {
-                pageFactory.changeProgress(progress);
-            }
-        });
-
         bookpage.setTouchListener(new BookPageWidget.TouchListener() {
             @Override
             public void center() {
-                if (isShow){
-                    hideSystemUI();
-                    mReadSettingDialog.dismiss();
-                    isShow = false;
-                }else{
-                    showSystemUI();
-                    mReadSettingDialog.show();
-                    isShow = true;
+                if (isShow) {
+                    hideReadSetting();
+                } else {
+                    showReadSetting();
                 }
             }
 
@@ -212,7 +230,7 @@ public class ReadActivity1 extends BaseActivity {
 
             @Override
             public Boolean nextPage() {
-                Log.e("setTouchListener","nextPage");
+                Log.e("setTouchListener", "nextPage");
                 pageFactory.nextPage();
                 if (pageFactory.islastPage()) {
                     return false;
@@ -223,14 +241,14 @@ public class ReadActivity1 extends BaseActivity {
 
     }
 
-    private Handler mHandler = new Handler(){
+    private Handler mHandler = new Handler() {
         @Override
         public void handleMessage(Message msg) {
             super.handleMessage(msg);
-            switch (msg.what){
+            switch (msg.what) {
                 case MESSAGE_CHANGEPROGRESS:
                     float progress = (float) msg.obj;
-                    mReadSettingDialog.setSeekBarProgress(progress);
+                    setSeekBarProgress(progress);
                     break;
             }
         }
@@ -239,22 +257,18 @@ public class ReadActivity1 extends BaseActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        if (mReadSettingDialog.isShow()){
-            mReadSettingDialog.dismiss();
-            mReadSettingDialog = null;
-        }
         pageFactory.clear();
     }
 
-    public static void openBook(BookList bookList, Activity context){
-        Intent intent = new Intent(context,ReadActivity1.class);
-        intent.putExtra(EXTRA_BOOK,bookList);
+    public static void openBook(BookList bookList, Activity context) {
+        Intent intent = new Intent(context, ReadActivity1.class);
+        intent.putExtra(EXTRA_BOOK, bookList);
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         context.startActivity(intent);
         context.overridePendingTransition(android.support.v7.appcompat.R.anim.abc_grow_fade_in_from_bottom, android.support.v7.appcompat.R.anim.abc_shrink_fade_out_from_bottom);
     }
 
-    public BookPageWidget getPageWidget(){
+    public BookPageWidget getPageWidget() {
         return bookpage;
     }
 
@@ -284,4 +298,115 @@ public class ReadActivity1 extends BaseActivity {
         );
     }
 
+    //显示书本进度
+    public void showProgress(float progress){
+        if (rl_progress.getVisibility() != View.VISIBLE) {
+            rl_progress.setVisibility(View.VISIBLE);
+        }
+        setProgress(progress);
+    }
+
+    //隐藏书本进度
+    public void hideProgress(){
+        rl_progress.setVisibility(View.GONE);
+    }
+
+    public void initDayOrNight(){
+        mDayOrNight = config.getDayOrNight();
+        if (mDayOrNight){
+            tv_dayornight.setText(getResources().getString(R.string.read_setting_day));
+        }else{
+            tv_dayornight.setText(getResources().getString(R.string.read_setting_night));
+        }
+    }
+
+    //改变显示模式
+    public void changeDayOrNight(){
+        if (mDayOrNight){
+            mDayOrNight = false;
+            tv_dayornight.setText(getResources().getString(R.string.read_setting_night));
+        }else{
+            mDayOrNight = true;
+            tv_dayornight.setText(getResources().getString(R.string.read_setting_day));
+        }
+        config.setDayOrNight(mDayOrNight);
+        pageFactory.setDayOrNight(mDayOrNight);
+    }
+
+    private void setProgress(float progress){
+        DecimalFormat decimalFormat=new DecimalFormat("00.00");//构造方法的字符格式这里如果小数不足2位,会以0补足.
+        String p=decimalFormat.format(progress * 100.0);//format 返回的是字符串
+        tv_progress.setText(p + "%");
+    }
+
+    public void setSeekBarProgress(float progress){
+        sb_progress.setProgress((int) (progress * 10000));
+    }
+
+    private void showReadSetting(){
+        isShow = true;
+        rl_progress.setVisibility(View.GONE);
+
+        showSystemUI();
+
+        Animation bottomAnim = AnimationUtils.loadAnimation(this,R.anim.dialog_enter);
+        Animation topAnim = AnimationUtils.loadAnimation(this,R.anim.dialog_top_enter);
+        rl_bottom.startAnimation(topAnim);
+        appbar.startAnimation(topAnim);
+//        ll_top.startAnimation(topAnim);
+        rl_bottom.setVisibility(View.VISIBLE);
+//        ll_top.setVisibility(View.VISIBLE);
+        appbar.setVisibility(View.VISIBLE);
+    }
+
+    private void hideReadSetting(){
+        isShow = false;
+        Animation bottomAnim = AnimationUtils.loadAnimation(this,R.anim.dialog_exit);
+        Animation topAnim = AnimationUtils.loadAnimation(this,R.anim.dialog_top_exit);
+        rl_bottom.startAnimation(topAnim);
+        appbar.startAnimation(topAnim);
+//        ll_top.startAnimation(topAnim);
+        rl_bottom.setVisibility(View.GONE);
+//        ll_top.setVisibility(View.GONE);
+        appbar.setVisibility(View.GONE);
+        hideSystemUI();
+    }
+
+    @OnClick({R.id.tv_progress, R.id.rl_progress, R.id.tv_pre, R.id.sb_progress, R.id.tv_next, R.id.tv_directory, R.id.tv_dayornight, R.id.tv_setting, R.id.bookpop_bottom, R.id.rl_bottom})
+    public void onClick(View view) {
+        switch (view.getId()) {
+//            case R.id.btn_return:
+//                finish();
+//                break;
+//            case R.id.ll_top:
+//                break;
+            case R.id.tv_progress:
+                break;
+            case R.id.rl_progress:
+                break;
+            case R.id.tv_pre:
+                pageFactory.preChapter();
+                break;
+            case R.id.sb_progress:
+                break;
+            case R.id.tv_next:
+                pageFactory.nextChapter();
+                break;
+            case R.id.tv_directory:
+                Intent intent = new Intent(ReadActivity1.this, MarkActivity.class);
+                startActivity(intent);
+                break;
+            case R.id.tv_dayornight:
+                changeDayOrNight();
+                break;
+            case R.id.tv_setting:
+                hideReadSetting();
+                mSettingDialog.show();
+                break;
+            case R.id.bookpop_bottom:
+                break;
+            case R.id.rl_bottom:
+                break;
+        }
+    }
 }

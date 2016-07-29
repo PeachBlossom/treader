@@ -94,6 +94,8 @@ public class PageFactory1 {
     private int mLineCount;
     //电池画笔
     private Paint mBatterryPaint ;
+    //电池字体大小
+    private float mBatterryFontSize;
     //背景图片
     private Bitmap m_book_bg = null;
     //当前显示的文字
@@ -130,6 +132,7 @@ public class PageFactory1 {
     //目录
     private List<BookCatalogue> directoryList = new ArrayList<>();
     private String bookPath = "";
+    private String bookName = "";
     private int currentCharter = 0;
 
     private PageEvent mPageEvent;
@@ -178,7 +181,8 @@ public class PageFactory1 {
 
         mBorderWidth = mContext.getResources().getDimension(R.dimen.reading_board_battery_border_width);
         mBatterryPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
-        mBatterryPaint.setTextSize(CommonUtil.sp2px(context, 12));
+        mBatterryFontSize = CommonUtil.sp2px(context, 12);
+        mBatterryPaint.setTextSize(mBatterryFontSize);
         mBatterryPaint.setTypeface(typeface);
         mBatterryPaint.setTextAlign(Paint.Align.LEFT);
         mBatterryPaint.setColor(m_textColor);
@@ -192,7 +196,7 @@ public class PageFactory1 {
     private void initBg(Boolean isNight){
         if (isNight) {
             //设置背景
-            setBgBitmap(decodeSampledBitmapFromResource(
+            setBgBitmap(BitmapUtil.decodeSampledBitmapFromResource(
                     mContext.getResources(), R.drawable.main_bg, mWidth, mHeight));
             //设置字体颜色
             setM_textColor(Color.rgb(128, 128, 128));
@@ -216,6 +220,7 @@ public class PageFactory1 {
         word.setLength(0);
         mPaint.setTextSize(getFontSize());
         mPaint.setColor(getTextColor());
+        mBatterryPaint.setColor(getTextColor());
         if (m_lines.size() == 0) {
             return;
         }
@@ -268,6 +273,14 @@ public class PageFactory1 {
         rect2.right = rect1.right + mBorderWidth;
         rect2.bottom = rect2.bottom - poleHeight/4;
         c.drawRect(rect2, mBatterryPaint);
+        //画书名
+        c.drawText(CommonUtil.subString(bookName,12), marginWidth ,statusMarginBottom + mBatterryFontSize, mBatterryPaint);
+        //画章
+        if (directoryList.size() > 0) {
+            String charterName = CommonUtil.subString(directoryList.get(currentCharter).getBookCatalogue(),12);
+            int nChaterWidth = (int) mBatterryPaint.measureText(charterName) + 1;
+            c.drawText(charterName, mWidth - marginWidth - nChaterWidth, statusMarginBottom  + mBatterryFontSize, mBatterryPaint);
+        }
 
         mBookPageWidget.postInvalidate();
     }
@@ -315,6 +328,7 @@ public class PageFactory1 {
         directoryList.clear();
         currentCharter = 0;
         bookPath = strFilePath;
+        bookName = FileUtils.getFileName(bookPath);
         m_strCharsetName = getCharset(strFilePath);
         if (m_strCharsetName == null){
             m_strCharsetName = "utf-8";
@@ -429,7 +443,7 @@ public class PageFactory1 {
             String[] paragraphs = data.split(pgStr);
             for (String paragraph : paragraphs){
                 paragraph = paragraph.trim();
-                //每段缩进首行缩进两个汉字的距离
+                //每段首行缩进两个汉字的距离
                 if (paragraph.startsWith("\u3000")) {
                     list.add(paragraph);
                 }else if (!paragraph.trim().isEmpty()){
@@ -448,6 +462,7 @@ public class PageFactory1 {
         if (list == null){
             return null;
         }
+        directoryList.clear();
         List<String> allLines = new ArrayList<>();
         for (String paragraph : list){
             //分章
@@ -564,6 +579,7 @@ public class PageFactory1 {
     public void changeTypeface(Typeface typeface){
         this.typeface = typeface;
         mPaint.setTypeface(typeface);
+        mBatterryPaint.setTypeface(typeface);
         allLines = null;
         allLines = branch(allParagraph);
         long begin = (long) (m_mbBufLen * currentProgress);
@@ -584,7 +600,7 @@ public class PageFactory1 {
         int color = 0;
         switch (type){
             case Config.BOOK_BG_DEFAULT:
-                bitmap = BookPageFactory.decodeSampledBitmapFromResource(
+                bitmap = BitmapUtil.decodeSampledBitmapFromResource(
                         mContext.getResources(), R.drawable.paper, mWidth, mHeight);
                 color = mContext.getResources().getColor(R.color.read_font_default);
                 break;
@@ -657,6 +673,7 @@ public class PageFactory1 {
         }
     }
 
+    //获取书本的章
     public List<BookCatalogue> getDirectoryList(){
         return directoryList;
     }
@@ -703,51 +720,6 @@ public class PageFactory1 {
 
     public interface PageEvent{
         void changeProgress(float progress);
-    }
-
-    public static Bitmap decodeSampledBitmapFromResource(Resources res, int resId,
-                                                         int reqWidth, int reqHeight) {
-
-        // First decode with inJustDecodeBounds=true to check dimensions
-        final BitmapFactory.Options options = new BitmapFactory.Options();
-        options.inJustDecodeBounds = true;
-        BitmapFactory.decodeResource(res, resId, options);
-
-        // Calculate inSampleSize
-        options.inSampleSize = calculateInSampleSize(options, reqWidth, reqHeight);
-
-        // Decode bitmap with inSampleSize set
-        options.inJustDecodeBounds = false;
-        return BitmapFactory.decodeResource(res, resId, options);
-    }
-
-    public static int calculateInSampleSize(
-            BitmapFactory.Options options, int reqWidth, int reqHeight) {
-        // Raw height and width of image
-        final int height = options.outHeight;
-        final int width = options.outWidth;
-        int inSampleSize = 1;
-
-        if (height > reqHeight || width > reqWidth) {
-
-            /**   final int halfHeight = height / 2;
-             final int halfWidth = width / 2;
-
-             // Calculate the largest inSampleSize value that is a power of 2 and keeps both
-             // height and width larger than the requested height and width.
-             while ((halfHeight / inSampleSize) > reqHeight
-             && (halfWidth / inSampleSize) > reqWidth) {
-             inSampleSize *= 2;
-             } */
-            final int heightRatio = Math.round((float) height / (float) reqHeight);
-            final int widthRatio = Math.round((float) width / (float) reqWidth);
-            // 选择宽和高中最小的比率作为inSampleSize的值，这样可以保证最终图片的宽和高
-            // 一定都不会大于等于目标的宽和高。
-            inSampleSize = heightRatio < widthRatio ? heightRatio : widthRatio;
-
-        }
-
-        return inSampleSize;
     }
 
 }

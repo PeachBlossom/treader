@@ -86,8 +86,6 @@ public class SettingDialog extends Dialog {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        this.requestWindowFeature(Window.FEATURE_NO_TITLE);//去掉标题栏
-//        applyCompat();
         getWindow().setGravity(Gravity.BOTTOM);
         setContentView(R.layout.dialog_setting);
         // 初始化View注入
