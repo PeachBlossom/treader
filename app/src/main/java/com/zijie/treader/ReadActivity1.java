@@ -237,6 +237,11 @@ public class ReadActivity1 extends BaseActivity {
                 }
                 return true;
             }
+
+            @Override
+            public void cancel() {
+
+            }
         });
 
     }

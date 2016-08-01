@@ -16,6 +16,7 @@ import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.ViewConfiguration;
 import android.view.WindowManager;
 import android.widget.Scroller;
 
@@ -23,6 +24,7 @@ import android.widget.Scroller;
  * Created by Administrator on 2016/7/15 0015.
  */
 public class BookPageWidget extends View {
+    private final static String TAG = "BookPageWidget";
     private int mScreenWidth = 0; // 屏幕宽
     private int mScreenHeight = 0; // 屏幕高
     private Context mContext;
@@ -192,83 +194,206 @@ public class BookPageWidget extends View {
 
     }
 
-    //是否点击了中间
-    private Boolean isClickCenter = false;
+    //是否移动了
+    private Boolean isMove = false;
+    //是否翻到下一页
+    private Boolean isNext = false;
+    //是否取消翻页
+    private Boolean cancelPage = false;
     private int downX = 0;
     private int downY = 0;
+
+    private int moveX = 0;
+    private int moveY = 0;
     @Override
     public boolean onTouchEvent(MotionEvent event) {
-        super.onTouchEvent(event);
+//        super.onTouchEvent(event);
+        int x = (int)event.getX();
+        int y = (int)event.getY();
+        mTouch.x = event.getX();
+        mTouch.y = event.getY();
+
         if (event.getAction() == MotionEvent.ACTION_DOWN){
-            int x = (int) event.getX();
-            int y = (int) event.getY();
             downX = (int) event.getX();
             downY = (int) event.getY();
-            //Action_Down时在中间位置显示菜单
-            if (x > mScreenWidth / 3 && x < mScreenWidth * 2 / 3 && y > mScreenHeight / 3 && y < mScreenHeight * 2 / 3) {
-                isClickCenter = true;
-                return true;
-            }
-            abortAnimation();
-
-            //如果touchLister翻页返回false表示不翻页，则不执行翻页动画
-            if (x < mScreenWidth / 2) {// 从左翻
-                if (mTouchListener != null){
-                    Boolean isPre = mTouchListener.prePage();
-                    if (!isPre){
-                        return false;
-                    }
-                }
-            }else{// 从右翻
-                if (mTouchListener != null){
-                    Log.e("onTouchEvent","nextPage1");
-                    Boolean isNext = mTouchListener.nextPage();
-                    if (!isNext){
-                        return isNext;
-                    }
-                }
-            }
-
+            moveX = 0;
+            moveY = 0;
+            isMove = false;
+            cancelPage = false;
+            Log.e(TAG,"ACTION_DOWN");
             calcCornerXY(event.getX(), event.getY());
-        }
+        }else if (event.getAction() == MotionEvent.ACTION_MOVE){
 
-        if (event.getAction() == MotionEvent.ACTION_MOVE) {
-            if (isClickCenter == true && Math.abs(event.getX() - downX) > 6 && Math.abs(event.getY() - downY) > 6) {
-                if (mTouchListener != null) {
-                    if ((event.getX() - downX) > 0) {
-                        Boolean isPre = mTouchListener.prePage();
-                        if (!isPre) {
-                            return false;
-                        }
-                    } else {
-                        Log.e("onTouchEvent","nextPage2");
+            final int slop = ViewConfiguration.get(getContext()).getScaledTouchSlop();
+            //判断是否移动了
+            if (!isMove) {
+                isMove = Math.abs(downX - x) > slop || Math.abs(downY - y) > slop;
+            }
+
+            if (isMove){
+                Log.e(TAG,"isMove");
+                isMove = true;
+                if (moveX == 0 && moveY ==0) {
+                    //判断翻得是上一页还是下一页
+                    if (x - downX >0){
+                        isNext = false;
+                    }else{
+                        isNext = true;
+                    }
+
+                    if (isNext) {
                         Boolean isNext = mTouchListener.nextPage();
                         if (!isNext) {
-                            return isNext;
+                            return true;
+                        }
+                    } else {
+                        Boolean isPre = mTouchListener.prePage();
+                        if (!isPre) {
+                            return true;
                         }
                     }
+                    Log.e(TAG,"isNext:" + isNext);
+                }else{
+                    //判断是否取消翻页
+                    if (isNext){
+                        if (x - moveX > 0){
+                            cancelPage = true;
+                        }else {
+                            cancelPage = false;
+                        }
+                    }else{
+                        if (x - moveX < 0){
+                            cancelPage = true;
+                        }else {
+                            cancelPage = false;
+                        }
+                    }
+                    Log.e(TAG,"cancelPage:" + cancelPage);
                 }
-                isClickCenter = false;
-                abortAnimation();
-                calcCornerXY(event.getX(), event.getY());
-            }else if (isClickCenter == true){
-                return true;
+
+                moveX = x;
+                moveY = y;
+
+                this.postInvalidate();
             }
+        }else if (event.getAction() == MotionEvent.ACTION_UP){
+            Log.e(TAG,"ACTION_UP");
+            if (!isMove){
+                //是否点击了中间
+                if (x > mScreenWidth / 3 && x < mScreenWidth * 2 / 3 && y > mScreenHeight / 3 && y < mScreenHeight * 2 / 3){
+                    if (mTouchListener != null){
+                        mTouchListener.center();
+                    }
+                    Log.e(TAG,"center");
+                    return true;
+                }else if (x < mScreenWidth / 2){
+                    isNext = false;
+                }else{
+                    isNext = true;
+                }
+
+                if (isNext) {
+                    Boolean isNext = mTouchListener.nextPage();
+                    if (!isNext) {
+                        return true;
+                    }
+                } else {
+                    Boolean isPre = mTouchListener.prePage();
+                    if (!isPre) {
+                        return true;
+                    }
+                }
+            }
+
+            if (cancelPage && mTouchListener != null){
+                mTouchListener.cancel();
+            }
+
+            Log.e(TAG,"isNext:" + isNext);
+            startAnimation(600);
+            this.postInvalidate();
         }
 
-        if (event.getAction() == MotionEvent.ACTION_UP) {
-            if (isClickCenter){
-                if (mTouchListener != null){
-                    mTouchListener.center();
-                }
-                isClickCenter = false;
-                return true;
-            }
-        }
-        return doTouchEvent(event);
-
+        return true;
     }
 
+    //是否点击了中间
+    private Boolean isClickCenter = false;
+
+//    @Override
+//    public boolean onTouchEvent(MotionEvent event) {
+//        super.onTouchEvent(event);
+//        if (event.getAction() == MotionEvent.ACTION_DOWN){
+//            int x = (int) event.getX();
+//            int y = (int) event.getY();
+//            downX = (int) event.getX();
+//            downY = (int) event.getY();
+//            //Action_Down时在中间位置显示菜单
+//            if (x > mScreenWidth / 3 && x < mScreenWidth * 2 / 3 && y > mScreenHeight / 3 && y < mScreenHeight * 2 / 3) {
+//                isClickCenter = true;
+//                return true;
+//            }
+//            abortAnimation();
+//
+//            //如果touchLister翻页返回false表示不翻页，则不执行翻页动画
+//            if (x < mScreenWidth / 2) {// 从左翻
+//                if (mTouchListener != null){
+//                    Boolean isPre = mTouchListener.prePage();
+//                    if (!isPre){
+//                        return false;
+//                    }
+//                }
+//            }else{// 从右翻
+//                if (mTouchListener != null){
+//                    Log.e("onTouchEvent","nextPage1");
+//                    Boolean isNext = mTouchListener.nextPage();
+//                    if (!isNext){
+//                        return isNext;
+//                    }
+//                }
+//            }
+//
+//            calcCornerXY(event.getX(), event.getY());
+//        }
+//
+//        if (event.getAction() == MotionEvent.ACTION_MOVE) {
+//            final int slop = ViewConfiguration.get(getContext()).getScaledTouchSlop();
+//            if (isClickCenter == true && Math.abs(event.getX() - downX) > slop && Math.abs(event.getY() - downY) > slop) {
+//                if (mTouchListener != null) {
+//                    if ((event.getX() - downX) > 0) {
+//                        Boolean isPre = mTouchListener.prePage();
+//                        if (!isPre) {
+//                            return false;
+//                        }
+//                    } else {
+//                        Log.e("onTouchEvent","nextPage2");
+//                        Boolean isNext = mTouchListener.nextPage();
+//                        if (!isNext) {
+//                            return isNext;
+//                        }
+//                    }
+//                }
+//                isClickCenter = false;
+//                abortAnimation();
+//                calcCornerXY(event.getX(), event.getY());
+//            }else if (isClickCenter == true){
+//                return true;
+//            }
+//        }
+//
+//        if (event.getAction() == MotionEvent.ACTION_UP) {
+//            if (isClickCenter){
+//                if (mTouchListener != null){
+//                    mTouchListener.center();
+//                }
+//                isClickCenter = false;
+//                return true;
+//            }
+//        }
+//        return doTouchEvent(event);
+//
+//    }
+//
     public void setTouchListener(TouchListener mTouchListener){
         this.mTouchListener = mTouchListener;
     }
@@ -277,50 +402,64 @@ public class BookPageWidget extends View {
         void center();
         Boolean prePage();
         Boolean nextPage();
+        void cancel();
     }
 
-    public boolean doTouchEvent(MotionEvent event) {
-
-        if (event.getAction() == MotionEvent.ACTION_MOVE) {
-            mTouch.x = event.getX();
-            mTouch.y = event.getY();
-            this.postInvalidate();
-        }
-
-        if (event.getAction() == MotionEvent.ACTION_DOWN) {
-            mTouch.x = event.getX();
-            mTouch.y = event.getY();
-            actiondownX = event.getX();
-            actiondownY = event.getY();
-        }
-        if (event.getAction() == MotionEvent.ACTION_UP) {
-            startAnimation(600);
-            this.postInvalidate();
-        }
-        if (event.getAction() == MotionEvent.ACTION_MOVE
-                && event.getMetaState() == 1) {
-            mTouch.x = event.getX();
-            mTouch.y = event.getY();
-            startAnimation(600);
-            this.postInvalidate();
-        }
-        // return super.onTouchEvent(event);
-        return true;
-    }
+//    public boolean doTouchEvent(MotionEvent event) {
+//
+//        if (event.getAction() == MotionEvent.ACTION_MOVE) {
+//            mTouch.x = event.getX();
+//            mTouch.y = event.getY();
+//            this.postInvalidate();
+//        }
+//
+//        if (event.getAction() == MotionEvent.ACTION_DOWN) {
+//            mTouch.x = event.getX();
+//            mTouch.y = event.getY();
+//            actiondownX = event.getX();
+//            actiondownY = event.getY();
+//        }
+//        if (event.getAction() == MotionEvent.ACTION_UP) {
+//            startAnimation(600);
+//            this.postInvalidate();
+//        }
+//        if (event.getAction() == MotionEvent.ACTION_MOVE
+//                && event.getMetaState() == 1) {
+//            mTouch.x = event.getX();
+//            mTouch.y = event.getY();
+//            startAnimation(600);
+//            this.postInvalidate();
+//        }
+//        // return super.onTouchEvent(event);
+//        return true;
+//    }
 
     private void startAnimation(int delayMillis) {
         int dx, dy;
         // dx 水平方向滑动的距离，负值会使滚动向左滚动
         // dy 垂直方向滑动的距离，负值会使滚动向上滚动
-        if (mCornerX > 0) {
-            dx = -(int) (mScreenWidth + mTouch.x);
-        } else {
-            dx = (int) (mScreenWidth - mTouch.x + mScreenWidth);
-        }
-        if (mCornerY > 0) {
-            dy = (int) (mScreenHeight - mTouch.y);
-        } else {
-            dy = (int) (1 - mTouch.y); // 防止mTouch.y最终变为0
+        if (cancelPage){
+            if (mCornerX > 0) {
+                dx = (int) (mScreenWidth - mTouch.x);
+            } else {
+                dx = -(int) mTouch.x;
+            }
+            if (mCornerY > 0) {
+                dy = (int) (mScreenHeight - mTouch.y);
+            } else {
+                dy = - (int) mTouch.y; // 防止mTouch.y最终变为0
+            }
+        }else {
+            if (mCornerX > 0) {
+                dx = -(int) (mScreenWidth + mTouch.x);
+            } else {
+                dx = (int) (mScreenWidth - mTouch.x + mScreenWidth);
+            }
+            if (mCornerY > 0) {
+                dy = (int) (mScreenHeight - mTouch.y);
+            } else {
+                dy = (int) (1 - mTouch.y); // 防止mTouch.y最终变为0
+            }
         }
         mScroller.startScroll((int) mTouch.x, (int) mTouch.y, dx, dy,
                 delayMillis);
@@ -627,19 +766,22 @@ public class BookPageWidget extends View {
      */
     public void calcCornerXY(float x, float y) {
         //  Log.i("hck", "PageWidget x:" + x + "      y" + y);
-        if (x <= mScreenWidth / 2)
+        if (x <= mScreenWidth / 2) {
             mCornerX = 0;
-        else
+        }else {
             mCornerX = mScreenWidth;
-        if (y <= mScreenHeight / 2)
+        }
+        if (y <= mScreenHeight / 2) {
             mCornerY = 0;
-        else
+        } else {
             mCornerY = mScreenHeight;
+        }
         if ((mCornerX == 0 && mCornerY == mScreenHeight)
-                || (mCornerX == mScreenWidth && mCornerY == 0))
+                || (mCornerX == mScreenWidth && mCornerY == 0)) {
             mIsRTandLB = true;
-        else
+        }else {
             mIsRTandLB = false;
+        }
     }
 
     private void calcPoints() {
