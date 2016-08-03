@@ -106,6 +106,10 @@ public class PageFactory1 {
     private int m_mbBufBegin = 0;
     // 当前页终点位置
     private int m_mbBufEnd = 0;
+    // 之前页起始位置
+    private int m_preBegin = 0;
+    // 之前页终点位置
+    private int m_preEnd = 0;
     // 图书总长度
     private long m_mbBufLen = 0;
     private Intent batteryInfoIntent;
@@ -200,6 +204,7 @@ public class PageFactory1 {
                     mContext.getResources(), R.drawable.main_bg, mWidth, mHeight));
             //设置字体颜色
             setM_textColor(Color.rgb(128, 128, 128));
+            setBookPageBg(Color.BLACK);
         } else {
             //设置背景
             setBookBg(config.getBookBgType());
@@ -295,6 +300,9 @@ public class PageFactory1 {
         } else {
             m_isfirstPage = false;
         }
+//        mBookPageWidget.changePage();
+        m_preBegin = m_mbBufBegin;
+        m_preEnd = m_mbBufEnd;
         onDraw(mBookPageWidget.getCurPage(),getPage(m_mbBufBegin,m_mbBufEnd));
         m_mbBufEnd = m_mbBufBegin - 1;
         m_mbBufBegin = m_mbBufBegin - mLineCount;
@@ -311,11 +319,20 @@ public class PageFactory1 {
         } else {
             m_islastPage = false;
         }
+//        mBookPageWidget.changePage();
+        m_preBegin = m_mbBufBegin;
+        m_preEnd = m_mbBufEnd;
         onDraw(mBookPageWidget.getCurPage(),getPage(m_mbBufBegin,m_mbBufEnd));
         m_mbBufBegin = m_mbBufEnd + 1;
         m_mbBufEnd = getEndLine(m_mbBufBegin);
         onDraw(mBookPageWidget.getNextPage(),getPage(m_mbBufBegin,m_mbBufEnd));
-        Log.e("nextPage","nextPagenextPagenextPagenextPagenextPagenextPage");
+        Log.e("nextPage","nextPagenext");
+    }
+
+    //取消翻页
+    public void cancelPage(){
+        m_mbBufBegin = m_preBegin;
+        m_mbBufEnd = m_preEnd;
     }
 
     /**
@@ -325,8 +342,13 @@ public class PageFactory1 {
      * @throws IOException
      */
     public void openBook(String strFilePath, long begin) throws IOException {
+        //清空数据
+        m_preBegin = 0;
+        m_preEnd = 0;
         directoryList.clear();
         currentCharter = 0;
+        initBg(config.getDayOrNight());
+
         bookPath = strFilePath;
         bookName = FileUtils.getFileName(bookPath);
         m_strCharsetName = getCharset(strFilePath);
@@ -603,22 +625,29 @@ public class PageFactory1 {
                 bitmap = BitmapUtil.decodeSampledBitmapFromResource(
                         mContext.getResources(), R.drawable.paper, mWidth, mHeight);
                 color = mContext.getResources().getColor(R.color.read_font_default);
+                setBookPageBg(mContext.getResources().getColor(R.color.read_bg_default));
                 break;
             case Config.BOOK_BG_1:
                 canvas.drawColor(mContext.getResources().getColor(R.color.read_bg_1));
                 color = mContext.getResources().getColor(R.color.read_font_1);
+                setBookPageBg(mContext.getResources().getColor(R.color.read_bg_1));
                 break;
             case Config.BOOK_BG_2:
                 canvas.drawColor(mContext.getResources().getColor(R.color.read_bg_2));
                 color = mContext.getResources().getColor(R.color.read_font_2);
+                setBookPageBg(mContext.getResources().getColor(R.color.read_bg_2));
                 break;
             case Config.BOOK_BG_3:
                 canvas.drawColor(mContext.getResources().getColor(R.color.read_bg_3));
                 color = mContext.getResources().getColor(R.color.read_font_3);
+                if (mBookPageWidget != null) {
+                    mBookPageWidget.setBgColor(mContext.getResources().getColor(R.color.read_bg_3));
+                }
                 break;
             case Config.BOOK_BG_4:
                 canvas.drawColor(mContext.getResources().getColor(R.color.read_bg_4));
                 color = mContext.getResources().getColor(R.color.read_font_4);
+                setBookPageBg(mContext.getResources().getColor(R.color.read_bg_4));
                 break;
         }
         setBgBitmap(bitmap);
@@ -626,6 +655,11 @@ public class PageFactory1 {
         setM_textColor(color);
     }
 
+    public void setBookPageBg(int color){
+        if (mBookPageWidget != null) {
+            mBookPageWidget.setBgColor(color);
+        }
+    }
     //设置日间或者夜间模式
     public void setDayOrNight(Boolean isNgiht){
         initBg(isNgiht);
@@ -660,6 +694,8 @@ public class PageFactory1 {
     }
 
     public void clear(){
+        m_preBegin = 0;
+        m_preEnd = 0;
         directoryList.clear();
         currentCharter = 0;
         bookPath = "";

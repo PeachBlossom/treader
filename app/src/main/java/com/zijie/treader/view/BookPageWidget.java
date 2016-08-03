@@ -72,6 +72,8 @@ public class BookPageWidget extends View {
     Paint mPaint;
     Scroller mScroller;
 
+    private int mBgColor = 0xFFCEC29C;
+
     private float actiondownX,actiondownY;
     private TouchListener mTouchListener;
 
@@ -97,8 +99,14 @@ public class BookPageWidget extends View {
         createDrawable();
 
         ColorMatrix cm = new ColorMatrix();//设置颜色数组
-        float array[] = { 0.55f, 0, 0, 0, 80.0f, 0, 0.55f, 0, 0, 80.0f, 0, 0,
-                0.55f, 0, 80.0f, 0, 0, 0, 0.2f, 0 };
+//        float array[] = { 0.55f, 0, 0, 0, 80.0f,
+//                           0, 0.55f, 0, 0, 80.0f,
+//                           0, 0,0.55f, 0, 80.0f,
+//                           0, 0, 0, 0.2f, 0 };
+        float array[] = { 1, 0, 0, 0, 0,
+                           0, 1, 0, 0, 0,
+                           0, 0,1, 0, 0,
+                           0, 0, 0, 1, 0 };
         cm.set(array);
         mColorMatrixFilter = new ColorMatrixColorFilter(cm);
         mMatrix = new Matrix();
@@ -124,6 +132,17 @@ public class BookPageWidget extends View {
 
     public Bitmap getNextPage(){
         return mNextPageBitmap;
+    }
+
+    public void changePage(){
+        Bitmap bitmap = mCurPageBitmap;
+        mCurPageBitmap = mNextPageBitmap;
+        mNextPageBitmap = bitmap;
+        postInvalidate();
+    }
+
+    public void setBgColor(int color){
+        mBgColor = color;
     }
 
     /**
@@ -173,12 +192,18 @@ public class BookPageWidget extends View {
 
     @Override
     protected void onDraw(Canvas canvas) {
-        canvas.drawColor(0xFFAAAAAA);
-        calcPoints();
-        drawCurrentPageArea(canvas, mCurPageBitmap, mPath0);
-        drawNextPageAreaAndShadow(canvas, mNextPageBitmap);
-        drawCurrentPageShadow(canvas);
-        drawCurrentBackArea(canvas, mCurPageBitmap);
+//        canvas.drawColor(0xFFAAAAAA);
+        canvas.drawColor(mBgColor);
+
+        if (isRuning) {
+            calcPoints();
+            drawCurrentPageArea(canvas, mCurPageBitmap, mPath0);
+            drawNextPageAreaAndShadow(canvas, mNextPageBitmap);
+            drawCurrentPageShadow(canvas);
+            drawCurrentBackArea(canvas, mCurPageBitmap);
+        }else{
+            canvas.drawBitmap(mNextPageBitmap,0,0,null);
+        }
     }
 
     @Override
@@ -200,18 +225,25 @@ public class BookPageWidget extends View {
     private Boolean isNext = false;
     //是否取消翻页
     private Boolean cancelPage = false;
+    //是否没下一页或者上一页
+    private Boolean noNext = false;
     private int downX = 0;
     private int downY = 0;
 
     private int moveX = 0;
     private int moveY = 0;
+    //翻页动画是否在执行
+    private Boolean isRuning =false;
     @Override
     public boolean onTouchEvent(MotionEvent event) {
-//        super.onTouchEvent(event);
+        super.onTouchEvent(event);
         int x = (int)event.getX();
         int y = (int)event.getY();
         mTouch.x = event.getX();
         mTouch.y = event.getY();
+        if ((downY > mScreenHeight / 3 && downY < mScreenHeight * 2 / 3) || (isMove && !isNext)){
+            mTouch.y = mScreenHeight;
+        }
 
         if (event.getAction() == MotionEvent.ACTION_DOWN){
             downX = (int) event.getX();
@@ -220,8 +252,12 @@ public class BookPageWidget extends View {
             moveY = 0;
             isMove = false;
             cancelPage = false;
+            noNext = false;
+            isNext = false;
+            isRuning = false;
+            calcCornerXY(downX,downY);
+            abortAnimation();
             Log.e(TAG,"ACTION_DOWN");
-            calcCornerXY(event.getX(), event.getY());
         }else if (event.getAction() == MotionEvent.ACTION_MOVE){
 
             final int slop = ViewConfiguration.get(getContext()).getScaledTouchSlop();
@@ -244,11 +280,14 @@ public class BookPageWidget extends View {
                     if (isNext) {
                         Boolean isNext = mTouchListener.nextPage();
                         if (!isNext) {
+                            noNext = true;
                             return true;
                         }
                     } else {
                         Boolean isPre = mTouchListener.prePage();
+                        calcCornerXY(mScreenWidth - downX,mScreenHeight);
                         if (!isPre) {
+                            noNext = true;
                             return true;
                         }
                     }
@@ -273,18 +312,22 @@ public class BookPageWidget extends View {
 
                 moveX = x;
                 moveY = y;
-
+                isRuning = true;
                 this.postInvalidate();
             }
         }else if (event.getAction() == MotionEvent.ACTION_UP){
             Log.e(TAG,"ACTION_UP");
             if (!isMove){
                 //是否点击了中间
-                if (x > mScreenWidth / 3 && x < mScreenWidth * 2 / 3 && y > mScreenHeight / 3 && y < mScreenHeight * 2 / 3){
+                if (downX > mScreenWidth / 3 && downX < mScreenWidth * 2 / 3 && downY > mScreenHeight / 3 && downY < mScreenHeight * 2 / 3){
                     if (mTouchListener != null){
                         mTouchListener.center();
                     }
                     Log.e(TAG,"center");
+                    mCornerX = 1; // 拖拽点对应的页脚
+                    mCornerY = 1;
+                    mTouch.x = 0.1f;
+                    mTouch.y = 0.1f;
                     return true;
                 }else if (x < mScreenWidth / 2){
                     isNext = false;
@@ -310,90 +353,16 @@ public class BookPageWidget extends View {
             }
 
             Log.e(TAG,"isNext:" + isNext);
-            startAnimation(600);
-            this.postInvalidate();
+            if (!noNext) {
+                isRuning = true;
+                startAnimation(600);
+                this.postInvalidate();
+            }
         }
 
         return true;
     }
 
-    //是否点击了中间
-    private Boolean isClickCenter = false;
-
-//    @Override
-//    public boolean onTouchEvent(MotionEvent event) {
-//        super.onTouchEvent(event);
-//        if (event.getAction() == MotionEvent.ACTION_DOWN){
-//            int x = (int) event.getX();
-//            int y = (int) event.getY();
-//            downX = (int) event.getX();
-//            downY = (int) event.getY();
-//            //Action_Down时在中间位置显示菜单
-//            if (x > mScreenWidth / 3 && x < mScreenWidth * 2 / 3 && y > mScreenHeight / 3 && y < mScreenHeight * 2 / 3) {
-//                isClickCenter = true;
-//                return true;
-//            }
-//            abortAnimation();
-//
-//            //如果touchLister翻页返回false表示不翻页，则不执行翻页动画
-//            if (x < mScreenWidth / 2) {// 从左翻
-//                if (mTouchListener != null){
-//                    Boolean isPre = mTouchListener.prePage();
-//                    if (!isPre){
-//                        return false;
-//                    }
-//                }
-//            }else{// 从右翻
-//                if (mTouchListener != null){
-//                    Log.e("onTouchEvent","nextPage1");
-//                    Boolean isNext = mTouchListener.nextPage();
-//                    if (!isNext){
-//                        return isNext;
-//                    }
-//                }
-//            }
-//
-//            calcCornerXY(event.getX(), event.getY());
-//        }
-//
-//        if (event.getAction() == MotionEvent.ACTION_MOVE) {
-//            final int slop = ViewConfiguration.get(getContext()).getScaledTouchSlop();
-//            if (isClickCenter == true && Math.abs(event.getX() - downX) > slop && Math.abs(event.getY() - downY) > slop) {
-//                if (mTouchListener != null) {
-//                    if ((event.getX() - downX) > 0) {
-//                        Boolean isPre = mTouchListener.prePage();
-//                        if (!isPre) {
-//                            return false;
-//                        }
-//                    } else {
-//                        Log.e("onTouchEvent","nextPage2");
-//                        Boolean isNext = mTouchListener.nextPage();
-//                        if (!isNext) {
-//                            return isNext;
-//                        }
-//                    }
-//                }
-//                isClickCenter = false;
-//                abortAnimation();
-//                calcCornerXY(event.getX(), event.getY());
-//            }else if (isClickCenter == true){
-//                return true;
-//            }
-//        }
-//
-//        if (event.getAction() == MotionEvent.ACTION_UP) {
-//            if (isClickCenter){
-//                if (mTouchListener != null){
-//                    mTouchListener.center();
-//                }
-//                isClickCenter = false;
-//                return true;
-//            }
-//        }
-//        return doTouchEvent(event);
-//
-//    }
-//
     public void setTouchListener(TouchListener mTouchListener){
         this.mTouchListener = mTouchListener;
     }
@@ -404,35 +373,6 @@ public class BookPageWidget extends View {
         Boolean nextPage();
         void cancel();
     }
-
-//    public boolean doTouchEvent(MotionEvent event) {
-//
-//        if (event.getAction() == MotionEvent.ACTION_MOVE) {
-//            mTouch.x = event.getX();
-//            mTouch.y = event.getY();
-//            this.postInvalidate();
-//        }
-//
-//        if (event.getAction() == MotionEvent.ACTION_DOWN) {
-//            mTouch.x = event.getX();
-//            mTouch.y = event.getY();
-//            actiondownX = event.getX();
-//            actiondownY = event.getY();
-//        }
-//        if (event.getAction() == MotionEvent.ACTION_UP) {
-//            startAnimation(600);
-//            this.postInvalidate();
-//        }
-//        if (event.getAction() == MotionEvent.ACTION_MOVE
-//                && event.getMetaState() == 1) {
-//            mTouch.x = event.getX();
-//            mTouch.y = event.getY();
-//            startAnimation(600);
-//            this.postInvalidate();
-//        }
-//        // return super.onTouchEvent(event);
-//        return true;
-//    }
 
     private void startAnimation(int delayMillis) {
         int dx, dy;
@@ -468,6 +408,9 @@ public class BookPageWidget extends View {
     public void abortAnimation() {
         if (!mScroller.isFinished()) {
             mScroller.abortAnimation();
+            mTouch.x =  mScroller.getFinalX();;
+            mTouch.y = mScroller.getFinalY();;
+            postInvalidate();
         }
     }
 
@@ -576,6 +519,7 @@ public class BookPageWidget extends View {
         canvas.drawBitmap(bitmap, mMatrix, mPaint);
         // canvas.drawBitmap(bitmap, mMatrix, null);
         mPaint.setColorFilter(null);
+
         canvas.rotate(mDegrees, mBezierStart1.x, mBezierStart1.y);
         mFolderShadowDrawable.setBounds(left, (int) mBezierStart1.y, right,
                 (int) (mBezierStart1.y + mMaxLength));
@@ -776,6 +720,7 @@ public class BookPageWidget extends View {
         } else {
             mCornerY = mScreenHeight;
         }
+
         if ((mCornerX == 0 && mCornerY == mScreenHeight)
                 || (mCornerX == mScreenWidth && mCornerY == 0)) {
             mIsRTandLB = true;

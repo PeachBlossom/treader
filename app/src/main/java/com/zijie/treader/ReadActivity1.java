@@ -220,6 +220,9 @@ public class ReadActivity1 extends BaseActivity {
 
             @Override
             public Boolean prePage() {
+                if (isShow){
+                    return false;
+                }
                 pageFactory.prePage();
                 if (pageFactory.isfirstPage()) {
                     return false;
@@ -231,6 +234,9 @@ public class ReadActivity1 extends BaseActivity {
             @Override
             public Boolean nextPage() {
                 Log.e("setTouchListener", "nextPage");
+                if (isShow){
+                    return false;
+                }
                 pageFactory.nextPage();
                 if (pageFactory.islastPage()) {
                     return false;
@@ -240,7 +246,7 @@ public class ReadActivity1 extends BaseActivity {
 
             @Override
             public void cancel() {
-
+                pageFactory.cancelPage();
             }
         });
 

@@ -3,6 +3,7 @@ package com.zijie.treader;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
+import android.graphics.Color;
 import android.graphics.Typeface;
 import android.util.Log;
 
@@ -58,6 +59,15 @@ public class Config {
 
         return config;
     }
+
+
+//    public int getBookBgColor(){
+//        if(getDayOrNight()){
+//            return Color.BLACK;
+//        }else{
+//
+//        }
+//    }
 
     public int getBookBgType(){
         return sp.getInt(BOOK_BG_KEY,BOOK_BG_DEFAULT);
