@@ -135,9 +135,14 @@ public class PageFactory1 {
     private float currentProgress;
     //目录
     private List<BookCatalogue> directoryList = new ArrayList<>();
+    //书本路径
     private String bookPath = "";
+    //书本名字
     private String bookName = "";
+    //书本章节
     private int currentCharter = 0;
+    //当前电量
+    private int level = 0;
 
     private PageEvent mPageEvent;
 
@@ -215,8 +220,8 @@ public class PageFactory1 {
         mLineCount = (int) (mVisibleHeight / (m_fontSize + lineSpace));// 可显示的行数
     }
 
-    public void onDraw(Bitmap bitmap,List<String> m_lines) {
-        if (getCurrentCharter() > 0) {
+    public void onDraw(Bitmap bitmap,List<String> m_lines,Boolean updateCharter) {
+        if (getCurrentCharter() > 0 && updateCharter) {
             currentCharter = getCurrentCharter();
         }
 
@@ -251,7 +256,7 @@ public class PageFactory1 {
         c.drawText(strPercent, mWidth - nPercentWidth, mHeight - statusMarginBottom, mBatterryPaint);//x y为坐标值
         c.drawText(date, marginWidth ,mHeight - statusMarginBottom, mBatterryPaint);
         // 画电池
-        int level = batteryInfoIntent.getIntExtra( "level" , 0 );
+        level = batteryInfoIntent.getIntExtra( "level" , 0 );
         int scale = batteryInfoIntent.getIntExtra("scale", 100);
         mBatteryPercentage = (float) level / scale;
         float rect1Left = marginWidth + dateWith + statusMarginBottom;//电池外框left位置
@@ -303,10 +308,10 @@ public class PageFactory1 {
 //        mBookPageWidget.changePage();
         m_preBegin = m_mbBufBegin;
         m_preEnd = m_mbBufEnd;
-        onDraw(mBookPageWidget.getCurPage(),getPage(m_mbBufBegin,m_mbBufEnd));
+        onDraw(mBookPageWidget.getCurPage(),getPage(m_mbBufBegin,m_mbBufEnd),true);
         m_mbBufEnd = m_mbBufBegin - 1;
         m_mbBufBegin = m_mbBufBegin - mLineCount;
-        onDraw(mBookPageWidget.getNextPage(),getPage(m_mbBufBegin,m_mbBufEnd));
+        onDraw(mBookPageWidget.getNextPage(),getPage(m_mbBufBegin,m_mbBufEnd),true);
 
     }
 
@@ -322,10 +327,10 @@ public class PageFactory1 {
 //        mBookPageWidget.changePage();
         m_preBegin = m_mbBufBegin;
         m_preEnd = m_mbBufEnd;
-        onDraw(mBookPageWidget.getCurPage(),getPage(m_mbBufBegin,m_mbBufEnd));
+        onDraw(mBookPageWidget.getCurPage(),getPage(m_mbBufBegin,m_mbBufEnd),true);
         m_mbBufBegin = m_mbBufEnd + 1;
         m_mbBufEnd = getEndLine(m_mbBufBegin);
-        onDraw(mBookPageWidget.getNextPage(),getPage(m_mbBufBegin,m_mbBufEnd));
+        onDraw(mBookPageWidget.getNextPage(),getPage(m_mbBufBegin,m_mbBufEnd),true);
         Log.e("nextPage","nextPagenext");
     }
 
@@ -370,7 +375,7 @@ public class PageFactory1 {
         }
 
         if (mBookPageWidget != null){
-            currentPage();
+            currentPage(true);
         }
     }
 
@@ -488,7 +493,7 @@ public class PageFactory1 {
         List<String> allLines = new ArrayList<>();
         for (String paragraph : list){
             //分章
-            if (paragraph.matches(".*第.{1,8}章.*")){
+            if (paragraph.length() <= 30 && paragraph.matches(".*第.{1,8}章.*")){
                 Integer sizeL = new Integer(allLines.size() + 1);
                 BookCatalogue bookCatalogue = new BookCatalogue();
                 bookCatalogue.setBookCatalogueStartPos(sizeL);
@@ -532,7 +537,7 @@ public class PageFactory1 {
             if (num >= 0){
                 m_mbBufBegin = getBeginForLineNum(directoryList.get(num).getBookCatalogueStartPos());
                 m_mbBufEnd = getEndLine(m_mbBufBegin);
-                currentPage();
+                currentPage(true);
                 currentCharter = num;
             }
         }
@@ -545,7 +550,7 @@ public class PageFactory1 {
         if (num < directoryList.size()){
             m_mbBufBegin = getBeginForLineNum(directoryList.get(num).getBookCatalogueStartPos());
             m_mbBufEnd = getEndLine(m_mbBufBegin);
-            currentPage();
+            currentPage(true);
             currentCharter = num;
         }
     }
@@ -564,9 +569,25 @@ public class PageFactory1 {
     }
 
     //绘制当前页面
-    public void currentPage(){
-        onDraw(mBookPageWidget.getCurPage(),getPage(m_mbBufBegin,m_mbBufEnd));
-        onDraw(mBookPageWidget.getNextPage(),getPage(m_mbBufBegin,m_mbBufEnd));
+    public void currentPage(Boolean updateChapter){
+        onDraw(mBookPageWidget.getCurPage(),getPage(m_mbBufBegin,m_mbBufEnd),updateChapter);
+        onDraw(mBookPageWidget.getNextPage(),getPage(m_mbBufBegin,m_mbBufEnd),updateChapter);
+    }
+
+    //更新电量
+    public void updateBattery(int mLevel){
+        if (level != mLevel){
+            level = mLevel;
+            currentPage(false);
+        }
+    }
+
+    public void updateTime(){
+        String mDate = sdf.format(new java.util.Date());
+        if (date != mDate){
+            date = mDate;
+            currentPage(false);
+        }
     }
 
     //改变进度
@@ -574,14 +595,14 @@ public class PageFactory1 {
         long begin = (long) (m_mbBufLen * progress);
         m_mbBufBegin = getBeginForLineNum(getLineNum(begin));
         m_mbBufEnd = getEndLine(m_mbBufBegin);
-        currentPage();
+        currentPage(true);
     }
 
     //改变进度
     public void changeChapter(int lineNum){
         m_mbBufBegin = getBeginForLineNum(lineNum);
         m_mbBufEnd = getEndLine(m_mbBufBegin);
-        currentPage();
+        currentPage(true);
     }
 
     //改变字体大小
@@ -594,7 +615,7 @@ public class PageFactory1 {
         long begin = (long) (m_mbBufLen * currentProgress);
         m_mbBufBegin = getBeginForLineNum(getLineNum(begin));
         m_mbBufEnd = getEndLine(m_mbBufBegin);
-        currentPage();
+        currentPage(true);
     }
 
     //改变字体
@@ -607,12 +628,13 @@ public class PageFactory1 {
         long begin = (long) (m_mbBufLen * currentProgress);
         m_mbBufBegin = getBeginForLineNum(getLineNum(begin));
         m_mbBufEnd = getEndLine(m_mbBufBegin);
-        currentPage();
+        currentPage(true);
     }
 
+    //改变背景
     public void changeBookBg(int type){
         setBookBg(type);
-        currentPage();
+        currentPage(false);
     }
 
     //设置页面的背景
@@ -663,7 +685,7 @@ public class PageFactory1 {
     //设置日间或者夜间模式
     public void setDayOrNight(Boolean isNgiht){
         initBg(isNgiht);
-        currentPage();
+        currentPage(false);
     }
 
     /**
@@ -689,7 +711,6 @@ public class PageFactory1 {
         charset = detector.getDetectedCharset();
         // (5)
         detector.reset();
-
         return charset;
     }
 

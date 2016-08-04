@@ -18,6 +18,8 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewConfiguration;
 import android.view.WindowManager;
+import android.view.animation.AccelerateDecelerateInterpolator;
+import android.view.animation.AccelerateInterpolator;
 import android.widget.Scroller;
 
 /**
@@ -110,7 +112,7 @@ public class BookPageWidget extends View {
         cm.set(array);
         mColorMatrixFilter = new ColorMatrixColorFilter(cm);
         mMatrix = new Matrix();
-        mScroller = new Scroller(getContext());
+        mScroller = new Scroller(getContext(),new AccelerateInterpolator());
 
         mTouch.x = 0.01f; // 不让x,y为0,否则在点计算时会有问题
         mTouch.y = 0.01f;
@@ -194,15 +196,34 @@ public class BookPageWidget extends View {
     protected void onDraw(Canvas canvas) {
 //        canvas.drawColor(0xFFAAAAAA);
         canvas.drawColor(mBgColor);
-
-        if (isRuning) {
-            calcPoints();
-            drawCurrentPageArea(canvas, mCurPageBitmap, mPath0);
-            drawNextPageAreaAndShadow(canvas, mNextPageBitmap);
-            drawCurrentPageShadow(canvas);
-            drawCurrentBackArea(canvas, mCurPageBitmap);
+        if (isNext) {
+            if (isRuning) {
+                calcPoints();
+                drawCurrentPageArea(canvas, mCurPageBitmap, mPath0);
+                drawNextPageAreaAndShadow(canvas, mNextPageBitmap);
+                drawCurrentPageShadow(canvas);
+                drawCurrentBackArea(canvas, mCurPageBitmap);
+            } else {
+                if (cancelPage){
+                    canvas.drawBitmap(mCurPageBitmap, 0, 0, null);
+                }else {
+                    canvas.drawBitmap(mNextPageBitmap, 0, 0, null);
+                }
+            }
         }else{
-            canvas.drawBitmap(mNextPageBitmap,0,0,null);
+            if (isRuning) {
+                calcPoints();
+                drawCurrentPageArea(canvas, mNextPageBitmap, mPath0);
+                drawNextPageAreaAndShadow(canvas, mCurPageBitmap);
+                drawCurrentPageShadow(canvas);
+                drawCurrentBackArea(canvas, mNextPageBitmap);
+            } else {
+                if (cancelPage){
+                    canvas.drawBitmap(mCurPageBitmap, 0, 0, null);
+                }else {
+                    canvas.drawBitmap(mNextPageBitmap, 0, 0, null);
+                }
+            }
         }
     }
 
@@ -241,6 +262,7 @@ public class BookPageWidget extends View {
         int y = (int)event.getY();
         mTouch.x = event.getX();
         mTouch.y = event.getY();
+        //触摸y中间位置吧y变成屏幕高度
         if ((downY > mScreenHeight / 3 && downY < mScreenHeight * 2 / 3) || (isMove && !isNext)){
             mTouch.y = mScreenHeight;
         }
@@ -251,7 +273,7 @@ public class BookPageWidget extends View {
             moveX = 0;
             moveY = 0;
             isMove = false;
-            cancelPage = false;
+//            cancelPage = false;
             noNext = false;
             isNext = false;
             isRuning = false;
@@ -276,9 +298,14 @@ public class BookPageWidget extends View {
                     }else{
                         isNext = true;
                     }
-
+                    cancelPage = false;
                     if (isNext) {
                         Boolean isNext = mTouchListener.nextPage();
+//                        calcCornerXY(downX,mScreenHeight);
+                        if (mScreenWidth / 2 > downX){
+                            calcCornerXY(mScreenWidth - downX,downY);
+                        }
+
                         if (!isNext) {
                             noNext = true;
                             return true;
@@ -318,8 +345,9 @@ public class BookPageWidget extends View {
         }else if (event.getAction() == MotionEvent.ACTION_UP){
             Log.e(TAG,"ACTION_UP");
             if (!isMove){
+                cancelPage = false;
                 //是否点击了中间
-                if (downX > mScreenWidth / 3 && downX < mScreenWidth * 2 / 3 && downY > mScreenHeight / 3 && downY < mScreenHeight * 2 / 3){
+                if (downX > mScreenWidth / 5 && downX < mScreenWidth * 4 / 5 && downY > mScreenHeight / 3 && downY < mScreenHeight * 2 / 3){
                     if (mTouchListener != null){
                         mTouchListener.center();
                     }
@@ -342,6 +370,8 @@ public class BookPageWidget extends View {
                     }
                 } else {
                     Boolean isPre = mTouchListener.prePage();
+                    calcCornerXY(mScreenWidth - downX,mScreenHeight);
+                    mTouch.y = mScreenHeight;
                     if (!isPre) {
                         return true;
                     }
@@ -355,7 +385,7 @@ public class BookPageWidget extends View {
             Log.e(TAG,"isNext:" + isNext);
             if (!noNext) {
                 isRuning = true;
-                startAnimation(600);
+                startAnimation(300);
                 this.postInvalidate();
             }
         }
@@ -379,18 +409,23 @@ public class BookPageWidget extends View {
         // dx 水平方向滑动的距离，负值会使滚动向左滚动
         // dy 垂直方向滑动的距离，负值会使滚动向上滚动
         if (cancelPage){
-            if (mCornerX > 0) {
+            if (mCornerX > 0 && isNext) {
                 dx = (int) (mScreenWidth - mTouch.x);
             } else {
                 dx = -(int) mTouch.x;
             }
+
+            if (!isNext){
+                dx = (int) - (mScreenWidth + mTouch.x);
+            }
+
             if (mCornerY > 0) {
                 dy = (int) (mScreenHeight - mTouch.y);
             } else {
                 dy = - (int) mTouch.y; // 防止mTouch.y最终变为0
             }
         }else {
-            if (mCornerX > 0) {
+            if (mCornerX > 0 && isNext) {
                 dx = -(int) (mScreenWidth + mTouch.x);
             } else {
                 dx = (int) (mScreenWidth - mTouch.x + mScreenWidth);
@@ -727,6 +762,7 @@ public class BookPageWidget extends View {
         }else {
             mIsRTandLB = false;
         }
+
     }
 
     private void calcPoints() {

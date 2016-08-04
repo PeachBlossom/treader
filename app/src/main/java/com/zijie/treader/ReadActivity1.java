@@ -1,10 +1,14 @@
 package com.zijie.treader;
 
 import android.app.Activity;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.graphics.Point;
 import android.graphics.Typeface;
+import android.os.BatteryManager;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -87,6 +91,21 @@ public class ReadActivity1 extends BaseActivity {
     private SettingDialog mSettingDialog;
     private Boolean mDayOrNight;
 
+    // 接收电池信息更新的广播
+    private BroadcastReceiver myReceiver = new BroadcastReceiver(){
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            if (intent.getAction().equals(Intent.ACTION_BATTERY_CHANGED)) {
+                Log.e(TAG,Intent.ACTION_BATTERY_CHANGED);
+                int level = intent.getIntExtra("level", 0);
+                pageFactory.updateBattery(level);
+            }else if (intent.getAction().equals(Intent.ACTION_TIME_TICK)){
+                Log.e(TAG,Intent.ACTION_TIME_TICK);
+                pageFactory.updateTime();
+            }
+        }
+    };
+
     @Override
     public int getLayoutRes() {
         return R.layout.activity_read1;
@@ -106,6 +125,11 @@ public class ReadActivity1 extends BaseActivity {
 
         config = Config.getInstance();
         pageFactory = PageFactory1.getInstance();
+
+        IntentFilter mfilter = new IntentFilter();
+        mfilter.addAction(Intent.ACTION_BATTERY_CHANGED);
+        mfilter.addAction(Intent.ACTION_TIME_TICK);
+        registerReceiver(myReceiver, mfilter);
 
         mSettingDialog = new SettingDialog(this);
         //获取屏幕宽高
@@ -266,9 +290,18 @@ public class ReadActivity1 extends BaseActivity {
     };
 
     @Override
+    protected void onResume(){
+        super.onResume();
+        if (!isShow){
+            hideSystemUI();
+        }
+    }
+
+    @Override
     protected void onDestroy() {
         super.onDestroy();
         pageFactory.clear();
+        unregisterReceiver(myReceiver);
     }
 
     public static void openBook(BookList bookList, Activity context) {
@@ -420,4 +453,5 @@ public class ReadActivity1 extends BaseActivity {
                 break;
         }
     }
+
 }
