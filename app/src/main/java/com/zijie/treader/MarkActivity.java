@@ -56,7 +56,7 @@ public class MarkActivity extends BaseActivity {
         lv_catalogue.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                pageFactory.changeChapter(catalogueList.get(position).getBookCatalogueStartPos());
+//                pageFactory.changeChapter(catalogueList.get(position).getBookCatalogueStartPos());
                 MarkActivity.this.finish();
             }
         });
