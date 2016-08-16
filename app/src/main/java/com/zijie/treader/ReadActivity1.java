@@ -154,7 +154,7 @@ public class ReadActivity1 extends BaseActivity {
         pageFactory.setPageWidget(bookpage);
 
         try {
-            pageFactory.openBook(bookList.getBookpath(), (int) bookList.getBegin());
+            pageFactory.openBook(bookList);
         } catch (IOException e) {
             e.printStackTrace();
             Toast.makeText(this, "打开电子书失败", Toast.LENGTH_SHORT).show();

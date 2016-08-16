@@ -10,13 +10,13 @@
     <!-- 状态栏电池厚度 -->
     <dimen name="reading_board_battery_border_width">1dp</dimen>
     <!-- 书本宽边距 -->
-    <dimen name="readingMarginWidth">10dp</dimen>
+    <dimen name="readingMarginWidth">15dp</dimen>
     <!-- 书本高边距 -->
     <dimen name="readingMarginHeight">30dp</dimen>
     <!-- 状态栏离底部距离 -->
     <dimen name="reading_status_margin_bottom">3dp</dimen>
     <!-- 行间距 -->
-    <dimen name="reading_line_spacing">5dp</dimen>
+    <dimen name="reading_line_spacing">10dp</dimen>
     <!-- 书本字体默认大小 -->
     <dimen name="reading_default_text_size">20sp</dimen>
     <!-- 书本字体最小大小 -->

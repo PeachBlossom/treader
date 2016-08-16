@@ -22,6 +22,8 @@ import android.view.animation.AccelerateDecelerateInterpolator;
 import android.view.animation.AccelerateInterpolator;
 import android.widget.Scroller;
 
+import com.zijie.treader.util.PageFactory1;
+
 /**
  * Created by Administrator on 2016/7/15 0015.
  */
@@ -258,6 +260,10 @@ public class BookPageWidget extends View {
     @Override
     public boolean onTouchEvent(MotionEvent event) {
         super.onTouchEvent(event);
+        if (PageFactory1.getStatus() == PageFactory1.Status.OPENING){
+            return true;
+        }
+
         int x = (int)event.getX();
         int y = (int)event.getY();
         mTouch.x = event.getX();

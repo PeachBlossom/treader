@@ -9,7 +9,7 @@ public class BookCatalogue extends DataSupport {
     private int id;
     private String bookpath;
     private String bookCatalogue;
-    private int bookCatalogueStartPos;
+    private long bookCatalogueStartPos;
 
     public int getId() {
         return id;
@@ -34,11 +34,11 @@ public class BookCatalogue extends DataSupport {
         this.bookpath = ebookpath;
     }
 
-    public int getBookCatalogueStartPos() {
+    public long getBookCatalogueStartPos() {
         return bookCatalogueStartPos;
     }
 
-    public void setBookCatalogueStartPos(int bookCatalogueStartPos) {
+    public void setBookCatalogueStartPos(long bookCatalogueStartPos) {
         this.bookCatalogueStartPos = bookCatalogueStartPos;
     }
 }

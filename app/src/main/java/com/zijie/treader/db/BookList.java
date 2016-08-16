@@ -12,6 +12,7 @@ public class BookList extends DataSupport implements Serializable{
     private String bookname;
     private String bookpath;
     private long begin;
+    private String charset;
 
     public String getBookname() {
         return this.bookname;
@@ -44,4 +45,13 @@ public class BookList extends DataSupport implements Serializable{
     public void setBegin(long begin) {
         this.begin = begin;
     }
+
+    public String getCharset() {
+        return charset;
+    }
+
+    public void setCharset(String charset) {
+        this.charset = charset;
+    }
+
 }

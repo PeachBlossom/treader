@@ -318,8 +318,11 @@ public class MainActivity extends BaseActivity
             animationCount++;
             if (animationCount >= 2) {
                 mIsOpen = true;
-                adapter.setItemToFirst(itemPosition);
-                ReadActivity1.openBook(bookLists.get(itemPosition),MainActivity.this);
+//                adapter.setItemToFirst(itemPosition);
+//                bookLists = DataSupport.findAll(BookList.class);
+                BookList bookList = bookLists.get(itemPosition);
+//                bookList.setId(1);
+                ReadActivity1.openBook(bookList,MainActivity.this);
             }
 
         } else {

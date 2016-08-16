@@ -1,5 +1,6 @@
 package com.zijie.treader.util;
 
+import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
@@ -10,6 +11,7 @@ import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.graphics.Rect;
 import android.graphics.RectF;
 import android.graphics.Region;
 import android.graphics.Typeface;
@@ -25,8 +27,10 @@ import com.zijie.treader.Config;
 import com.zijie.treader.R;
 import com.zijie.treader.ReadActivity;
 import com.zijie.treader.db.BookCatalogue;
+import com.zijie.treader.db.BookList;
 import com.zijie.treader.view.BookPageWidget;
 
+import org.litepal.crud.DataSupport;
 import org.mozilla.universalchardet.UniversalDetector;
 
 import java.io.BufferedInputStream;
@@ -87,6 +91,8 @@ public class PageFactory1 {
     // 上下与边缘的距离
     private float marginHeight ;
     // 左右与边缘的距离
+    private float measureMarginWidth ;
+    // 左右与边缘的距离
     private float marginWidth ;
     //状态栏距离底部高度
     private float statusMarginBottom;
@@ -96,6 +102,8 @@ public class PageFactory1 {
     private Typeface typeface;
     //文字画笔
     private Paint mPaint;
+    //加载画笔
+    private Paint waitPaint;
     //文字颜色
     private int m_textColor = Color.rgb(50, 65, 78);
     // 绘制内容的宽
@@ -146,11 +154,12 @@ public class PageFactory1 {
     //现在的进度
     private float currentProgress;
     //目录
-    private List<BookCatalogue> directoryList = new ArrayList<>();
+//    private List<BookCatalogue> directoryList = new ArrayList<>();
     //书本路径
     private String bookPath = "";
     //书本名字
     private String bookName = "";
+    private BookList bookList;
     //书本章节
     private int currentCharter = 0;
     //当前电量
@@ -160,6 +169,16 @@ public class PageFactory1 {
     private TRPage currentPage;
     private TRPage prePage;
     private TRPage cancelPage;
+    private BookTask bookTask;
+    ContentValues values = new ContentValues();
+
+    private static Status mStatus = Status.OPENING;
+
+    public enum Status {
+        OPENING,
+        FINISH,
+        FAIL,
+    }
 
     public static synchronized PageFactory1 getInstance(){
         return pageFactory;
@@ -202,6 +221,13 @@ public class PageFactory1 {
         mPaint.setColor(m_textColor);// 字体颜色
         mPaint.setTypeface(typeface);
         mPaint.setSubpixelText(true);// 设置该项为true，将有助于文本在LCD屏幕上的显示效果
+
+        waitPaint = new Paint(Paint.ANTI_ALIAS_FLAG);// 画笔
+        waitPaint.setTextAlign(Paint.Align.LEFT);// 左对齐
+        waitPaint.setTextSize(mContext.getResources().getDimension(R.dimen.reading_max_text_size));// 字体大小
+        waitPaint.setColor(m_textColor);// 字体颜色
+        waitPaint.setTypeface(typeface);
+        waitPaint.setSubpixelText(true);// 设置该项为true，将有助于文本在LCD屏幕上的显示效果
         calculateLineCount();
 
         mBorderWidth = mContext.getResources().getDimension(R.dimen.reading_board_battery_border_width);
@@ -215,6 +241,13 @@ public class PageFactory1 {
                 new IntentFilter(Intent.ACTION_BATTERY_CHANGED)) ;//注册广播,随时获取到电池电量信息
 
         initBg(config.getDayOrNight());
+        measureMarginWidth();
+    }
+
+    private void measureMarginWidth(){
+        float wordWidth =mPaint.measureText("龍");
+        float width = mVisibleWidth % wordWidth;
+        measureMarginWidth = marginWidth + width / 2;
     }
 
     //初始化背景
@@ -236,9 +269,48 @@ public class PageFactory1 {
         mLineCount = (int) (mVisibleHeight / (m_fontSize + lineSpace));// 可显示的行数
     }
 
+    private void drawStatus(Bitmap bitmap){
+        String status = "";
+        switch (mStatus){
+            case OPENING:
+                status = "正在打开书本...";
+                break;
+            case FAIL:
+                status = "打开书本失败！";
+                break;
+        }
+
+        Canvas c = new Canvas(bitmap);
+        c.drawBitmap(getBgBitmap(), 0, 0, null);
+        waitPaint.setColor(getTextColor());
+        waitPaint.setTextAlign(Paint.Align.CENTER);
+
+        Rect targetRect = new Rect(0, 0, mWidth, mHeight);
+//        c.drawRect(targetRect, waitPaint);
+        Paint.FontMetricsInt fontMetrics = waitPaint.getFontMetricsInt();
+        // 转载请注明出处：http://blog.csdn.net/hursing
+        int baseline = (targetRect.bottom + targetRect.top - fontMetrics.bottom - fontMetrics.top) / 2;
+        // 下面这行是实现水平居中，drawText对应改为传入targetRect.centerX()
+        waitPaint.setTextAlign(Paint.Align.CENTER);
+        c.drawText(status, targetRect.centerX(), baseline, waitPaint);
+//        c.drawText("正在打开书本...", mHeight / 2, 0, waitPaint);
+        mBookPageWidget.postInvalidate();
+    }
+
     public void onDraw(Bitmap bitmap,List<String> m_lines,Boolean updateCharter) {
         if (getCurrentCharter() > 0 && updateCharter) {
             currentCharter = getCurrentCharter();
+        }
+        //更新数据库进度
+        if (currentPage != null && bookList != null){
+            new Thread() {
+                @Override
+                public void run() {
+                    super.run();
+                    values.put("begin",currentPage.getBegin());
+                    DataSupport.update(BookList.class,values,bookList.getId());
+                }
+            }.start();
         }
 
         Canvas c = new Canvas(bitmap);
@@ -255,7 +327,7 @@ public class PageFactory1 {
             float y = marginHeight;
             for (String strLine : m_lines) {
                 y += m_fontSize + lineSpace;
-                c.drawText(strLine, marginWidth, y, mPaint);
+                c.drawText(strLine, measureMarginWidth, y, mPaint);
                 word.append(strLine);
             }
         }
@@ -302,8 +374,8 @@ public class PageFactory1 {
         //画书名
         c.drawText(CommonUtil.subString(bookName,12), marginWidth ,statusMarginBottom + mBatterryFontSize, mBatterryPaint);
         //画章
-        if (directoryList.size() > 0) {
-            String charterName = CommonUtil.subString(directoryList.get(currentCharter).getBookCatalogue(),12);
+        if (getDirectoryList().size() > 0) {
+            String charterName = CommonUtil.subString(getDirectoryList().get(currentCharter).getBookCatalogue(),12);
             int nChaterWidth = (int) mBatterryPaint.measureText(charterName) + 1;
             c.drawText(charterName, mWidth - marginWidth - nChaterWidth, statusMarginBottom  + mBatterryFontSize, mBatterryPaint);
         }
@@ -325,7 +397,6 @@ public class PageFactory1 {
         onDraw(mBookPageWidget.getCurPage(),currentPage.getLines(),true);
         currentPage = getPrePage();
         onDraw(mBookPageWidget.getNextPage(),currentPage.getLines(),true);
-
     }
 
     //向后翻页
@@ -353,48 +424,81 @@ public class PageFactory1 {
 
     /**
      * 打开书本
-     * @param strFilePath
-     * @param begin
      * @throws IOException
      */
-    public void openBook(String strFilePath, long begin) throws IOException {
+    public void openBook(BookList bookList) throws IOException {
         //清空数据
-        directoryList.clear();
         currentCharter = 0;
+        m_mbBufLen = 0;
         initBg(config.getDayOrNight());
 
-        bookPath = strFilePath;
+        this.bookList = bookList;
+        bookPath = bookList.getBookpath();
         bookName = FileUtils.getFileName(bookPath);
-        mBookUtil.openBook(bookPath);
-        m_mbBufLen = mBookUtil.getBookLen();
 
-        currentPage = getPageForBegin(begin);
-        if (mBookPageWidget != null){
-            currentPage(true);
+        mStatus = Status.OPENING;
+        drawStatus(mBookPageWidget.getCurPage());
+        drawStatus(mBookPageWidget.getNextPage());
+        if (bookTask != null && bookTask.getStatus() != AsyncTask.Status.FINISHED){
+            bookTask.cancel(true);
         }
+        bookTask = new BookTask();
+        bookTask.execute(bookList.getBegin());
     }
 
-    //根据开始位置和结束位置获取页面
-//    public List<String> getPage(long begin,long end){
-//        if (allLines == null){
-//            return null;
-//        }
-//        List<String> lines = new ArrayList<>();
-//        for (int i = begin; i <= end;i++ ){
-//            if (allLines.size() > i) {
-//                lines.add(allLines.get(i));
-//            }else{
-//                break;
-//            }
-//        }
-//
-//        return lines;
-//    }
+    private class BookTask extends AsyncTask<Long,Void,Boolean>{
+        private long begin = 0;
+        @Override
+        protected void onPostExecute(Boolean result) {
+            super.onPostExecute(result);
+            if (result) {
+                PageFactory1.mStatus = PageFactory1.Status.FINISH;
+                m_mbBufLen = mBookUtil.getBookLen();
+                currentPage = getPageForBegin(begin);
+                if (mBookPageWidget != null) {
+                    currentPage(true);
+                }
+            }else{
+                PageFactory1.mStatus = PageFactory1.Status.FAIL;
+                drawStatus(mBookPageWidget.getCurPage());
+                drawStatus(mBookPageWidget.getNextPage());
+                Toast.makeText(mContext,"打开书本失败！",Toast.LENGTH_SHORT).show();
+            }
+        }
+
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+
+        }
+
+        @Override
+        protected void onProgressUpdate(Void... values) {
+            super.onProgressUpdate(values);
+        }
+
+        @Override
+        protected Boolean doInBackground(Long... params) {
+            begin = params[0];
+            try {
+                mBookUtil.openBook(bookList);
+            } catch (IOException e) {
+                e.printStackTrace();
+                return false;
+            }
+            return true;
+        }
+
+    }
 
     public TRPage getNextPage(){
+        mBookUtil.setPostition(currentPage.getEnd());
+
         TRPage trPage = new TRPage();
-        trPage.setBegin(mBookUtil.getPosition() + 1);
+        trPage.setBegin(currentPage.getEnd() + 1);
+        Log.e("begin",currentPage.getEnd() + 1 + "");
         trPage.setLines(getNextLines());
+        Log.e("end",mBookUtil.getPosition() + "");
         trPage.setEnd(mBookUtil.getPosition());
         return trPage;
     }
@@ -404,7 +508,9 @@ public class PageFactory1 {
 
         TRPage trPage = new TRPage();
         trPage.setEnd(mBookUtil.getPosition() - 1);
+        Log.e("end",mBookUtil.getPosition() - 1 + "");
         trPage.setLines(getPreLines());
+        Log.e("begin",mBookUtil.getPosition() + "");
         trPage.setBegin(mBookUtil.getPosition());
         return trPage;
     }
@@ -421,7 +527,6 @@ public class PageFactory1 {
 
     public List<String> getNextLines(){
         List<String> lines = new ArrayList<>();
-//        char word = (char) mBookUtil.next(false);
         float width = 0;
         String line = "";
         while (mBookUtil.next(true) != -1){
@@ -437,7 +542,6 @@ public class PageFactory1 {
                         break;
                     }
                 }
-                lines.add("");
             }else {
                 float widthChar = mPaint.measureText(word + "");
                 width += widthChar;
@@ -449,286 +553,91 @@ public class PageFactory1 {
                     line += word;
                 }
             }
+
             if (lines.size() == mLineCount){
+                if (!line.isEmpty()){
+                    mBookUtil.setPostition(mBookUtil.getPosition() - 1);
+                }
                 break;
             }
-//            word = (char) mBookUtil.next(false);
         }
 
         if (!line.isEmpty() && lines.size() < mLineCount){
             lines.add(line);
         }
         for (String str : lines){
-            Log.e(TAG,str);
+            Log.e(TAG,str + "   ");
         }
         return lines;
     }
 
     public List<String> getPreLines(){
         List<String> lines = new ArrayList<>();
-//        char word = (char) mBookUtil.pre(false);
         float width = 0;
         String line = "";
 
         char[] par = mBookUtil.preLine();
         while (par != null){
+            List<String> preLines = new ArrayList<>();
             for (int i = 0 ; i < par.length ; i++){
                 char word = par[i];
                 float widthChar = mPaint.measureText(word + "");
                 width += widthChar;
                 if (width > mVisibleWidth) {
                     width = widthChar;
-                    lines.add(line);
+                    preLines.add(line);
                     line = word + "";
                 } else {
                     line += word;
                 }
             }
             if (!line.isEmpty()){
-                lines.add(line);
-            }
-            if (lines.size() >= mLineCount){
-                break;
+                preLines.add(line);
             }
 
-            lines.add("");
+            lines.addAll(0,preLines);
 
             if (lines.size() >= mLineCount){
                 break;
             }
+            width = 0;
+            line = "";
             par = mBookUtil.preLine();
         }
 
         List<String> reLines = new ArrayList<>();
         int num = 0;
-        for (int i = lines.size() -1;i < 0;i --){
+        for (int i = lines.size() -1;i >= 0;i --){
             if (reLines.size() < mLineCount) {
-                reLines.add(lines.get(i));
+                reLines.add(0,lines.get(i));
             }else{
                 num = num + lines.get(i).length();
             }
-            Log.e(TAG,lines.get(i));
+            Log.e(TAG,lines.get(i) + "   ");
         }
 
         if (num > 0){
-            mBookUtil.setPostition(mBookUtil.getPosition() + num + 2);
+            if ( mBookUtil.getPosition() > 0) {
+                mBookUtil.setPostition(mBookUtil.getPosition() + num + 2);
+            }else{
+                mBookUtil.setPostition(mBookUtil.getPosition() + num );
+            }
         }
-
-//        while (mBookUtil.pre(true) != -1){
-//            char word = (char) mBookUtil.pre(false);
-//            if ((word + "").equals("\n") && (((char) mBookUtil.pre(true)) + "").equals("\r")){
-//                mBookUtil.pre(false);
-//                if (!line.isEmpty()){
-//                    lines.add(0,line);
-//                    line = "";
-//                    width = 0;
-//                    if (lines.size() == mLineCount){
-//                        break;
-//                    }
-//                }
-//                lines.add(0,"");
-//            }else {
-//                float widthChar = mPaint.measureText(word + "");
-//                width += widthChar;
-//                if (width > mVisibleWidth) {
-//                    width = widthChar;
-//                    lines.add(0,line);
-//                    line = word + "";
-//                } else {
-//                    line = word + line;
-//                }
-//
-//                if (lines.size() == mLineCount) {
-//                    break;
-//                }
-//            }
-////            word = (char) mBookUtil.pre(false);
-//        }
-//
-//        if (!line.isEmpty() && lines.size() < mLineCount){
-//            lines.add(0,line);
-//        }
 
         return reLines;
     }
 
-    //获取图书总长度
-//    public long getBookLen(){
-//        if (allLines == null){
-//            return 0;
-//        }
-//        long len = 0;
-//        for (String line : allLines){
-//            len += line.length();
-//        }
-//
-//        return len;
-//    }
-
-    //根据行数获取当前页面开始的行
-//    public int getBeginForLineNum(int num){
-//        int begin = 0;
-//        begin = num % mLineCount;
-//        return num - begin;
-//    }
-
-    //根据页面开始行获取结束行
-//    public int getEndLine(int begin){
-//        int end = begin + mLineCount -1;
-//        return end;
-//    }
-
-    //根据长度获取行数
-//    public int getLineNum(long len){
-//        if (allLines == null){
-//            return 0;
-//        }
-//
-//        long lenth = 0;
-//        int num = 0;
-//        for (int i = 0;i <  allLines.size();i++){
-//            lenth += allLines.get(i).length();
-//            if (lenth >= len){
-//                num = i;
-//                break;
-//            }
-//        }
-//        return num;
-//    }
-
-    //转码
-//    public String transCoding(String filePath) throws IOException {
-//        File book_file = new File(filePath);
-//        long lLen = book_file.length();
-//        MappedByteBuffer m_mbBuf = new RandomAccessFile(book_file, "r").getChannel().map(FileChannel.MapMode.READ_ONLY, 0, lLen);
-//        byte[] paraBuf = new byte[(int) lLen];
-//        ByteBuffer bb = m_mbBuf.get(paraBuf);
-//        Charset cs = Charset.forName(m_strCharsetName);
-//        bb.flip();
-//        CharBuffer cb = cs.decode(bb);
-//        return cb.toString();
-//    }
-
-    //分段
-//    public List<String> piecewise(String data){
-//        if (data == null){
-//            return null;
-//        }
-//        ArrayList<String> list = new ArrayList<>();
-//        String pgStr = "";
-//        if (data.indexOf("\r\n") != -1){
-//            pgStr = "\r\n";
-//        }else if (data.indexOf("\n") != -1){
-//            pgStr = "\n";
-//        }else if (data.indexOf("\r") != -1){
-//            pgStr = "\r";
-//        }
-//        if (!pgStr.isEmpty()){
-//            String[] paragraphs = data.split(pgStr);
-//            for (String paragraph : paragraphs){
-//                paragraph = paragraph.trim();
-//                //每段首行缩进两个汉字的距离
-//                if (paragraph.startsWith("\u3000")) {
-//                    list.add(paragraph);
-//                }else if (!paragraph.trim().isEmpty()){
-//                    list.add("\u3000\u3000" + paragraph);
-//                }
-//            }
-//        }else{
-//            list .add(data);
-//        }
-//
-//        return list;
-//    }
-
-    //分行
-//    public List<String> branch(List<String> list){
-//        if (list == null){
-//            return null;
-//        }
-//        directoryList.clear();
-//        long start = System.currentTimeMillis();
-//        Log.e("分行","start:" + start + "");
-//        List<String> allLines = new ArrayList<>();
-//        for (String paragraph : list){
-//            //分章
-//            if (paragraph.length() <= 30 && paragraph.matches(".*第.{1,8}章.*")){
-//                Integer sizeL = new Integer(allLines.size() + 1);
-//                BookCatalogue bookCatalogue = new BookCatalogue();
-//                bookCatalogue.setBookCatalogueStartPos(sizeL);
-//                bookCatalogue.setBookCatalogue(paragraph);
-//                bookCatalogue.setBookpath(bookPath);
-//                directoryList.add(bookCatalogue);
-//            }
-//
-//            List<String> lines = separateParagraphtoLines1(paragraph);
-//            allLines.addAll(lines);
-//            //每段结尾加一个空行
-//            allLines.add("");
-//        }
-//
-//        long end = System.currentTimeMillis();
-////        Log.e("分行","end:" + end + "");
-////        Log.e("分行","耗时:" + (start - end) + "");
-//        return allLines;
-//    }
-
-//    //每段分行
-//    public List<String> separateParagraphtoLines1(String paragraphstr) {
-//        List<String> linesdata = new ArrayList<>();
-//        String str = paragraphstr;
-//       char[] paragraphChar = paragraphstr.toCharArray();
-//        float width = 0;
-//        String line = "";
-//        for (int i = 0; i < paragraphChar.length;i++){
-//            float widthChar = mPaint.measureText(paragraphChar[i] + "");
-//            width += widthChar;
-//            if (width > mVisibleWidth){
-//                width = widthChar;
-//                linesdata.add(line);
-//                line = paragraphChar[i] + "";
-//            }else{
-//                line += paragraphChar[i];
-//            }
-//
-//            if (i == paragraphChar.length - 1){
-//                linesdata.add(line);
-//            }
-//        }
-//
-//        return linesdata;
-//    }
-//
-//    //每段分行
-//    public List<String> separateParagraphtoLines(String paragraphstr) {
-//        List<String> linesdata = new ArrayList<>();
-//        String str = paragraphstr;
-//        for (; str.length() > 0;) {
-//            int nums = mPaint.breakText(str, true, mVisibleWidth, null);
-//            if (nums <= str.length()) {
-//                String linnstr = str.substring(0, nums);
-//                linesdata.add(linnstr);
-//                str = str.substring(nums, str.length());
-//            } else {
-//                linesdata.add(str);
-//                str = "";
-//            }
-//
-//        }
-//        return linesdata;
-//    }
-
     //上一章
     public void preChapter(){
-        if (directoryList.size() > 0){
-//            int num = currentCharter;
-//            num --;
-//            if (num >= 0){
-//                m_mbBufBegin = getBeginForLineNum(directoryList.get(num).getBookCatalogueStartPos());
-//                m_mbBufEnd = getEndLine(m_mbBufBegin);
-//                currentPage(true);
-//                currentCharter = num;
-//            }
+        if (mBookUtil.getDirectoryList().size() > 0){
+            int num = currentCharter;
+            num --;
+            if (num >= 0){
+                long begin = mBookUtil.getDirectoryList().get(num).getBookCatalogueStartPos();
+                currentPage = getPageForBegin(begin);
+                currentPage(true);
+                currentCharter = num;
+            }
         }
     }
 
@@ -736,23 +645,23 @@ public class PageFactory1 {
     public void nextChapter(){
         int num = currentCharter;
         num ++;
-        if (num < directoryList.size()){
-//            m_mbBufBegin = getBeginForLineNum(directoryList.get(num).getBookCatalogueStartPos());
-//            m_mbBufEnd = getEndLine(m_mbBufBegin);
-//            currentPage(true);
-//            currentCharter = num;
+        if (num < getDirectoryList().size()){
+            long begin = getDirectoryList().get(num).getBookCatalogueStartPos();
+            currentPage = getPageForBegin(begin);
+            currentPage(true);
+            currentCharter = num;
         }
     }
 
     //获取现在的章
     public int getCurrentCharter(){
         int num = 0;
-        for (int i = 0;directoryList.size() > i;i++){
-//            BookCatalogue bookCatalogue = directoryList.get(i);
-//            if (m_mbBufBegin <= bookCatalogue.getBookCatalogueStartPos() && m_mbBufEnd >= bookCatalogue.getBookCatalogueStartPos()){
-//                num = i;
-//                break;
-//            }
+        for (int i = 0;getDirectoryList().size() > i;i++){
+            BookCatalogue bookCatalogue = getDirectoryList().get(i);
+            if (currentPage.getBegin() <= bookCatalogue.getBookCatalogueStartPos() && currentPage.getEnd() >= bookCatalogue.getBookCatalogueStartPos()){
+                num = i;
+                break;
+            }
         }
         return num;
     }
@@ -765,17 +674,21 @@ public class PageFactory1 {
 
     //更新电量
     public void updateBattery(int mLevel){
-        if (level != mLevel){
-            level = mLevel;
-            currentPage(false);
+        if (currentPage != null) {
+            if (level != mLevel) {
+                level = mLevel;
+                currentPage(false);
+            }
         }
     }
 
     public void updateTime(){
-        String mDate = sdf.format(new java.util.Date());
-        if (date != mDate){
-            date = mDate;
-            currentPage(false);
+        if (currentPage != null) {
+            String mDate = sdf.format(new java.util.Date());
+            if (date != mDate) {
+                date = mDate;
+                currentPage(false);
+            }
         }
     }
 
@@ -787,17 +700,17 @@ public class PageFactory1 {
     }
 
     //改变进度
-//    public void changeChapter(int lineNum){
-//        m_mbBufBegin = getBeginForLineNum(lineNum);
-//        m_mbBufEnd = getEndLine(m_mbBufBegin);
-//        currentPage(true);
-//    }
+    public void changeChapter(long begin){
+        currentPage = getPageForBegin(begin);
+        currentPage(true);
+    }
 
     //改变字体大小
     public void changeFontSize(int fontSize){
         this.m_fontSize = fontSize;
         mPaint.setTextSize(m_fontSize);
         calculateLineCount();
+        measureMarginWidth();
         currentPage = getPageForBegin(currentPage.getBegin());
         currentPage(true);
     }
@@ -808,6 +721,7 @@ public class PageFactory1 {
         mPaint.setTypeface(typeface);
         mBatterryPaint.setTypeface(typeface);
         calculateLineCount();
+        measureMarginWidth();
         currentPage = getPageForBegin(currentPage.getBegin());
         currentPage(true);
     }
@@ -896,16 +810,19 @@ public class PageFactory1 {
     }
 
     public void clear(){
-        directoryList.clear();
         currentCharter = 0;
         bookPath = "";
         mBookPageWidget = null;
         mPageEvent = null;
     }
 
+    public static Status getStatus(){
+        return mStatus;
+    }
+
     //获取书本的章
     public List<BookCatalogue> getDirectoryList(){
-        return directoryList;
+        return mBookUtil.getDirectoryList();
     }
 
     public String getBookPath(){
