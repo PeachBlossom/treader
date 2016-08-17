@@ -9,6 +9,7 @@ import android.content.IntentFilter;
 import android.graphics.Point;
 import android.graphics.Typeface;
 import android.os.BatteryManager;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -34,6 +35,7 @@ import com.zijie.treader.dialog.SettingDialog;
 import com.zijie.treader.util.BrightnessUtil;
 import com.zijie.treader.util.PageFactory1;
 import com.zijie.treader.view.BookPageWidget;
+import com.zijie.treader.view.PageWidget;
 
 import java.io.IOException;
 import java.text.DecimalFormat;
@@ -113,6 +115,10 @@ public class ReadActivity1 extends BaseActivity {
 
     @Override
     protected void initData() {
+        if(Build.VERSION.SDK_INT >= 14){
+            bookpage.setLayerType(View.LAYER_TYPE_SOFTWARE, null);
+        }
+
         toolbar.setTitle("");
         setSupportActionBar(toolbar);
         toolbar.setNavigationIcon(R.mipmap.return_button);
@@ -160,7 +166,11 @@ public class ReadActivity1 extends BaseActivity {
             Toast.makeText(this, "打开电子书失败", Toast.LENGTH_SHORT).show();
         }
 
+        initDayOrNight();
+    }
 
+    @Override
+    protected void initListener() {
         sb_progress.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             float pro;
             // 触发操作，拖动
@@ -183,11 +193,6 @@ public class ReadActivity1 extends BaseActivity {
             }
         });
 
-        initDayOrNight();
-    }
-
-    @Override
-    protected void initListener() {
         mSettingDialog.setOnCancelListener(new DialogInterface.OnCancelListener() {
             @Override
             public void onCancel(DialogInterface dialog) {
@@ -301,6 +306,7 @@ public class ReadActivity1 extends BaseActivity {
     protected void onDestroy() {
         super.onDestroy();
         pageFactory.clear();
+        bookpage = null;
         unregisterReceiver(myReceiver);
     }
 
@@ -336,7 +342,7 @@ public class ReadActivity1 extends BaseActivity {
     private void showSystemUI() {
         getWindow().getDecorView().setSystemUiVisibility(
                 View.SYSTEM_UI_FLAG_LAYOUT_STABLE
-                        | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+//                        | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
                         | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
                         | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
         );

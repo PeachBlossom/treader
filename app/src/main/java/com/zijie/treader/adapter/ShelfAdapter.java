@@ -166,18 +166,15 @@ public class ShelfAdapter extends BaseAdapter implements DragGridListener {
      */
     public void updateBookPosition (int position,int databaseId,List<BookList> bookLists) {
         BookList bookList = new BookList();
-        BookList bookList1 = new BookList();
-        BookList bookList2 = new BookList();
-        BookList bookList3 = new BookList();
         String bookpath = bookLists.get(position).getBookpath();
         String bookname = bookLists.get(position).getBookname();
         bookList.setBookpath(bookpath);
-        bookList1.setBookname(bookname);
-        bookList2.setBegin(bookLists.get(position).getBegin());
-        bookList3.setCharset(bookLists.get(position).getCharset());
+        bookList.setBookname(bookname);
+        bookList.setBegin(bookLists.get(position).getBegin());
+        bookList.setCharset(bookLists.get(position).getCharset());
         //开线程保存改动的数据到数据库
         //使用litepal数据库框架update时每次只能update一个id中的一条信息，如果相同则不更新。
-        upDateBookToSqlite3(databaseId , bookList, bookList1,bookList2,bookList3);
+        upDateBookToSqlite3(databaseId , bookList);
     }
 
     /**
@@ -255,9 +252,8 @@ public class ShelfAdapter extends BaseAdapter implements DragGridListener {
      * 数据库书本信息更新
      * @param databaseId  要更新的数据库的书本ID
      * @param bookList
-     * @param bookList1
      */
-    public void upDateBookToSqlite3(final int databaseId,final BookList bookList,final BookList bookList1,final BookList bookList2,final BookList bookList3) {
+    public void upDateBookToSqlite3(final int databaseId,final BookList bookList) {
 
         putAsyncTask(new AsyncTask<Void, Void, Boolean>() {
             @Override
@@ -269,10 +265,6 @@ public class ShelfAdapter extends BaseAdapter implements DragGridListener {
             protected Boolean doInBackground(Void... params) {
                 try {
                     bookList.update(databaseId);
-                    bookList1.update(databaseId);
-                    bookList2.update(databaseId);
-                    bookList3.update(databaseId);
-
                 } catch (DataSupportException e) {
                     return false;
                 }

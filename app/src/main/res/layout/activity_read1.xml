@@ -7,12 +7,18 @@
     android:orientation="vertical"
     android:background="#000000">
 
+    <com.zijie.treader.view.BookPageWidget
+        android:id="@+id/bookpage"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"/>
+
     <android.support.design.widget.AppBarLayout
         android:id="@+id/appbar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:fitsSystemWindows="true"
         android:theme="@style/AppTheme.AppBarOverlay"
+        android:layout_alignParentTop="true"
         android:visibility="gone">
 
         <android.support.v7.widget.Toolbar
@@ -25,11 +31,6 @@
             app:popupTheme="@style/AppTheme.PopupOverlay" />
 
     </android.support.design.widget.AppBarLayout>
-
-        <com.zijie.treader.view.BookPageWidget
-            android:id="@+id/bookpage"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"/>
 
         <!--<LinearLayout-->
             <!--android:id="@+id/ll_status"-->

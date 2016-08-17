@@ -119,7 +119,7 @@ public class PageFactory1 {
     //背景图片
     private Bitmap m_book_bg = null;
     //当前显示的文字
-    private StringBuilder word = new StringBuilder();
+//    private StringBuilder word = new StringBuilder();
     //当前总共的行
 //    private Vector<String> m_lines = new Vector<>();
 //    // 当前页起始位置
@@ -131,7 +131,7 @@ public class PageFactory1 {
 //    // 之前页终点位置
 //    private long m_preEnd = 0;
     // 图书总长度
-    private long m_mbBufLen = 0;
+//    private long m_mbBufLen = 0;
     private Intent batteryInfoIntent;
     //电池电量百分比
     private float mBatteryPercentage;
@@ -140,7 +140,7 @@ public class PageFactory1 {
     //电池内边框
     private RectF rect2 = new RectF();
     //文件编码
-    private String m_strCharsetName = "GBK";
+//    private String m_strCharsetName = "GBK";
     //当前是否为第一页
     private boolean m_isfirstPage;
     //当前是否为最后一页
@@ -254,8 +254,12 @@ public class PageFactory1 {
     private void initBg(Boolean isNight){
         if (isNight) {
             //设置背景
-            setBgBitmap(BitmapUtil.decodeSampledBitmapFromResource(
-                    mContext.getResources(), R.drawable.main_bg, mWidth, mHeight));
+//            setBgBitmap(BitmapUtil.decodeSampledBitmapFromResource(
+//                    mContext.getResources(), R.drawable.main_bg, mWidth, mHeight));
+            Bitmap bitmap = Bitmap.createBitmap(mWidth,mHeight, Bitmap.Config.RGB_565);
+            Canvas canvas = new Canvas(bitmap);
+            canvas.drawColor(Color.BLACK);
+            setBgBitmap(bitmap);
             //设置字体颜色
             setM_textColor(Color.rgb(128, 128, 128));
             setBookPageBg(Color.BLACK);
@@ -315,7 +319,7 @@ public class PageFactory1 {
 
         Canvas c = new Canvas(bitmap);
         c.drawBitmap(getBgBitmap(), 0, 0, null);
-        word.setLength(0);
+//        word.setLength(0);
         mPaint.setTextSize(getFontSize());
         mPaint.setColor(getTextColor());
         mBatterryPaint.setColor(getTextColor());
@@ -328,7 +332,7 @@ public class PageFactory1 {
             for (String strLine : m_lines) {
                 y += m_fontSize + lineSpace;
                 c.drawText(strLine, measureMarginWidth, y, mPaint);
-                word.append(strLine);
+//                word.append(strLine);
             }
         }
 
@@ -429,7 +433,7 @@ public class PageFactory1 {
     public void openBook(BookList bookList) throws IOException {
         //清空数据
         currentCharter = 0;
-        m_mbBufLen = 0;
+//        m_mbBufLen = 0;
         initBg(config.getDayOrNight());
 
         this.bookList = bookList;
@@ -453,7 +457,7 @@ public class PageFactory1 {
             super.onPostExecute(result);
             if (result) {
                 PageFactory1.mStatus = PageFactory1.Status.FINISH;
-                m_mbBufLen = mBookUtil.getBookLen();
+//                m_mbBufLen = mBookUtil.getBookLen();
                 currentPage = getPageForBegin(begin);
                 if (mBookPageWidget != null) {
                     currentPage(true);
@@ -739,6 +743,11 @@ public class PageFactory1 {
         int color = 0;
         switch (type){
             case Config.BOOK_BG_DEFAULT:
+                canvas = null;
+                bitmap.recycle();
+                if (getBgBitmap() != null) {
+                    getBgBitmap().recycle();
+                }
                 bitmap = BitmapUtil.decodeSampledBitmapFromResource(
                         mContext.getResources(), R.drawable.paper, mWidth, mHeight);
                 color = mContext.getResources().getColor(R.color.read_font_default);
@@ -767,6 +776,7 @@ public class PageFactory1 {
                 setBookPageBg(mContext.getResources().getColor(R.color.read_bg_4));
                 break;
         }
+
         setBgBitmap(bitmap);
         //设置字体颜色
         setM_textColor(color);
@@ -783,37 +793,16 @@ public class PageFactory1 {
         currentPage(false);
     }
 
-    /**
-     * 获取文件编码
-     * @param fileName
-     * @return
-     * @throws IOException
-     */
-    public String getCharset(String fileName) throws IOException{
-        String charset;
-        FileInputStream fis = new FileInputStream(fileName);
-        byte[] buf = new byte[4096];
-        // (1)
-        UniversalDetector detector = new UniversalDetector(null);
-        // (2)
-        int nread;
-        while ((nread = fis.read(buf)) > 0 && !detector.isDone()) {
-            detector.handleData(buf, 0, nread);
-        }
-        // (3)
-        detector.dataEnd();
-        // (4)
-        charset = detector.getDetectedCharset();
-        // (5)
-        detector.reset();
-        return charset;
-    }
-
     public void clear(){
         currentCharter = 0;
         bookPath = "";
+        bookName = "";
+        bookList = null;
         mBookPageWidget = null;
         mPageEvent = null;
+        cancelPage = null;
+        prePage = null;
+        currentPage = null;
     }
 
     public static Status getStatus(){

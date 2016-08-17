@@ -109,6 +109,7 @@ public class FileActivity extends BaseActivity {
         });
 
         adapter.setCheckedChangeListener(new FileAdapter.CheckedChangeListener() {
+
             @Override
             public void onCheckedChanged(int position, CompoundButton buttonView, boolean isChecked) {
                 setAddFileText(adapter.getCheckNum());

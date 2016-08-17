@@ -5,6 +5,7 @@
     <string name="navigation_drawer_close">Close navigation drawer</string>
 
     <string name="action_settings">Settings</string>
+    <string name="action_select_file">选择文件</string>
 
     <string name="press_twice_to_exit">连续点击才能退出</string>
     <string name="root">根目录</string>

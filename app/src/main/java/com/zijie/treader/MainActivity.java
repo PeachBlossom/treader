@@ -34,6 +34,7 @@ import com.zijie.treader.animation.ContentScaleAnimation;
 import com.zijie.treader.animation.Rotate3DAnimation;
 import com.zijie.treader.base.BaseActivity;
 import com.zijie.treader.db.BookList;
+import com.zijie.treader.filechooser.FileChooserActivity;
 import com.zijie.treader.util.CommonUtil;
 import com.zijie.treader.util.DisplayUtils;
 import com.zijie.treader.view.DragGridView;
@@ -318,10 +319,10 @@ public class MainActivity extends BaseActivity
             animationCount++;
             if (animationCount >= 2) {
                 mIsOpen = true;
-//                adapter.setItemToFirst(itemPosition);
+                adapter.setItemToFirst(itemPosition);
 //                bookLists = DataSupport.findAll(BookList.class);
                 BookList bookList = bookLists.get(itemPosition);
-//                bookList.setId(1);
+                bookList.setId(bookLists.get(0).getId());
                 ReadActivity1.openBook(bookList,MainActivity.this);
             }
 
@@ -379,8 +380,16 @@ public class MainActivity extends BaseActivity
         int id = item.getItemId();
 
         //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
+//        if (id == R.id.action_settings) {
+//            return true;
+//        }else if (id == R.id.action_select_file){
+//            Intent intent = new Intent(MainActivity.this, FileChooserActivity.class);
+//            startActivity(intent);
+//        }
+
+        if (id == R.id.action_select_file){
+            Intent intent = new Intent(MainActivity.this, FileChooserActivity.class);
+            startActivity(intent);
         }
 
         return super.onOptionsItemSelected(item);
