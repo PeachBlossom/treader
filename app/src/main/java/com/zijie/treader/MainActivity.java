@@ -125,7 +125,7 @@ public class MainActivity extends BaseActivity
             public void onClick(View view) {
 //                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
 //                        .setAction("Action", null).show();
-                Intent intent = new Intent(MainActivity.this,FileActivity.class);
+                Intent intent = new Intent(MainActivity.this,FileChooserActivity.class);
                 MainActivity.this.startActivity(intent);
             }
         });
@@ -143,44 +143,51 @@ public class MainActivity extends BaseActivity
                 if (bookLists.size() > position) {
                     itemPosition = position;
                     String bookname = bookLists.get(itemPosition).getBookname();
-                    itemTextView = (TextView) view.findViewById(R.id.tv_name);
-                    //获取item在屏幕中的x，y坐标
-                    itemTextView.getLocationInWindow(location);
 
-                    //初始化dialog
-                    mWindowManager.addView(wmRootView, getDefaultWindowParams());
-                    cover = new TextView(getApplicationContext());
-                    cover.setBackgroundDrawable(getResources().getDrawable(R.mipmap.cover_default_new));
-                    cover.setCompoundDrawablesWithIntrinsicBounds(null,null,null,getResources().getDrawable(R.mipmap.cover_type_txt));
-                    cover.setText(bookname);
-                    cover.setTextColor(getResources().getColor(R.color.read_textColor));
-                    cover.setTypeface(typeface);
-                    int coverPadding = (int) CommonUtil.convertDpToPixel(getApplicationContext(), 10);
-                    cover.setPadding(coverPadding, coverPadding, coverPadding, coverPadding);
+                    adapter.setItemToFirst(itemPosition);
+//                bookLists = DataSupport.findAll(BookList.class);
+                    BookList bookList = bookLists.get(itemPosition);
+                    bookList.setId(bookLists.get(0).getId());
+                    ReadActivity1.openBook(bookList,MainActivity.this);
 
-                    content = new ImageView(getApplicationContext());
-                    Bitmap contentBitmap = Bitmap.createBitmap(itemTextView.getMeasuredWidth(),itemTextView.getMeasuredHeight(), Bitmap.Config.ARGB_8888);
-                    contentBitmap.eraseColor(getResources().getColor(R.color.read_background_paperYellow));
-                    content.setImageBitmap(contentBitmap);
-
-                    AbsoluteLayout.LayoutParams params = new AbsoluteLayout.LayoutParams(
-                            itemTextView.getLayoutParams());
-                    params.x = location[0];
-                    params.y = location[1];
-                    wmRootView.addView(content, params);
-                    wmRootView.addView(cover, params);
-
-                    initAnimation();
-                    if (contentAnimation.getMReverse()) {
-                        contentAnimation.reverse();
-                    }
-                    if (coverAnimation.getMReverse()) {
-                        coverAnimation.reverse();
-                    }
-                    cover.clearAnimation();
-                    cover.startAnimation(coverAnimation);
-                    content.clearAnimation();
-                    content.startAnimation(contentAnimation);
+//                    itemTextView = (TextView) view.findViewById(R.id.tv_name);
+//                    //获取item在屏幕中的x，y坐标
+//                    itemTextView.getLocationInWindow(location);
+//
+//                    //初始化dialog
+//                    mWindowManager.addView(wmRootView, getDefaultWindowParams());
+//                    cover = new TextView(getApplicationContext());
+//                    cover.setBackgroundDrawable(getResources().getDrawable(R.mipmap.cover_default_new));
+//                    cover.setCompoundDrawablesWithIntrinsicBounds(null,null,null,getResources().getDrawable(R.mipmap.cover_type_txt));
+//                    cover.setText(bookname);
+//                    cover.setTextColor(getResources().getColor(R.color.read_textColor));
+//                    cover.setTypeface(typeface);
+//                    int coverPadding = (int) CommonUtil.convertDpToPixel(getApplicationContext(), 10);
+//                    cover.setPadding(coverPadding, coverPadding, coverPadding, coverPadding);
+//
+//                    content = new ImageView(getApplicationContext());
+//                    Bitmap contentBitmap = Bitmap.createBitmap(itemTextView.getMeasuredWidth(),itemTextView.getMeasuredHeight(), Bitmap.Config.ARGB_8888);
+//                    contentBitmap.eraseColor(getResources().getColor(R.color.read_background_paperYellow));
+//                    content.setImageBitmap(contentBitmap);
+//
+//                    AbsoluteLayout.LayoutParams params = new AbsoluteLayout.LayoutParams(
+//                            itemTextView.getLayoutParams());
+//                    params.x = location[0];
+//                    params.y = location[1];
+//                    wmRootView.addView(content, params);
+//                    wmRootView.addView(cover, params);
+//
+//                    initAnimation();
+//                    if (contentAnimation.getMReverse()) {
+//                        contentAnimation.reverse();
+//                    }
+//                    if (coverAnimation.getMReverse()) {
+//                        coverAnimation.reverse();
+//                    }
+//                    cover.clearAnimation();
+//                    cover.startAnimation(coverAnimation);
+//                    content.clearAnimation();
+//                    content.startAnimation(contentAnimation);
                 }
             }
         });

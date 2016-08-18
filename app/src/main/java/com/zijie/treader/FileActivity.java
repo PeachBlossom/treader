@@ -78,10 +78,17 @@ public class FileActivity extends BaseActivity {
         getWindow().setBackgroundDrawable(null);
         setSupportActionBar(toolbar);
         //设置导航图标
-        toolbar.setNavigationIcon(R.mipmap.return_button);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        toolbar.setNavigationOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                finish();
+            }
+        });
         if(getSupportActionBar() != null) {
             getSupportActionBar().setTitle("导入图书");
         }
+
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             checkPermission(FileActivity.this, Manifest.permission.WRITE_EXTERNAL_STORAGE, EXTERNAL_STORAGE_REQ_CODE,"添加图书需要此权限，请允许");
         }

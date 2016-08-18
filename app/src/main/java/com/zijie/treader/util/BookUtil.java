@@ -265,6 +265,9 @@ public class BookUtil {
 
     //获取书本缓存
     public char[] block(int index) {
+        if (myArray.size() == 0){
+            return new char[1];
+        }
         char[] block = myArray.get(index).getData().get();
         if (block == null) {
             try {

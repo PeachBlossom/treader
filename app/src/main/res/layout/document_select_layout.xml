@@ -1,17 +1,24 @@
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent" >
 
+    <include layout="@layout/activity_file_bottom"
+        android:id="@+id/layout_bottom"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true" />
+
     <ListView
         android:id="@+id/listView"
-        android:layout_width="fill_parent"
-        android:layout_height="fill_parent"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
         android:cacheColorHint="#ffffffff"
         android:clipToPadding="false"
         android:divider="@null"
         android:dividerHeight="0dp"
         android:fadingEdge="none"
         android:fadingEdgeLength="0dp"
+        android:layout_above="@id/layout_bottom"
         android:scrollbars="none" />
 
     <TextView
@@ -24,4 +31,4 @@
         android:textSize="20dp"
         android:visibility="gone" />
 
-</FrameLayout>
+</RelativeLayout>

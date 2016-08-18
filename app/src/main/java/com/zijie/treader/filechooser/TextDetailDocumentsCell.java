@@ -9,6 +9,7 @@
 package com.zijie.treader.filechooser;
 
 import android.content.Context;
+import android.graphics.Color;
 import android.graphics.Typeface;
 import android.text.TextUtils;
 import android.util.TypedValue;
@@ -24,6 +25,7 @@ public class TextDetailDocumentsCell extends FrameLayout {
     private TextView textView;
     private TextView valueTextView;
     private TextView typeTextView;
+    private TextView storageTextView;
     private ImageView imageView;
     private CheckBox checkBox;
 
@@ -103,6 +105,24 @@ public class TextDetailDocumentsCell extends FrameLayout {
         layoutParams.rightMargin = AndroidUtilities.dp(16);
         layoutParams.gravity = Gravity.RIGHT | Gravity.CENTER_VERTICAL;
         checkBox.setLayoutParams(layoutParams);
+
+        storageTextView = new TextView(context);
+        storageTextView.setEllipsize(TextUtils.TruncateAt.MARQUEE);
+        storageTextView.setGravity(Gravity.CENTER);
+        storageTextView.setSingleLine(true);
+        storageTextView.setTextColor(Color.RED);
+        storageTextView.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 16);
+        storageTextView.setTypeface(Typeface.DEFAULT_BOLD);
+        storageTextView.setVisibility(GONE);
+        storageTextView.setText("已导入");
+        addView(storageTextView);
+        layoutParams = (LayoutParams) storageTextView.getLayoutParams();
+        layoutParams.width = LayoutParams.WRAP_CONTENT;
+        layoutParams.height = LayoutParams.WRAP_CONTENT;
+        layoutParams.leftMargin = AndroidUtilities.dp(16) ;
+        layoutParams.rightMargin = AndroidUtilities.dp(16);
+        layoutParams.gravity = Gravity.RIGHT | Gravity.CENTER_VERTICAL;
+        storageTextView.setLayoutParams(layoutParams);
     }
 
     @Override
@@ -110,17 +130,27 @@ public class TextDetailDocumentsCell extends FrameLayout {
         super.onMeasure(widthMeasureSpec, MeasureSpec.makeMeasureSpec(AndroidUtilities.dp(64), MeasureSpec.EXACTLY));
     }
 
-    public void setTextAndValueAndTypeAndThumb(String text, String value, String type, String thumb, int resId) {
+    public void setTextAndValueAndTypeAndThumb(String text, String value, String type, String thumb, int resId,boolean isStorage) {
         textView.setText(text);
         valueTextView.setText(value);
+
         if (type != null) {
             typeTextView.setVisibility(VISIBLE);
             typeTextView.setText(type);
-            checkBox.setVisibility(View.VISIBLE);
+
+            if (isStorage){
+                storageTextView.setVisibility(VISIBLE);
+                checkBox.setVisibility(View.GONE);
+            }else{
+                storageTextView.setVisibility(GONE);
+                checkBox.setVisibility(View.VISIBLE);
+            }
         } else {
             typeTextView.setVisibility(GONE);
             checkBox.setVisibility(View.GONE);
+            storageTextView.setVisibility(GONE);
         }
+
         if (resId != 0) {
             if (thumb != null) {
 //                imageView.setImage(thumb, "40_40", null);
@@ -133,10 +163,14 @@ public class TextDetailDocumentsCell extends FrameLayout {
         }
     }
 
-    public void setChecked(boolean checked, boolean animated) {
-        if (checkBox.getVisibility() != VISIBLE) {
-            checkBox.setVisibility(VISIBLE);
-        }
+    public CheckBox getCheckBox(){
+        return checkBox;
+    }
+
+    public void setChecked(boolean checked) {
+//        if (checkBox.getVisibility() != VISIBLE) {
+//            checkBox.setVisibility(VISIBLE);
+//        }
         checkBox.setChecked(checked);
     }
 }

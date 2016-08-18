@@ -5,7 +5,7 @@
     <!-- Default screen margins, per the Android Design guidelines. -->
     <dimen name="activity_horizontal_margin">16dp</dimen>
     <dimen name="activity_vertical_margin">16dp</dimen>
-    <dimen name="fab_margin">16dp</dimen>
+    <dimen name="fab_margin">22dp</dimen>
 
     <!-- 状态栏电池厚度 -->
     <dimen name="reading_board_battery_border_width">1dp</dimen>

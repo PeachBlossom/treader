@@ -3,14 +3,17 @@ package com.zijie.treader.filechooser;
 import android.app.AlertDialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.graphics.drawable.Drawable;
+import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.StatFs;
 import android.support.v4.app.Fragment;
+import android.text.TextUtils;
 import android.util.Log;
 import android.util.StateSet;
 import android.view.LayoutInflater;
@@ -18,10 +21,20 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
+import android.widget.Button;
+import android.widget.CompoundButton;
+import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.zijie.treader.R;
+import com.zijie.treader.ReadActivity1;
+import com.zijie.treader.db.BookList;
+import com.zijie.treader.util.FileUtils;
+import com.zijie.treader.util.Fileutil;
+
+import org.litepal.crud.DataSupport;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -30,8 +43,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.List;
 
-public class DirectoryFragment extends Fragment {
+public class DirectoryFragment extends Fragment implements View.OnClickListener {
 
     private View fragmentView;
     private boolean receiverRegistered = false;
@@ -41,12 +55,19 @@ public class DirectoryFragment extends Fragment {
     private ListAdapter listAdapter;
     private TextView emptyView;
 
+    private LinearLayout layout_bottom;
+    private Button btn_choose_all;
+    private Button btn_delete;
+    private Button btn_add_file;
+
     private DocumentSelectActivityDelegate delegate;
 
     private static String title_ = "";
     private ArrayList<ListItem> items = new ArrayList<ListItem>();
+    private ArrayList<ListItem> checkItems = new ArrayList<ListItem>();
     private ArrayList<HistoryEntry> history = new ArrayList<HistoryEntry>();
     private HashMap<String, ListItem> selectedFiles = new HashMap<String, ListItem>();
+    private List<BookList> bookLists;
     private long sizeLimit = 1024 * 1024 * 1024;
 
     private String[] chhosefileType = {".txt"};
@@ -155,9 +176,24 @@ public class DirectoryFragment extends Fragment {
             filter.addDataScheme("file");
             getActivity().registerReceiver(receiver, filter);
         }
+
+//        bookLists = DataSupport.findAll(BookList.class);
+
         if (fragmentView == null) {
             fragmentView = inflater.inflate(R.layout.document_select_layout,
                     container, false);
+
+            layout_bottom = (LinearLayout) fragmentView
+                    .findViewById(R.id.layout_bottom);
+            btn_choose_all = (Button) fragmentView
+                    .findViewById(R.id.btn_choose_all);
+            btn_delete = (Button) fragmentView
+                    .findViewById(R.id.btn_delete);
+            btn_add_file = (Button) fragmentView
+                    .findViewById(R.id.btn_add_file);
+            btn_choose_all.setOnClickListener(this);
+            btn_delete.setOnClickListener(this);
+            btn_add_file.setOnClickListener(this);
 
             listAdapter = new ListAdapter(getActivity());
             emptyView = (TextView) fragmentView
@@ -208,12 +244,12 @@ public class DirectoryFragment extends Fragment {
                         listView.setSelection(0);
                     } else {
                         if (!file.canRead()) {
-                            showErrorBox("AccessError");
+                            showErrorBox("没有权限！");
                             return;
                         }
                         if (sizeLimit != 0) {
                             if (file.length() > sizeLimit) {
-                                showErrorBox("FileUploadLimit");
+                                showErrorBox("文件大小超出限制！");
                                 return;
                             }
                         }
@@ -231,14 +267,14 @@ public class DirectoryFragment extends Fragment {
                                 delegate.didSelectFiles(DirectoryFragment.this, files);
                             }
                         } else {
-                            showErrorBox("Choose correct file.");
+                            showErrorBox("请选择正确的文件！");
                             return;
                         }
 
                     }
                 }
             });
-
+            changgeCheckBookNum();
             listRoots();
         } else {
             ViewGroup parent = (ViewGroup) fragmentView.getParent();
@@ -246,7 +282,125 @@ public class DirectoryFragment extends Fragment {
                 parent.removeView(fragmentView);
             }
         }
+
         return fragmentView;
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        bookLists = DataSupport.findAll(BookList.class);
+        listAdapter.notifyDataSetChanged();
+    }
+
+    @Override
+    public void onClick(View v) {
+        int id = v.getId();
+        switch (id){
+            case R.id.btn_choose_all:
+                checkAll();
+                changgeCheckBookNum();
+                listAdapter.notifyDataSetChanged();
+                changgeCheckBookNum();
+                break;
+            case R.id.btn_delete:
+                checkItems.clear();
+                listAdapter.notifyDataSetChanged();
+                changgeCheckBookNum();
+                break;
+            case R.id.btn_add_file:
+//                changgeCheckBookNum();
+                addCheckBook();
+                break;
+        }
+    }
+
+    private void addCheckBook(){
+        if (checkItems.size() > 0) {
+            List<BookList> bookLists = new ArrayList<BookList>();
+            for (ListItem item : checkItems) {
+                BookList bookList = new BookList();
+                String bookName = FileUtils.getFileName(item.thumb);
+                bookList.setBookname(bookName);
+                bookList.setBookpath(item.thumb);
+                bookLists.add(bookList);
+            }
+            SaveBookToSqlLiteTask mSaveBookToSqlLiteTask = new SaveBookToSqlLiteTask();
+            mSaveBookToSqlLiteTask.execute(bookLists);
+        }
+    }
+
+    private void checkAll(){
+        for (ListItem listItem : items){
+            if (!TextUtils.isEmpty(listItem.thumb)){
+                boolean isCheck = false;
+                for (ListItem item : checkItems){
+                    if (item.thumb.equals(listItem.thumb)){
+                        isCheck = true;
+                        break;
+                    }
+                }
+                for (BookList list : bookLists){
+                    if (list.getBookpath().equals(listItem.thumb)){
+                        isCheck = true;
+                        break;
+                    }
+                }
+                if (!isCheck) {
+                    checkItems.add(listItem);
+                }
+            }
+        }
+    }
+
+    private class SaveBookToSqlLiteTask extends AsyncTask<List<BookList>,Void,Integer> {
+        private static final int FAIL = 0;
+        private static final int SUCCESS = 1;
+        private static final int REPEAT = 2;
+        private BookList repeatBookList;
+
+        @Override
+        protected Integer doInBackground(List<BookList>... params) {
+            List<BookList> bookLists = params[0];
+            for (BookList bookList : bookLists){
+                List<BookList> books = DataSupport.where("bookpath = ?", bookList.getBookpath()).find(BookList.class);
+                if (books.size() > 0){
+                    repeatBookList = bookList;
+                    return REPEAT;
+                }
+            }
+
+            try {
+                DataSupport.saveAll(bookLists);
+            } catch (Exception e){
+                e.printStackTrace();
+                return FAIL;
+            }
+            return SUCCESS;
+        }
+
+        @Override
+        protected void onPostExecute(Integer result) {
+            super.onPostExecute(result);
+            String msg = "";
+            switch (result){
+                case FAIL:
+                    msg = "由于一些原因添加书本失败";
+                    break;
+                case SUCCESS:
+                    msg = "导入书本成功";
+                    checkItems.clear();
+                    bookLists = DataSupport.findAll(BookList.class);
+                    listAdapter.notifyDataSetChanged();
+                    changgeCheckBookNum();
+                    break;
+                case REPEAT:
+                    msg = "书本" + repeatBookList.getBookname() + "重复了";
+                    break;
+            }
+
+            Toast.makeText(getActivity().getApplicationContext(), msg, Toast.LENGTH_SHORT).show();
+        }
     }
 
     private void listRoots() {
@@ -365,10 +519,10 @@ public class DirectoryFragment extends Fragment {
                     return true;
                 }
             }
-            showErrorBox("AccessError");
+            showErrorBox("没有权限!");
             return false;
         }
-        emptyView.setText("NoFiles");
+        emptyView.setText("没有文件!");
         File[] files = null;
         try {
             files = dir.listFiles();
@@ -377,7 +531,7 @@ public class DirectoryFragment extends Fragment {
             return false;
         }
         if (files == null) {
-            showErrorBox("UnknownError");
+            showErrorBox("未知错误!");
             return false;
         }
         currentDir = dir;
@@ -471,6 +625,36 @@ public class DirectoryFragment extends Fragment {
                 .setMessage(error).setPositiveButton("OK", null).show();
     }
 
+    public void showReadBox(final String path) {
+        if (getActivity() == null) {
+            return;
+        }
+        new AlertDialog.Builder(getActivity())
+                .setTitle(getActivity().getString(R.string.app_name))
+                .setMessage(path).setPositiveButton("阅读", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                BookList bookList = new BookList();
+                String bookName = FileUtils.getFileName(path);
+                bookList.setBookname(bookName);
+                bookList.setBookpath(path);
+
+                boolean isSave = false;
+                for (BookList book : bookLists){
+                    if (book.getBookpath().equals(bookList.getBookpath())){
+                        isSave = true;
+                    }
+                }
+
+                if (!isSave){
+                    bookList.save();
+                }
+                ReadActivity1.openBook(bookList,getActivity());
+            }
+        }).show();
+    }
+
+
     private String getRootSubtitle(String path) {
         StatFs stat = new StatFs(path);
         long total = (long) stat.getBlockCount() * (long) stat.getBlockSize();
@@ -480,6 +664,10 @@ public class DirectoryFragment extends Fragment {
             return "";
         }
         return "Free " + formatFileSize(free) + " of " + formatFileSize(total);
+    }
+
+    private void changgeCheckBookNum(){
+        btn_add_file.setText("加入书架(" + checkItems.size() + ")");
     }
 
     private class ListAdapter extends BaseFragmentAdapter {
@@ -518,18 +706,34 @@ public class DirectoryFragment extends Fragment {
                 convertView = new TextDetailDocumentsCell(mContext);
             }
             TextDetailDocumentsCell textDetailCell = (TextDetailDocumentsCell) convertView;
-            ListItem item = items.get(position);
+            final ListItem item = items.get(position);
             if (item.icon != 0) {
                 ((TextDetailDocumentsCell) convertView)
                         .setTextAndValueAndTypeAndThumb(item.title,
-                                item.subtitle, null, null, item.icon);
+                                item.subtitle, null, null, item.icon,false);
             } else {
                 String type = item.ext.toUpperCase().substring(0,
                         Math.min(item.ext.length(), 4));
+
                 ((TextDetailDocumentsCell) convertView)
                         .setTextAndValueAndTypeAndThumb(item.title,
-                                item.subtitle, type, item.thumb, 0);
+                                item.subtitle, type, item.thumb, 0,isStorage(item.thumb));
             }
+
+            textDetailCell.getCheckBox().setOnCheckedChangeListener(null);
+            textDetailCell.setChecked(isCheck(item.thumb));
+            textDetailCell.getCheckBox().setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+                @Override
+                public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                    if (isChecked){
+                        checkItems.add(item);
+                    }else{
+                        removeCheckItem(item.thumb);
+                    }
+                    changgeCheckBookNum();
+                }
+            });
+
             // if (item.file != null && actionBar.isActionModeShowed()) {
             // textDetailCell.setChecked(selectedFiles.containsKey(item.file.toString()),
             // !scrolling);
@@ -537,6 +741,35 @@ public class DirectoryFragment extends Fragment {
             // textDetailCell.setChecked(false, !scrolling);
             // }
             return convertView;
+        }
+
+        private boolean isCheck(String path){
+            for (ListItem item : checkItems){
+                if (item.thumb.equals(path)){
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        private void removeCheckItem(String path){
+            for (ListItem item : checkItems){
+                if (item.thumb.equals(path)){
+                    checkItems.remove(item);
+                    break;
+                }
+            }
+        }
+
+        private boolean isStorage(String path){
+            boolean isStore = false;
+            for (BookList bookList : bookLists){
+                if (bookList.getBookpath().equals(path)){
+                    return true;
+                }
+            }
+
+            return false;
         }
     }
 

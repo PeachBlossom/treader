@@ -17,6 +17,8 @@ import android.support.design.widget.AppBarLayout;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Display;
+import android.view.Gravity;
+import android.view.KeyEvent;
 import android.view.View;
 import android.view.WindowManager;
 import android.view.animation.Animation;
@@ -310,12 +312,29 @@ public class ReadActivity1 extends BaseActivity {
         unregisterReceiver(myReceiver);
     }
 
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        // TODO Auto-generated method stub
+        if (keyCode == KeyEvent.KEYCODE_BACK) {
+            if (isShow){
+                hideReadSetting();
+                return true;
+            }
+            if (mSettingDialog.isShowing()){
+                mSettingDialog.hide();
+                return true;
+            }
+            finish();
+        }
+        return super.onKeyDown(keyCode, event);
+    }
+
     public static void openBook(BookList bookList, Activity context) {
         Intent intent = new Intent(context, ReadActivity1.class);
         intent.putExtra(EXTRA_BOOK, bookList);
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        context.overridePendingTransition(R.anim.in_from_right, R.anim.out_to_left);
         context.startActivity(intent);
-        context.overridePendingTransition(android.support.v7.appcompat.R.anim.abc_grow_fade_in_from_bottom, android.support.v7.appcompat.R.anim.abc_shrink_fade_out_from_bottom);
     }
 
     public BookPageWidget getPageWidget() {
