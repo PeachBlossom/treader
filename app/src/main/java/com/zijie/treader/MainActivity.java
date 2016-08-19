@@ -1,6 +1,8 @@
 package com.zijie.treader;
 
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Bitmap;
@@ -42,6 +44,7 @@ import com.zijie.treader.view.DragGridView;
 import org.litepal.crud.DataSupport;
 import org.litepal.tablemanager.Connector;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Timer;
@@ -146,10 +149,31 @@ public class MainActivity extends BaseActivity
 
                     adapter.setItemToFirst(itemPosition);
 //                bookLists = DataSupport.findAll(BookList.class);
-                    BookList bookList = bookLists.get(itemPosition);
+                    final BookList bookList = bookLists.get(itemPosition);
                     bookList.setId(bookLists.get(0).getId());
+                    final String path = bookList.getBookpath();
+                    File file = new File(path);
+                    if (!file.exists()){
+                        new AlertDialog.Builder(MainActivity.this)
+                                .setTitle(MainActivity.this.getString(R.string.app_name))
+                                .setMessage(path + "文件不存在,是否删除该书本？")
+                                .setPositiveButton("删除", new DialogInterface.OnClickListener() {
+                                    @Override
+                                    public void onClick(DialogInterface dialog, int which) {
+                                        DataSupport.deleteAll(BookList.class, "bookpath = ?", path);
+                                        bookLists = DataSupport.findAll(BookList.class);
+                                        adapter.setBookList(bookLists);
+                                    }
+                                }).setCancelable(true).show();
+                        return;
+                    }
+
                     ReadActivity1.openBook(bookList,MainActivity.this);
 
+//                    if (!isOpen){
+//                        bookLists = DataSupport.findAll(BookList.class);
+//                        adapter.notifyDataSetChanged();
+//                    }
 //                    itemTextView = (TextView) view.findViewById(R.id.tv_name);
 //                    //获取item在屏幕中的x，y坐标
 //                    itemTextView.getLocationInWindow(location);

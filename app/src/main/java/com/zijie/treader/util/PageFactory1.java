@@ -390,8 +390,11 @@ public class PageFactory1 {
    //向前翻页
     public void prePage(){
         if (currentPage.getBegin() <= 0) {
+            Log.e(TAG,"当前是第一页");
+            if (!m_isfirstPage){
+                Toast.makeText(mContext, "当前是第一页", Toast.LENGTH_SHORT).show();
+            }
             m_isfirstPage = true;
-            Toast.makeText(mContext, "当前是第一页", Toast.LENGTH_SHORT).show();
             return;
         } else {
             m_isfirstPage = false;
@@ -406,8 +409,11 @@ public class PageFactory1 {
     //向后翻页
     public void nextPage(){
         if (currentPage.getEnd() >= mBookUtil.getBookLen()) {
+            Log.e(TAG,"已经是最后一页了");
+            if (!m_islastPage){
+                Toast.makeText(mContext, "已经是最后一页了", Toast.LENGTH_SHORT).show();
+            }
             m_islastPage = true;
-            Toast.makeText(mContext, "已经是最后一页了", Toast.LENGTH_SHORT).show();
             return;
         } else {
             m_islastPage = false;

@@ -1,6 +1,7 @@
 package com.zijie.treader;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -39,6 +40,9 @@ import com.zijie.treader.util.PageFactory1;
 import com.zijie.treader.view.BookPageWidget;
 import com.zijie.treader.view.PageWidget;
 
+import org.litepal.crud.DataSupport;
+
+import java.io.File;
 import java.io.IOException;
 import java.text.DecimalFormat;
 
@@ -254,6 +258,7 @@ public class ReadActivity1 extends BaseActivity {
                 if (isShow){
                     return false;
                 }
+
                 pageFactory.prePage();
                 if (pageFactory.isfirstPage()) {
                     return false;
@@ -268,6 +273,7 @@ public class ReadActivity1 extends BaseActivity {
                 if (isShow){
                     return false;
                 }
+
                 pageFactory.nextPage();
                 if (pageFactory.islastPage()) {
                     return false;
@@ -329,12 +335,17 @@ public class ReadActivity1 extends BaseActivity {
         return super.onKeyDown(keyCode, event);
     }
 
-    public static void openBook(BookList bookList, Activity context) {
+    public static boolean openBook(final BookList bookList, Activity context) {
+        if (bookList == null){
+            throw new NullPointerException("BookList can not be null");
+        }
+
         Intent intent = new Intent(context, ReadActivity1.class);
         intent.putExtra(EXTRA_BOOK, bookList);
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         context.overridePendingTransition(R.anim.in_from_right, R.anim.out_to_left);
         context.startActivity(intent);
+        return true;
     }
 
     public BookPageWidget getPageWidget() {

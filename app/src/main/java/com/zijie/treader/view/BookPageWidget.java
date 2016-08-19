@@ -318,7 +318,13 @@ public class BookPageWidget extends View {
                         }
                     } else {
                         Boolean isPre = mTouchListener.prePage();
-                        calcCornerXY(mScreenWidth - downX,mScreenHeight);
+
+                        if (downX > mScreenWidth / 2){
+                            calcCornerXY(downX,mScreenHeight);
+                        }else{
+                            calcCornerXY(mScreenWidth - downX,mScreenHeight);
+                        }
+
                         if (!isPre) {
                             noNext = true;
                             return true;
