@@ -9,6 +9,8 @@
         <item name="actionMenuTextAppearance">@style/MenuTextStyle</item>
     </style>
 
+
+
     <style name="MenuTextStyle">
         <item name="android:textColor">@android:color/white</item>
         <item name="android:textSize">18sp</item>
@@ -19,6 +21,11 @@
         <item name="colorPrimaryDark">@color/read_dialog_bg</item>
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>
+    </style>
+
+    <style name="guideTheme" parent="AppTheme.NoActionBar">
+        <item name="android:windowNoTitle">true</item>
+        <item name="android:windowBackground">@mipmap/guide</item>
     </style>
 
     <style name="AppTheme.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar" />

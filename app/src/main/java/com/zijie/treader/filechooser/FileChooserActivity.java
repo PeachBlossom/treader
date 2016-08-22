@@ -10,10 +10,13 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 
+import com.umeng.analytics.MobclickAgent;
 import com.zijie.treader.FileActivity;
 import com.zijie.treader.R;
 
 import java.util.ArrayList;
+
+import butterknife.ButterKnife;
 
 public class FileChooserActivity extends AppCompatActivity {
 
@@ -66,7 +69,19 @@ public class FileChooserActivity extends AppCompatActivity {
         fragmentTransaction.commit();
 
     }
-	
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        MobclickAgent.onResume(this);
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        MobclickAgent.onPause(this);
+    }
+
     @Override
     protected void onDestroy() {
         mDirectoryFragment.onFragmentDestroy();

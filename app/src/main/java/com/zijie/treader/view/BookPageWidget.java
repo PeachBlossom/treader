@@ -273,6 +273,10 @@ public class BookPageWidget extends View {
             mTouch.y = mScreenHeight;
         }
 
+        if (downY > mScreenHeight / 3 && downY < mScreenHeight / 2 && isNext){
+            mTouch.y = 1;
+        }
+
         if (event.getAction() == MotionEvent.ACTION_DOWN){
             downX = (int) event.getX();
             downY = (int) event.getY();
@@ -318,7 +322,7 @@ public class BookPageWidget extends View {
                         }
                     } else {
                         Boolean isPre = mTouchListener.prePage();
-
+                        //上一页滑动不出现对角
                         if (downX > mScreenWidth / 2){
                             calcCornerXY(downX,mScreenHeight);
                         }else{

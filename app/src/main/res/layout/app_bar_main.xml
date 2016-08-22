@@ -41,12 +41,13 @@
         android:layout_height="wrap_content"
         android:layout_gravity="bottom|start"
         android:layout_margin="@dimen/fab_margin"
+        android:padding="0dp"
         app:backgroundTint="@color/halfColorPrimary"
         app:rippleColor="?attr/colorPrimary"
         app:elevation="0dp"
         app:pressedTranslationZ="0dp"
         app:borderWidth="0dp"
-       android:scaleType="fitCenter"
+        android:scaleType="fitCenter"
         android:src="@mipmap/select_file" />
 
 </android.support.design.widget.CoordinatorLayout>

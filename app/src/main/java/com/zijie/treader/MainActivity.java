@@ -31,6 +31,8 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.umeng.analytics.MobclickAgent;
+import com.umeng.fb.FeedbackAgent;
 import com.zijie.treader.adapter.ShelfAdapter;
 import com.zijie.treader.animation.ContentScaleAnimation;
 import com.zijie.treader.animation.Rotate3DAnimation;
@@ -107,6 +109,13 @@ public class MainActivity extends BaseActivity
     protected void initData() {
         setSupportActionBar(toolbar);
         toolbar.setNavigationIcon(R.drawable.ic_menu_white_24dp);//设置导航图标
+
+        //友盟统计
+        MobclickAgent.setScenarioType(this, MobclickAgent.EScenarioType.E_UM_NORMAL);
+        MobclickAgent.enableEncrypt(true);//6.0.0版本及以后
+        //自动提醒反馈建议
+        FeedbackAgent agent = new FeedbackAgent(this);
+        agent.sync();
 
         config = Config.getInstance();
         // 删除窗口背景
@@ -432,17 +441,10 @@ public class MainActivity extends BaseActivity
         // Handle navigation view item clicks here.
         int id = item.getItemId();
 
-        if (id == R.id.nav_camera) {
-            // Handle the camera action
-        } else if (id == R.id.nav_gallery) {
-
-        } else if (id == R.id.nav_slideshow) {
-
-        } else if (id == R.id.nav_manage) {
-
-        } else if (id == R.id.nav_share) {
-
-        } else if (id == R.id.nav_send) {
+       if (id == R.id.nav_feedback) {
+           FeedbackAgent agent = new FeedbackAgent(this);
+           agent.startFeedbackActivity();
+        } else if (id == R.id.nav_about) {
 
         }
 

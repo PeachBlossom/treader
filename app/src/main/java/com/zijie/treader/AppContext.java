@@ -2,6 +2,8 @@ package com.zijie.treader;
 
 import android.content.Context;
 
+import com.umeng.analytics.MobclickAgent;
+import com.umeng.fb.FeedbackAgent;
 import com.zijie.treader.db.BookList;
 import com.zijie.treader.util.PageFactory;
 import com.zijie.treader.util.PageFactory1;
@@ -16,7 +18,6 @@ import java.util.List;
  */
 public class AppContext extends LitePalApplication {
     public static volatile Context applicationContext = null;
-    private List<BookList> books;
 
     @Override
     public void onCreate() {
@@ -28,15 +29,4 @@ public class AppContext extends LitePalApplication {
         PageFactory1.createPageFactory(this);
     }
 
-    public List<BookList> getBookList(){
-        if (books == null){
-            books = DataSupport.findAll(BookList.class);
-        }
-        return books;
-    }
-
-    public boolean addBookList(){
-
-        return true;
-    }
 }
