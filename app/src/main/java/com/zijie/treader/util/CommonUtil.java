@@ -2,11 +2,15 @@ package com.zijie.treader.util;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
 import android.util.DisplayMetrics;
 import android.util.TypedValue;
 import android.view.Display;
 import android.view.Window;
 import android.view.WindowManager;
+
+import com.zijie.treader.R;
 
 import java.lang.reflect.Method;
 
@@ -164,4 +168,36 @@ public class CommonUtil {
 
         return content;
     }
+
+    /**
+     * 获取版本号
+     *
+     * @return 当前应用的版本号
+     */
+
+    public static String getVersion(Context context) {
+        try {
+            PackageManager manager = context.getPackageManager();
+            PackageInfo info = manager.getPackageInfo(context.getPackageName(), 0);
+            return info.versionName;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return "找不到版本号";
+        }
+    }
+
+    /**
+     * @return 版本号
+     */
+    public static int getVersionCode(Context context) {
+        try {
+            PackageManager manager = context.getPackageManager();
+            PackageInfo info = manager.getPackageInfo(context.getPackageName(), 0);
+            return info.versionCode;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return 0;
+        }
+    }
+
 }

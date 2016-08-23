@@ -29,7 +29,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.zijie.treader.R;
-import com.zijie.treader.ReadActivity1;
+import com.zijie.treader.ReadActivity;
 import com.zijie.treader.db.BookList;
 import com.zijie.treader.util.FileUtils;
 import com.zijie.treader.util.Fileutil;
@@ -454,7 +454,7 @@ public class DirectoryFragment extends Fragment implements View.OnClickListener 
                         if (path.toLowerCase().contains("sd")) {
                             ext.title = "SdCard";
                         } else {
-                            ext.title = "ExternalStorage";
+                            ext.title = "外部存储";
                         }
                         item.icon = R.mipmap.ic_external_storage;
                         item.subtitle = getRootSubtitle(path);
@@ -470,7 +470,7 @@ public class DirectoryFragment extends Fragment implements View.OnClickListener 
         }
         ListItem fs = new ListItem();
         fs.title = "/";
-        fs.subtitle = "SystemRoot";
+        fs.subtitle = "系统目录";
         fs.icon = R.mipmap.ic_directory;
         fs.file = new File("/");
         items.add(fs);
@@ -559,7 +559,7 @@ public class DirectoryFragment extends Fragment implements View.OnClickListener 
             item.file = file;
             if (file.isDirectory()) {
                 item.icon = R.mipmap.ic_directory;
-                item.subtitle = "Folder";
+                item.subtitle = "文件夹";
             } else {
                 String fname = file.getName();
                 String[] sp = fname.split("\\.");
@@ -575,7 +575,7 @@ public class DirectoryFragment extends Fragment implements View.OnClickListener 
         }
         ListItem item = new ListItem();
         item.title = "..";
-        item.subtitle = "Folder";
+        item.subtitle = "文件夹";
         item.icon = R.mipmap.ic_directory;
         item.file = null;
         items.add(0, item);
@@ -649,7 +649,7 @@ public class DirectoryFragment extends Fragment implements View.OnClickListener 
                 if (!isSave){
                     bookList.save();
                 }
-                ReadActivity1.openBook(bookList,getActivity());
+                ReadActivity.openBook(bookList,getActivity());
             }
         }).show();
     }

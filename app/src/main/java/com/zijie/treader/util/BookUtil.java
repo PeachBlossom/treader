@@ -49,9 +49,10 @@ public class BookUtil {
         }
     }
 
-    public void openBook(BookList bookList) throws IOException {
+    public synchronized void openBook(BookList bookList) throws IOException {
         this.bookList = bookList;
         //如果当前缓存不是要打开的书本就缓存书本同时删除缓存
+
         if (bookPath == null || !bookPath.equals(bookList.getBookpath())) {
             cleanCacheFile();
             this.bookPath = bookList.getBookpath();
@@ -197,7 +198,9 @@ public class BookUtil {
 
             String bufStr = new String(buf);
             bufStr = bufStr.replaceAll("\r\n","\r\n\u3000\u3000");
-            bufStr = bufStr.replaceAll("\u3000\u3000 \\s*","\u3000\u3000");
+            bufStr = bufStr.replaceAll("\u3000\u3000+[ ]*","\u3000\u3000");
+
+//            bufStr = bufStr.replaceAll("\r\n[ {0,}]","\r\n\u3000\u3000");
 //            bufStr = bufStr.replaceAll(" ","");
             bufStr = bufStr.replaceAll("\u0000","");
             buf = bufStr.toCharArray();
@@ -233,22 +236,32 @@ public class BookUtil {
         }.start();
     }
 
-    public void getChapter(){
-        long size = 0;
-        for (int i = 0;i < myArray.size();i ++){
-            char[] buf = block(i);
-            String bufStr = new String(buf);
-            String[] paragraphs = bufStr.split("\r\n");
-            for (String str : paragraphs){
-                if (str.length() <= 30 && str.matches(".*第.{1,8}章.*")){
-                    BookCatalogue bookCatalogue = new BookCatalogue();
-                    bookCatalogue.setBookCatalogueStartPos(size);
-                    bookCatalogue.setBookCatalogue(str);
-                    bookCatalogue.setBookpath(bookPath);
-                    directoryList.add(bookCatalogue);
+    public synchronized void getChapter(){
+        try {
+            long size = 0;
+            for (int i = 0; i < myArray.size(); i++) {
+                char[] buf = block(i);
+                String bufStr = new String(buf);
+                String[] paragraphs = bufStr.split("\r\n");
+                for (String str : paragraphs) {
+                    if (str.length() <= 30 && (str.matches(".*第.{1,8}章.*") || str.matches(".*第.{1,8}节.*"))) {
+                        BookCatalogue bookCatalogue = new BookCatalogue();
+                        bookCatalogue.setBookCatalogueStartPos(size);
+                        bookCatalogue.setBookCatalogue(str);
+                        bookCatalogue.setBookpath(bookPath);
+                        directoryList.add(bookCatalogue);
+                    }
+                    if (str.contains("\u3000\u3000")) {
+                        size += str.length() + 2;
+                    }else if (str.contains("\u3000")){
+                        size += str.length() + 1;
+                    }else {
+                        size += str.length();
+                    }
                 }
-                size += str.length() + 2;
             }
+        }catch (Exception e){
+            e.printStackTrace();
         }
     }
 

@@ -6,7 +6,6 @@ import com.umeng.analytics.MobclickAgent;
 import com.umeng.fb.FeedbackAgent;
 import com.zijie.treader.db.BookList;
 import com.zijie.treader.util.PageFactory;
-import com.zijie.treader.util.PageFactory1;
 
 import org.litepal.LitePalApplication;
 import org.litepal.crud.DataSupport;
@@ -26,7 +25,7 @@ public class AppContext extends LitePalApplication {
 
         LitePalApplication.initialize(this);
         Config.createConfig(this);
-        PageFactory1.createPageFactory(this);
+        PageFactory.createPageFactory(this);
     }
 
 }

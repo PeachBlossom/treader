@@ -54,6 +54,8 @@
     <color name="read_font_2">#92918C</color>
     <color name="read_font_3">#383429</color>
     <color name="read_font_4">#627176</color>
+
+    <color name="lineColor">#60d3d3d3</color>
     <!-- UI Color -->
     <color name="myPrimaryColor">#4284F5</color>
     <color name="myPrimaryDarkColor">#3870d0</color>

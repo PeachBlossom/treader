@@ -22,7 +22,7 @@ import android.view.animation.AccelerateDecelerateInterpolator;
 import android.view.animation.AccelerateInterpolator;
 import android.widget.Scroller;
 
-import com.zijie.treader.util.PageFactory1;
+import com.zijie.treader.util.PageFactory;
 
 /**
  * Created by Administrator on 2016/7/15 0015.
@@ -260,7 +260,7 @@ public class BookPageWidget extends View {
     @Override
     public boolean onTouchEvent(MotionEvent event) {
         super.onTouchEvent(event);
-        if (PageFactory1.getStatus() == PageFactory1.Status.OPENING){
+        if (PageFactory.getStatus() == PageFactory.Status.OPENING){
             return true;
         }
 
@@ -299,9 +299,9 @@ public class BookPageWidget extends View {
             }
 
             if (isMove){
-                Log.e(TAG,"isMove");
                 isMove = true;
                 if (moveX == 0 && moveY ==0) {
+                    Log.e(TAG,"isMove");
                     //判断翻得是上一页还是下一页
                     if (x - downX >0){
                         isNext = false;

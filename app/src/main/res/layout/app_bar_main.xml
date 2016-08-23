@@ -33,6 +33,7 @@
         android:numColumns="3"
         android:scrollbars="none"
         android:verticalSpacing="3dp"
+        android:paddingBottom="30dp"
         app:layout_behavior="@string/appbar_scrolling_view_behavior"/>
 
     <android.support.design.widget.FloatingActionButton

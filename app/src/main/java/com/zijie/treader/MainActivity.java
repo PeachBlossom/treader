@@ -177,7 +177,7 @@ public class MainActivity extends BaseActivity
                         return;
                     }
 
-                    ReadActivity1.openBook(bookList,MainActivity.this);
+                    ReadActivity.openBook(bookList,MainActivity.this);
 
 //                    if (!isOpen){
 //                        bookLists = DataSupport.findAll(BookList.class);
@@ -363,7 +363,7 @@ public class MainActivity extends BaseActivity
 //                bookLists = DataSupport.findAll(BookList.class);
                 BookList bookList = bookLists.get(itemPosition);
                 bookList.setId(bookLists.get(0).getId());
-                ReadActivity1.openBook(bookList,MainActivity.this);
+                ReadActivity.openBook(bookList,MainActivity.this);
             }
 
         } else {
@@ -445,11 +445,12 @@ public class MainActivity extends BaseActivity
            FeedbackAgent agent = new FeedbackAgent(this);
            agent.startFeedbackActivity();
         } else if (id == R.id.nav_about) {
-
+           Intent intent = new Intent(MainActivity.this, AboutActivity.class);
+           startActivity(intent);
         }
 
-        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
-        drawer.closeDrawer(GravityCompat.START);
+//        DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
+//        drawer.closeDrawer(GravityCompat.START);
         return true;
     }
 

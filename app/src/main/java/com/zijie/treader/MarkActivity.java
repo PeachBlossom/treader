@@ -12,8 +12,8 @@ import com.zijie.treader.base.BaseActivity;
 import com.zijie.treader.db.BookCatalogue;
 import com.zijie.treader.util.FileUtils;
 import com.zijie.treader.util.PageFactory;
-import com.zijie.treader.util.PageFactory1;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import butterknife.Bind;
@@ -32,8 +32,8 @@ public class MarkActivity extends BaseActivity {
     @Bind(R.id.lv_catalogue)
     ListView lv_catalogue;
 
-    PageFactory1 pageFactory;
-    List<BookCatalogue> catalogueList;
+    PageFactory pageFactory;
+    ArrayList<BookCatalogue> catalogueList = new ArrayList<>();
 
     @Override
     public int getLayoutRes() {
@@ -42,13 +42,13 @@ public class MarkActivity extends BaseActivity {
 
     @Override
     protected void initData() {
-        pageFactory = PageFactory1.getInstance();
-        catalogueList = pageFactory.getDirectoryList();
+        pageFactory = PageFactory.getInstance();
+        catalogueList.addAll(pageFactory.getDirectoryList());
         CatalogueAdapter catalogueAdapter = new CatalogueAdapter(this,catalogueList);
         lv_catalogue.setAdapter(catalogueAdapter);
+        catalogueAdapter.notifyDataSetChanged();
 
         tv_bookname.setText(FileUtils.getFileName(pageFactory.getBookPath()));
-
     }
 
     @Override

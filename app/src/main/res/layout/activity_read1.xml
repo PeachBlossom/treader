@@ -172,7 +172,7 @@
                         android:gravity="center"
                         android:layout_alignParentLeft="true"
                         android:paddingBottom="5dp"
-                        android:paddingLeft="10dp"
+                        android:paddingLeft="20dp"
                         android:paddingRight="10dp"
                         android:text="@string/read_setting_directory" />
 
@@ -199,7 +199,7 @@
                         android:layout_alignParentRight="true"
                         android:paddingBottom="5dp"
                         android:paddingLeft="10dp"
-                        android:paddingRight="10dp"
+                        android:paddingRight="20dp"
                         android:text="@string/read_setting_set" />
                 </RelativeLayout>
             </LinearLayout>

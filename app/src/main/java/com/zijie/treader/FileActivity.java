@@ -89,14 +89,16 @@ public class FileActivity extends BaseActivity {
             getSupportActionBar().setTitle("导入图书");
         }
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            checkPermission(FileActivity.this, Manifest.permission.WRITE_EXTERNAL_STORAGE, EXTERNAL_STORAGE_REQ_CODE,"添加图书需要此权限，请允许");
-        }
-        root = Environment.getExternalStorageDirectory();
-
         adapter = new FileAdapter(this, listFile);
         lvFileDrawer.setAdapter(adapter);
-        searchFile();
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            checkPermission(FileActivity.this, Manifest.permission.WRITE_EXTERNAL_STORAGE, EXTERNAL_STORAGE_REQ_CODE,"添加图书需要此权限，请允许");
+        }else{
+            root = Environment.getExternalStorageDirectory();
+            searchFile();
+        }
+
     }
 
     @Override
