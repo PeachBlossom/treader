@@ -20,6 +20,8 @@ import android.view.ViewConfiguration;
 import android.view.WindowManager;
 import android.view.animation.AccelerateDecelerateInterpolator;
 import android.view.animation.AccelerateInterpolator;
+import android.view.animation.DecelerateInterpolator;
+import android.view.animation.LinearInterpolator;
 import android.widget.Scroller;
 
 import com.zijie.treader.util.PageFactory;
@@ -99,6 +101,7 @@ public class BookPageWidget extends View {
         mMaxLength = (float) Math.hypot(mScreenWidth, mScreenHeight);
         mPaint = new Paint();
         mPaint.setStyle(Paint.Style.FILL);
+//        mPaint.setAlpha(150);
 
         createDrawable();
 
@@ -114,7 +117,7 @@ public class BookPageWidget extends View {
         cm.set(array);
         mColorMatrixFilter = new ColorMatrixColorFilter(cm);
         mMatrix = new Matrix();
-        mScroller = new Scroller(getContext(),new AccelerateInterpolator());
+        mScroller = new Scroller(getContext(),new LinearInterpolator());
 
         mTouch.x = 0.01f; // 不让x,y为0,否则在点计算时会有问题
         mTouch.y = 0.01f;
@@ -231,7 +234,6 @@ public class BookPageWidget extends View {
 
     @Override
     public void computeScroll() {
-        super.computeScroll();
         if (mScroller.computeScrollOffset()) {
             float x = mScroller.getCurrX();
             float y = mScroller.getCurrY();
@@ -239,7 +241,7 @@ public class BookPageWidget extends View {
             mTouch.y = y;
             postInvalidate();
         }
-
+        super.computeScroll();
     }
 
     //是否移动了
@@ -401,7 +403,7 @@ public class BookPageWidget extends View {
             Log.e(TAG,"isNext:" + isNext);
             if (!noNext) {
                 isRuning = true;
-                startAnimation(300);
+                startAnimation(400);
                 this.postInvalidate();
             }
         }

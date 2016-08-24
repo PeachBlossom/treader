@@ -36,6 +36,9 @@
     <string name="font_qihei">羿创旗黑</string>
     <string name="font_xinshou">新宋体</string>
     <string name="font_wawa">娃娃体</string>
+    <string name="font_fzxinghei">行黑</string>
+    <string name="font_fzkatong">卡通</string>
+    <string name="font_bysong">繁宋体</string>
 
     <string name="readseting">设置</string>
 

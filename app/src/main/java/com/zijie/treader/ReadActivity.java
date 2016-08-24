@@ -115,12 +115,12 @@ public class ReadActivity extends BaseActivity {
 
     @Override
     public int getLayoutRes() {
-        return R.layout.activity_read1;
+        return R.layout.activity_read;
     }
 
     @Override
     protected void initData() {
-        if(Build.VERSION.SDK_INT >= 14){
+        if(Build.VERSION.SDK_INT >= 14 && Build.VERSION.SDK_INT < 19){
             bookpage.setLayerType(View.LAYER_TYPE_SOFTWARE, null);
         }
 

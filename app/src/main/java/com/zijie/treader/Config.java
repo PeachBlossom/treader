@@ -23,8 +23,11 @@ public class Config {
 
     public final static String FONTTYPE_DEFAULT = "";
     public final static String FONTTYPE_QIHEI = "font/qihei.ttf";
-    public final static String FONTTYPE_XINSHOU = "font/font1.ttf";
-    public final static String FONTTYPE_WAWA = "font/font2.ttf";
+    public final static String FONTTYPE_WAWA = "font/font1.ttf";
+
+    public final static String FONTTYPE_FZXINGHEI = "font/fzxinghei.ttf";
+    public final static String FONTTYPE_FZKATONG = "font/fzkatong.ttf";
+    public final static String FONTTYPE_BYSONG = "font/bysong.ttf";
 
     public final static int BOOK_BG_DEFAULT = 0;
     public final static int BOOK_BG_1 = 1;

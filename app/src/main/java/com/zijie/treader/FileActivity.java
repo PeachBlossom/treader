@@ -150,7 +150,9 @@ public class FileActivity extends BaseActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        mSearchTextFileTask.cancel(true);
+        if (mSearchTextFileTask != null) {
+            mSearchTextFileTask.cancel(true);
+        }
         if (mSaveBookToSqlLiteTask != null){
             mSaveBookToSqlLiteTask.cancel(true);
         }

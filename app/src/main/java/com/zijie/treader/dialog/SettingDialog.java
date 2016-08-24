@@ -8,7 +8,6 @@ import android.os.Bundle;
 import android.view.Display;
 import android.view.Gravity;
 import android.view.View;
-import android.view.Window;
 import android.view.WindowManager;
 import android.widget.SeekBar;
 import android.widget.TextView;
@@ -43,10 +42,6 @@ public class SettingDialog extends Dialog {
     TextView tv_add;
     @Bind(R.id.tv_qihei)
     TextView tv_qihei;
-    @Bind(R.id.tv_xinshou)
-    TextView tv_xinshou;
-    @Bind(R.id.tv_wawa)
-    TextView tv_wawa;
     @Bind(R.id.tv_default)
     TextView tv_default;
     @Bind(R.id.iv_bg_default)
@@ -61,6 +56,12 @@ public class SettingDialog extends Dialog {
     CircleImageView iv_bg4;
     @Bind(R.id.tv_size_default)
     TextView tv_size_default;
+    @Bind(R.id.tv_fzxinghei)
+    TextView tv_fzxinghei;
+    @Bind(R.id.tv_fzkatong)
+    TextView tv_fzkatong;
+    @Bind(R.id.tv_bysong)
+    TextView tv_bysong;
 
 
     private Config config;
@@ -114,8 +115,11 @@ public class SettingDialog extends Dialog {
         //初始化字体
         tv_default.setTypeface(config.getTypeface(Config.FONTTYPE_DEFAULT));
         tv_qihei.setTypeface(config.getTypeface(Config.FONTTYPE_QIHEI));
-        tv_xinshou.setTypeface(config.getTypeface(Config.FONTTYPE_XINSHOU));
-        tv_wawa.setTypeface(config.getTypeface(Config.FONTTYPE_WAWA));
+        tv_fzxinghei.setTypeface(config.getTypeface(Config.FONTTYPE_FZXINGHEI));
+        tv_fzkatong.setTypeface(config.getTypeface(Config.FONTTYPE_FZKATONG));
+        tv_bysong.setTypeface(config.getTypeface(Config.FONTTYPE_BYSONG));
+//        tv_xinshou.setTypeface(config.getTypeface(Config.FONTTYPE_XINSHOU));
+//        tv_wawa.setTypeface(config.getTypeface(Config.FONTTYPE_WAWA));
         selectTypeface(config.getTypefacePath());
 
         selectBg(config.getBookBgType());
@@ -194,23 +198,43 @@ public class SettingDialog extends Dialog {
         if (typeface.equals(Config.FONTTYPE_DEFAULT)) {
             setTextViewSelect(tv_default, true);
             setTextViewSelect(tv_qihei, false);
-            setTextViewSelect(tv_xinshou, false);
-            setTextViewSelect(tv_wawa, false);
+            setTextViewSelect(tv_fzxinghei, false);
+            setTextViewSelect(tv_fzkatong, false);
+            setTextViewSelect(tv_bysong, false);
+//            setTextViewSelect(tv_xinshou, false);
+//            setTextViewSelect(tv_wawa, false);
         } else if (typeface.equals(Config.FONTTYPE_QIHEI)) {
             setTextViewSelect(tv_default, false);
             setTextViewSelect(tv_qihei, true);
-            setTextViewSelect(tv_xinshou, false);
-            setTextViewSelect(tv_wawa, false);
-        } else if (typeface.equals(Config.FONTTYPE_XINSHOU)) {
+            setTextViewSelect(tv_fzxinghei, false);
+            setTextViewSelect(tv_fzkatong, false);
+            setTextViewSelect(tv_bysong, false);
+//            setTextViewSelect(tv_xinshou, false);
+//            setTextViewSelect(tv_wawa, false);
+        } else if (typeface.equals(Config.FONTTYPE_FZXINGHEI)) {
             setTextViewSelect(tv_default, false);
             setTextViewSelect(tv_qihei, false);
-            setTextViewSelect(tv_xinshou, true);
-            setTextViewSelect(tv_wawa, false);
-        } else if (typeface.equals(Config.FONTTYPE_WAWA)) {
+            setTextViewSelect(tv_fzxinghei, true);
+            setTextViewSelect(tv_fzkatong, false);
+            setTextViewSelect(tv_bysong, false);
+//            setTextViewSelect(tv_xinshou, true);
+//            setTextViewSelect(tv_wawa, false);
+        } else if (typeface.equals(Config.FONTTYPE_FZKATONG)) {
             setTextViewSelect(tv_default, false);
             setTextViewSelect(tv_qihei, false);
-            setTextViewSelect(tv_xinshou, false);
-            setTextViewSelect(tv_wawa, true);
+            setTextViewSelect(tv_fzxinghei, false);
+            setTextViewSelect(tv_fzkatong, true);
+            setTextViewSelect(tv_bysong, false);
+//            setTextViewSelect(tv_xinshou, false);
+//            setTextViewSelect(tv_wawa, true);
+        } else if (typeface.equals(Config.FONTTYPE_BYSONG)) {
+            setTextViewSelect(tv_default, false);
+            setTextViewSelect(tv_qihei, false);
+            setTextViewSelect(tv_fzxinghei, false);
+            setTextViewSelect(tv_fzkatong, false);
+            setTextViewSelect(tv_bysong, true);
+//            setTextViewSelect(tv_xinshou, false);
+//            setTextViewSelect(tv_wawa, true);
         }
     }
 
@@ -252,7 +276,7 @@ public class SettingDialog extends Dialog {
     }
 
 
-    @OnClick({R.id.tv_dark, R.id.tv_bright, R.id.tv_xitong, R.id.tv_subtract, R.id.tv_add, R.id.tv_size_default, R.id.tv_qihei, R.id.tv_xinshou, R.id.tv_wawa,
+    @OnClick({R.id.tv_dark, R.id.tv_bright, R.id.tv_xitong, R.id.tv_subtract, R.id.tv_add, R.id.tv_size_default, R.id.tv_qihei, R.id.tv_fzxinghei, R.id.tv_fzkatong,R.id.tv_bysong,
             R.id.tv_default, R.id.iv_bg_default, R.id.iv_bg_1, R.id.iv_bg_2, R.id.iv_bg_3, R.id.iv_bg_4})
     public void onClick(View view) {
         switch (view.getId()) {
@@ -277,14 +301,26 @@ public class SettingDialog extends Dialog {
                 selectTypeface(Config.FONTTYPE_QIHEI);
                 setTypeface(Config.FONTTYPE_QIHEI);
                 break;
-            case R.id.tv_xinshou:
-                selectTypeface(Config.FONTTYPE_XINSHOU);
-                setTypeface(Config.FONTTYPE_XINSHOU);
+            case R.id.tv_fzxinghei:
+                selectTypeface(Config.FONTTYPE_FZXINGHEI);
+                setTypeface(Config.FONTTYPE_FZXINGHEI);
                 break;
-            case R.id.tv_wawa:
-                selectTypeface(Config.FONTTYPE_WAWA);
-                setTypeface(Config.FONTTYPE_WAWA);
+            case R.id.tv_fzkatong:
+                selectTypeface(Config.FONTTYPE_FZKATONG);
+                setTypeface(Config.FONTTYPE_FZKATONG);
                 break;
+            case R.id.tv_bysong:
+                selectTypeface(Config.FONTTYPE_BYSONG);
+                setTypeface(Config.FONTTYPE_BYSONG);
+                break;
+//            case R.id.tv_xinshou:
+//                selectTypeface(Config.FONTTYPE_XINSHOU);
+//                setTypeface(Config.FONTTYPE_XINSHOU);
+//                break;
+//            case R.id.tv_wawa:
+//                selectTypeface(Config.FONTTYPE_WAWA);
+//                setTypeface(Config.FONTTYPE_WAWA);
+//                break;
             case R.id.tv_default:
                 selectTypeface(Config.FONTTYPE_DEFAULT);
                 setTypeface(Config.FONTTYPE_DEFAULT);
@@ -324,7 +360,7 @@ public class SettingDialog extends Dialog {
         }
     }
 
-    private void defaultFontSize(){
+    private void defaultFontSize() {
         currentFontSize = (int) getContext().getResources().getDimension(R.dimen.reading_default_text_size);
         tv_size.setText(currentFontSize + "");
         config.setFontSize(currentFontSize);

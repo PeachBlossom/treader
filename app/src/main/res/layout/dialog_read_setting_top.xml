@@ -41,8 +41,7 @@ android:layout_gravity是用来设置该view相对与父view 的位置．比如�
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_vertical"
-                android:layout_marginRight="10dp"
-                android:background="@mipmap/img_tts" />
+                android:layout_marginRight="10dp" />
         </LinearLayout>
     </LinearLayout>
 

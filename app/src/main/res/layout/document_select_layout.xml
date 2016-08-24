@@ -18,8 +18,7 @@
         android:dividerHeight="0dp"
         android:fadingEdge="none"
         android:fadingEdgeLength="0dp"
-        android:layout_above="@id/layout_bottom"
-        android:scrollbars="none" />
+        android:layout_above="@id/layout_bottom" />
 
     <TextView
         android:id="@+id/searchEmptyView"

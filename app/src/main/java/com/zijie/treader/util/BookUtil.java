@@ -236,6 +236,7 @@ public class BookUtil {
         }.start();
     }
 
+    //获取章节
     public synchronized void getChapter(){
         try {
             long size = 0;

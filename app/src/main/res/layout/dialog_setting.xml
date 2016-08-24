@@ -104,32 +104,36 @@
             android:id="@+id/tv_default"
             style="@style/setting_dialog_button"
             android:layout_weight="1"
-            android:layout_marginRight="10dp"
-            android:textSize="16sp"
+            android:textSize="14sp"
             android:text="@string/font_default" />
         <TextView
             android:id="@+id/tv_qihei"
             style="@style/setting_dialog_button"
             android:layout_weight="1"
             android:layout_marginLeft="10dp"
-            android:layout_marginRight="10dp"
-            android:textSize="16sp"
+            android:textSize="14sp"
             android:text="@string/font_qihei" />
         <TextView
-            android:id="@+id/tv_xinshou"
+            android:id="@+id/tv_fzxinghei"
             style="@style/setting_dialog_button"
             android:layout_weight="1"
             android:layout_marginLeft="10dp"
-            android:layout_marginRight="10dp"
-            android:textSize="16sp"
-            android:text="@string/font_xinshou" />
+            android:textSize="14sp"
+            android:text="@string/font_fzxinghei" />
         <TextView
-            android:id="@+id/tv_wawa"
+            android:id="@+id/tv_fzkatong"
             style="@style/setting_dialog_button"
             android:layout_weight="1"
             android:layout_marginLeft="10dp"
-            android:textSize="16sp"
-            android:text="@string/font_wawa" />
+            android:textSize="14sp"
+            android:text="@string/font_fzkatong" />
+        <TextView
+            android:id="@+id/tv_bysong"
+            style="@style/setting_dialog_button"
+            android:layout_weight="1"
+            android:layout_marginLeft="10dp"
+            android:textSize="14sp"
+            android:text="@string/font_bysong" />
     </LinearLayout>
 
     <LinearLayout

@@ -244,7 +244,7 @@ public class PageFactory {
     }
 
     private void measureMarginWidth(){
-        float wordWidth =mPaint.measureText("龍");
+        float wordWidth =mPaint.measureText("\u3000");
         float width = mVisibleWidth % wordWidth;
         measureMarginWidth = marginWidth + width / 2;
     }
@@ -301,7 +301,7 @@ public class PageFactory {
     }
 
     public void onDraw(Bitmap bitmap,List<String> m_lines,Boolean updateCharter) {
-        if (getCurrentCharter() > 0 && updateCharter) {
+        if (getDirectoryList().size() > 0 && updateCharter) {
             currentCharter = getCurrentCharter();
         }
         //更新数据库进度
@@ -644,6 +644,9 @@ public class PageFactory {
     public void preChapter(){
         if (mBookUtil.getDirectoryList().size() > 0){
             int num = currentCharter;
+            if (num ==0){
+                num =getCurrentCharter();
+            }
             num --;
             if (num >= 0){
                 long begin = mBookUtil.getDirectoryList().get(num).getBookCatalogueStartPos();
@@ -657,6 +660,9 @@ public class PageFactory {
     //下一章
     public void nextChapter(){
         int num = currentCharter;
+        if (num == 0){
+            num =getCurrentCharter();
+        }
         num ++;
         if (num < getDirectoryList().size()){
             long begin = getDirectoryList().get(num).getBookCatalogueStartPos();
@@ -671,8 +677,9 @@ public class PageFactory {
         int num = 0;
         for (int i = 0;getDirectoryList().size() > i;i++){
             BookCatalogue bookCatalogue = getDirectoryList().get(i);
-            if (currentPage.getBegin() <= bookCatalogue.getBookCatalogueStartPos() && currentPage.getEnd() >= bookCatalogue.getBookCatalogueStartPos()){
+            if (currentPage.getEnd() >= bookCatalogue.getBookCatalogueStartPos()){
                 num = i;
+            }else{
                 break;
             }
         }

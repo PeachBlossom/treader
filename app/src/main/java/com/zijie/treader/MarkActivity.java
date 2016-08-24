@@ -1,11 +1,11 @@
 package com.zijie.treader;
 
 import android.os.Bundle;
+import android.support.design.widget.AppBarLayout;
+import android.support.v7.widget.Toolbar;
 import android.view.View;
 import android.widget.AdapterView;
-import android.widget.ImageButton;
 import android.widget.ListView;
-import android.widget.TextView;
 
 import com.zijie.treader.adapter.CatalogueAdapter;
 import com.zijie.treader.base.BaseActivity;
@@ -14,7 +14,6 @@ import com.zijie.treader.util.FileUtils;
 import com.zijie.treader.util.PageFactory;
 
 import java.util.ArrayList;
-import java.util.List;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
@@ -25,10 +24,10 @@ import butterknife.OnClick;
  */
 public class MarkActivity extends BaseActivity {
 
-    @Bind(R.id.btn_back)
-    ImageButton btn_back;
-    @Bind(R.id.tv_bookname)
-    TextView tv_bookname;
+    @Bind(R.id.toolbar)
+    Toolbar toolbar;
+    @Bind(R.id.appbar)
+    AppBarLayout appbar;
     @Bind(R.id.lv_catalogue)
     ListView lv_catalogue;
 
@@ -43,12 +42,27 @@ public class MarkActivity extends BaseActivity {
     @Override
     protected void initData() {
         pageFactory = PageFactory.getInstance();
+
+        setSupportActionBar(toolbar);
+        //设置导航图标
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        toolbar.setNavigationOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                finish();
+            }
+        });
+        if(getSupportActionBar() != null) {
+            getSupportActionBar().setTitle(FileUtils.getFileName(pageFactory.getBookPath()));
+        }
+
         catalogueList.addAll(pageFactory.getDirectoryList());
-        CatalogueAdapter catalogueAdapter = new CatalogueAdapter(this,catalogueList);
+        CatalogueAdapter catalogueAdapter = new CatalogueAdapter(this, catalogueList);
+        catalogueAdapter.setCharter(pageFactory.getCurrentCharter());
         lv_catalogue.setAdapter(catalogueAdapter);
         catalogueAdapter.notifyDataSetChanged();
 
-        tv_bookname.setText(FileUtils.getFileName(pageFactory.getBookPath()));
+//        tv_bookname.setText(FileUtils.getFileName(pageFactory.getBookPath()));
     }
 
     @Override
@@ -60,15 +74,6 @@ public class MarkActivity extends BaseActivity {
                 MarkActivity.this.finish();
             }
         });
-    }
-
-    @OnClick(R.id.btn_back)
-    public void onClick(View view) {
-        switch (view.getId()) {
-            case R.id.btn_back:
-                finish();
-                break;
-        }
     }
 
 }
