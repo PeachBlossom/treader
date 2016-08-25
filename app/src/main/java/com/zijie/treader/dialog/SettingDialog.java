@@ -115,7 +115,7 @@ public class SettingDialog extends Dialog {
         //初始化字体
         tv_default.setTypeface(config.getTypeface(Config.FONTTYPE_DEFAULT));
         tv_qihei.setTypeface(config.getTypeface(Config.FONTTYPE_QIHEI));
-        tv_fzxinghei.setTypeface(config.getTypeface(Config.FONTTYPE_FZXINGHEI));
+//        tv_fzxinghei.setTypeface(config.getTypeface(Config.FONTTYPE_FZXINGHEI));
         tv_fzkatong.setTypeface(config.getTypeface(Config.FONTTYPE_FZKATONG));
         tv_bysong.setTypeface(config.getTypeface(Config.FONTTYPE_BYSONG));
 //        tv_xinshou.setTypeface(config.getTypeface(Config.FONTTYPE_XINSHOU));

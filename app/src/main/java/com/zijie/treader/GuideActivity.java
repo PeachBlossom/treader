@@ -6,7 +6,6 @@ import android.support.v7.app.AppCompatActivity;
 import android.view.WindowManager;
 
 import com.umeng.analytics.MobclickAgent;
-import com.umeng.fb.FeedbackAgent;
 import com.zijie.treader.base.BaseActivity;
 
 import butterknife.ButterKnife;

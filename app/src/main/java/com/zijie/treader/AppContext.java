@@ -3,7 +3,6 @@ package com.zijie.treader;
 import android.content.Context;
 
 import com.umeng.analytics.MobclickAgent;
-import com.umeng.fb.FeedbackAgent;
 import com.zijie.treader.db.BookList;
 import com.zijie.treader.util.PageFactory;
 

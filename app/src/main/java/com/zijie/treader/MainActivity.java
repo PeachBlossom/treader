@@ -8,6 +8,7 @@ import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Bitmap;
 import android.graphics.PixelFormat;
 import android.graphics.Typeface;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.NavigationView;
@@ -33,6 +34,8 @@ import android.widget.Toast;
 
 import com.umeng.analytics.MobclickAgent;
 import com.umeng.fb.FeedbackAgent;
+import com.zhy.http.okhttp.OkHttpUtils;
+import com.zhy.http.okhttp.callback.StringCallback;
 import com.zijie.treader.adapter.ShelfAdapter;
 import com.zijie.treader.animation.ContentScaleAnimation;
 import com.zijie.treader.animation.Rotate3DAnimation;
@@ -43,6 +46,8 @@ import com.zijie.treader.util.CommonUtil;
 import com.zijie.treader.util.DisplayUtils;
 import com.zijie.treader.view.DragGridView;
 
+import org.json.JSONException;
+import org.json.JSONObject;
 import org.litepal.crud.DataSupport;
 import org.litepal.tablemanager.Connector;
 
@@ -54,6 +59,8 @@ import java.util.TimerTask;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
+import okhttp3.Call;
+import okhttp3.Request;
 
 public class MainActivity extends BaseActivity
         implements NavigationView.OnNavigationItemSelectedListener, Animation.AnimationListener  {
@@ -444,7 +451,10 @@ public class MainActivity extends BaseActivity
        if (id == R.id.nav_feedback) {
            FeedbackAgent agent = new FeedbackAgent(this);
            agent.startFeedbackActivity();
-        } else if (id == R.id.nav_about) {
+
+       } else if (id == R.id.nav_checkupdate) {
+           checkUpdate(true);
+       }else if (id == R.id.nav_about) {
            Intent intent = new Intent(MainActivity.this, AboutActivity.class);
            startActivity(intent);
         }
@@ -454,4 +464,62 @@ public class MainActivity extends BaseActivity
         return true;
     }
 
+    public void checkUpdate(final boolean showMessage){
+        String url = "http://api.fir.im/apps/latest/57be8d56959d6960d5000327";
+        OkHttpUtils
+                .get()
+                .url(url)
+                .addParams("api_token", "a48b9bbcef61f34c51160bfed26aa6b2")
+                .build()
+                .execute(new StringCallback()
+                {
+                    @Override
+                    public void onError(Call call, Exception e, int id) {
+                        if (showMessage) {
+                            Toast.makeText(MainActivity.this, "检查更新失败！", Toast.LENGTH_SHORT).show();
+                        }
+                    }
+
+                    @Override
+                    public void onResponse(String response, int id) {
+                        try {
+                            JSONObject jsonObject = new JSONObject(response);
+                            String version = jsonObject.getString("version");
+                            String versionCode = CommonUtil.getVersionCode(MainActivity.this) + "";
+                            if (versionCode.compareTo(version) < 0){
+                                showUpdateDialog(jsonObject.getString("name"),jsonObject.getString("versionShort"),jsonObject.getString("changelog"),jsonObject.getString("update_url"),MainActivity.this);
+                            }else{
+                                if (showMessage) {
+                                    Toast.makeText(MainActivity.this, "已经是最新版本！", Toast.LENGTH_SHORT).show();
+                                }
+                            }
+                        } catch (JSONException e) {
+                            if (showMessage) {
+                                Toast.makeText(MainActivity.this, "检查更新失败", Toast.LENGTH_SHORT).show();
+                            }
+                            e.printStackTrace();
+                        }
+                    }
+
+                });
+
+    }
+
+    public static void showUpdateDialog(final String name, String version, String changelog, final String updateUrl, final Context context) {
+        String title = "发现新版" + name + "，版本号：" + version;
+
+        new android.support.v7.app.AlertDialog.Builder(context).setTitle(title)
+                .setMessage(changelog)
+                .setPositiveButton("下载", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        Uri uri = Uri.parse(updateUrl);   //指定网址
+                        Intent intent = new Intent();
+                        intent.setAction(Intent.ACTION_VIEW);           //指定Action
+                        intent.setData(uri);                            //设置Uri
+                        context.startActivity(intent);        //启动Activity
+                    }
+                })
+                .show();
+    }
 }

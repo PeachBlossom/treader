@@ -201,6 +201,7 @@ public class BookPageWidget extends View {
     protected void onDraw(Canvas canvas) {
 //        canvas.drawColor(0xFFAAAAAA);
         canvas.drawColor(mBgColor);
+        Log.e("onDraw","isNext:" + isNext + "          isRuning:" + isRuning);
         if (isNext) {
             if (isRuning) {
                 calcPoints();

@@ -119,7 +119,8 @@
             android:layout_weight="1"
             android:layout_marginLeft="10dp"
             android:textSize="14sp"
-            android:text="@string/font_fzxinghei" />
+            android:text="@string/font_fzxinghei"
+            android:visibility="gone"/>
         <TextView
             android:id="@+id/tv_fzkatong"
             style="@style/setting_dialog_button"
