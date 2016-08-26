@@ -694,7 +694,7 @@ public class PageFactory {
 
     //更新电量
     public void updateBattery(int mLevel){
-        if (currentPage != null) {
+        if (currentPage != null && mBookPageWidget != null && !mBookPageWidget.isRunning()) {
             if (level != mLevel) {
                 level = mLevel;
                 currentPage(false);
@@ -703,7 +703,7 @@ public class PageFactory {
     }
 
     public void updateTime(){
-        if (currentPage != null) {
+        if (currentPage != null && mBookPageWidget != null && !mBookPageWidget.isRunning()) {
             String mDate = sdf.format(new java.util.Date());
             if (date != mDate) {
                 date = mDate;

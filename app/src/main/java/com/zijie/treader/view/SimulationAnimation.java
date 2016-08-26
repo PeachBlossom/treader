@@ -1,6 +1,5 @@
 package com.zijie.treader.view;
 
-import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.ColorMatrix;
@@ -11,30 +10,13 @@ import android.graphics.Path;
 import android.graphics.PointF;
 import android.graphics.Region;
 import android.graphics.drawable.GradientDrawable;
-import android.util.AttributeSet;
-import android.util.DisplayMetrics;
-import android.util.Log;
-import android.view.MotionEvent;
-import android.view.View;
-import android.view.ViewConfiguration;
-import android.view.WindowManager;
-import android.view.animation.AccelerateDecelerateInterpolator;
-import android.view.animation.AccelerateInterpolator;
-import android.view.animation.DecelerateInterpolator;
 import android.view.animation.LinearInterpolator;
 import android.widget.Scroller;
 
-import com.zijie.treader.util.PageFactory;
-
 /**
- * Created by Administrator on 2016/7/15 0015.
+ * Created by Administrator on 2016/8/26 0026.
  */
-public class BookPageWidget extends View {
-    private final static String TAG = "BookPageWidget";
-    private int mScreenWidth = 0; // 屏幕宽
-    private int mScreenHeight = 0; // 屏幕高
-    private Context mContext;
-
+public class SimulationAnimation extends AnimationProvider {
     private int mCornerX = 1; // 拖拽点对应的页脚
     private int mCornerY = 1;
     private Path mPath0;
@@ -42,7 +24,6 @@ public class BookPageWidget extends View {
     Bitmap mCurPageBitmap = null; // 当前页
     Bitmap mNextPageBitmap = null;
 
-    PointF mTouch = new PointF(); // 拖拽点
     PointF mBezierStart1 = new PointF(); // 贝塞尔曲线起始点
     PointF mBezierControl1 = new PointF(); // 贝塞尔曲线控制点
     PointF mBeziervertex1 = new PointF(); // 贝塞尔曲线顶点
@@ -76,32 +57,15 @@ public class BookPageWidget extends View {
     GradientDrawable mFrontShadowDrawableVRL;
 
     Paint mPaint;
-    Scroller mScroller;
 
-    private int mBgColor = 0xFFCEC29C;
-
-    private float actiondownX,actiondownY;
-    private TouchListener mTouchListener;
-
-    public BookPageWidget(Context context) {
-        this(context,null);
-    }
-
-    public BookPageWidget(Context context, AttributeSet attrs) {
-        this(context, attrs,0);
-    }
-
-    public BookPageWidget(Context context, AttributeSet attrs, int defStyleAttr) {
-        super(context, attrs, defStyleAttr);
-        mContext = context;
-        initPage();
+    public SimulationAnimation(Bitmap mCurrentBitmap, Bitmap mNextBitmap, int width, int height) {
+        super(mCurrentBitmap, mNextBitmap, width, height);
 
         mPath0 = new Path();
         mPath1 = new Path();
         mMaxLength = (float) Math.hypot(mScreenWidth, mScreenHeight);
         mPaint = new Paint();
         mPaint.setStyle(Paint.Style.FILL);
-//        mPaint.setAlpha(150);
 
         createDrawable();
 
@@ -111,45 +75,15 @@ public class BookPageWidget extends View {
 //                           0, 0,0.55f, 0, 80.0f,
 //                           0, 0, 0, 0.2f, 0 };
         float array[] = { 1, 0, 0, 0, 0,
-                           0, 1, 0, 0, 0,
-                           0, 0,1, 0, 0,
-                           0, 0, 0, 1, 0 };
+                0, 1, 0, 0, 0,
+                0, 0,1, 0, 0,
+                0, 0, 0, 1, 0 };
         cm.set(array);
         mColorMatrixFilter = new ColorMatrixColorFilter(cm);
         mMatrix = new Matrix();
-        mScroller = new Scroller(getContext(),new LinearInterpolator());
 
         mTouch.x = 0.01f; // 不让x,y为0,否则在点计算时会有问题
         mTouch.y = 0.01f;
-    }
-
-    private void initPage(){
-        WindowManager wm = (WindowManager) mContext.getSystemService(Context.WINDOW_SERVICE);
-        DisplayMetrics metric = new DisplayMetrics();
-        wm.getDefaultDisplay().getMetrics(metric);
-        mScreenWidth = metric.widthPixels;
-        mScreenHeight = metric.heightPixels;
-        mCurPageBitmap = Bitmap.createBitmap(mScreenWidth, mScreenHeight, Bitmap.Config.RGB_565);      //android:LargeHeap=true  use in  manifest application
-        mNextPageBitmap = Bitmap.createBitmap(mScreenWidth, mScreenHeight, Bitmap.Config.RGB_565);
-    }
-
-    public Bitmap getCurPage(){
-        return mCurPageBitmap;
-    }
-
-    public Bitmap getNextPage(){
-        return mNextPageBitmap;
-    }
-
-    public void changePage(){
-        Bitmap bitmap = mCurPageBitmap;
-        mCurPageBitmap = mNextPageBitmap;
-        mNextPageBitmap = bitmap;
-        postInvalidate();
-    }
-
-    public void setBgColor(int color){
-        mBgColor = color;
     }
 
     /**
@@ -197,280 +131,6 @@ public class BookPageWidget extends View {
                 .setGradientType(GradientDrawable.LINEAR_GRADIENT);
     }
 
-    @Override
-    protected void onDraw(Canvas canvas) {
-//        canvas.drawColor(0xFFAAAAAA);
-        canvas.drawColor(mBgColor);
-        Log.e("onDraw","isNext:" + isNext + "          isRuning:" + isRuning);
-            if (isRuning) {
-                if (isNext) {
-                    calcPoints();
-                    drawCurrentPageArea(canvas, mCurPageBitmap, mPath0);
-                    drawNextPageAreaAndShadow(canvas, mNextPageBitmap);
-                    drawCurrentPageShadow(canvas);
-                    drawCurrentBackArea(canvas, mCurPageBitmap);
-                }else{
-                    calcPoints();
-                    drawCurrentPageArea(canvas, mNextPageBitmap, mPath0);
-                    drawNextPageAreaAndShadow(canvas, mCurPageBitmap);
-                    drawCurrentPageShadow(canvas);
-                    drawCurrentBackArea(canvas, mNextPageBitmap);
-                }
-            } else {
-                if (cancelPage){
-                    canvas.drawBitmap(mCurPageBitmap, 0, 0, null);
-                }else {
-                    canvas.drawBitmap(mNextPageBitmap, 0, 0, null);
-                }
-            }
-    }
-
-    @Override
-    public void computeScroll() {
-        if (mScroller.computeScrollOffset()) {
-            float x = mScroller.getCurrX();
-            float y = mScroller.getCurrY();
-            mTouch.x = x;
-            mTouch.y = y;
-            if (mScroller.getFinalX() == x && mScroller.getFinalY() == y){
-                isRuning = false;
-            }
-            postInvalidate();
-        }
-        super.computeScroll();
-    }
-
-    //是否移动了
-    private Boolean isMove = false;
-    //是否翻到下一页
-    private Boolean isNext = false;
-    //是否取消翻页
-    private Boolean cancelPage = false;
-    //是否没下一页或者上一页
-    private Boolean noNext = false;
-    private int downX = 0;
-    private int downY = 0;
-
-    private int moveX = 0;
-    private int moveY = 0;
-    //翻页动画是否在执行
-    private Boolean isRuning =false;
-    @Override
-    public boolean onTouchEvent(MotionEvent event) {
-        super.onTouchEvent(event);
-        if (PageFactory.getStatus() == PageFactory.Status.OPENING){
-            return true;
-        }
-
-        int x = (int)event.getX();
-        int y = (int)event.getY();
-        mTouch.x = event.getX();
-        mTouch.y = event.getY();
-        //触摸y中间位置吧y变成屏幕高度
-        if ((downY > mScreenHeight / 3 && downY < mScreenHeight * 2 / 3) || (isMove && !isNext)){
-            mTouch.y = mScreenHeight;
-        }
-
-        if (downY > mScreenHeight / 3 && downY < mScreenHeight / 2 && isNext){
-            mTouch.y = 1;
-        }
-
-        if (event.getAction() == MotionEvent.ACTION_DOWN){
-            downX = (int) event.getX();
-            downY = (int) event.getY();
-            moveX = 0;
-            moveY = 0;
-            isMove = false;
-//            cancelPage = false;
-            noNext = false;
-            isNext = false;
-            isRuning = false;
-            calcCornerXY(downX,downY);
-            abortAnimation();
-            Log.e(TAG,"ACTION_DOWN");
-        }else if (event.getAction() == MotionEvent.ACTION_MOVE){
-
-            final int slop = ViewConfiguration.get(getContext()).getScaledTouchSlop();
-            //判断是否移动了
-            if (!isMove) {
-                isMove = Math.abs(downX - x) > slop || Math.abs(downY - y) > slop;
-            }
-
-            if (isMove){
-                isMove = true;
-                if (moveX == 0 && moveY ==0) {
-                    Log.e(TAG,"isMove");
-                    //判断翻得是上一页还是下一页
-                    if (x - downX >0){
-                        isNext = false;
-                    }else{
-                        isNext = true;
-                    }
-                    cancelPage = false;
-                    if (isNext) {
-                        Boolean isNext = mTouchListener.nextPage();
-//                        calcCornerXY(downX,mScreenHeight);
-                        if (mScreenWidth / 2 > downX){
-                            calcCornerXY(mScreenWidth - downX,downY);
-                        }
-
-                        if (!isNext) {
-                            noNext = true;
-                            return true;
-                        }
-                    } else {
-                        Boolean isPre = mTouchListener.prePage();
-                        //上一页滑动不出现对角
-                        if (downX > mScreenWidth / 2){
-                            calcCornerXY(downX,mScreenHeight);
-                        }else{
-                            calcCornerXY(mScreenWidth - downX,mScreenHeight);
-                        }
-
-                        if (!isPre) {
-                            noNext = true;
-                            return true;
-                        }
-                    }
-                    Log.e(TAG,"isNext:" + isNext);
-                }else{
-                    //判断是否取消翻页
-                    if (isNext){
-                        if (x - moveX > 0){
-                            cancelPage = true;
-                        }else {
-                            cancelPage = false;
-                        }
-                    }else{
-                        if (x - moveX < 0){
-                            cancelPage = true;
-                        }else {
-                            cancelPage = false;
-                        }
-                    }
-                    Log.e(TAG,"cancelPage:" + cancelPage);
-                }
-
-                moveX = x;
-                moveY = y;
-                isRuning = true;
-                this.postInvalidate();
-            }
-        }else if (event.getAction() == MotionEvent.ACTION_UP){
-            Log.e(TAG,"ACTION_UP");
-            if (!isMove){
-                cancelPage = false;
-                //是否点击了中间
-                if (downX > mScreenWidth / 5 && downX < mScreenWidth * 4 / 5 && downY > mScreenHeight / 3 && downY < mScreenHeight * 2 / 3){
-                    if (mTouchListener != null){
-                        mTouchListener.center();
-                    }
-                    Log.e(TAG,"center");
-//                    mCornerX = 1; // 拖拽点对应的页脚
-//                    mCornerY = 1;
-//                    mTouch.x = 0.1f;
-//                    mTouch.y = 0.1f;
-                    return true;
-                }else if (x < mScreenWidth / 2){
-                    isNext = false;
-                }else{
-                    isNext = true;
-                }
-
-                if (isNext) {
-                    Boolean isNext = mTouchListener.nextPage();
-                    if (!isNext) {
-                        return true;
-                    }
-                } else {
-                    Boolean isPre = mTouchListener.prePage();
-                    calcCornerXY(mScreenWidth - downX,mScreenHeight);
-                    mTouch.y = mScreenHeight;
-                    if (!isPre) {
-                        return true;
-                    }
-                }
-            }
-
-            if (cancelPage && mTouchListener != null){
-                mTouchListener.cancel();
-            }
-
-            Log.e(TAG,"isNext:" + isNext);
-            if (!noNext) {
-                isRuning = true;
-                startAnimation(400);
-                this.postInvalidate();
-            }
-        }
-
-        return true;
-    }
-
-    public void setTouchListener(TouchListener mTouchListener){
-        this.mTouchListener = mTouchListener;
-    }
-
-    public interface TouchListener{
-        void center();
-        Boolean prePage();
-        Boolean nextPage();
-        void cancel();
-    }
-
-    private void startAnimation(int delayMillis) {
-        int dx, dy;
-        // dx 水平方向滑动的距离，负值会使滚动向左滚动
-        // dy 垂直方向滑动的距离，负值会使滚动向上滚动
-        if (cancelPage){
-            if (mCornerX > 0 && isNext) {
-                dx = (int) (mScreenWidth - mTouch.x);
-            } else {
-                dx = -(int) mTouch.x;
-            }
-
-            if (!isNext){
-                dx = (int) - (mScreenWidth + mTouch.x);
-            }
-
-            if (mCornerY > 0) {
-                dy = (int) (mScreenHeight - mTouch.y);
-            } else {
-                dy = - (int) mTouch.y; // 防止mTouch.y最终变为0
-            }
-        }else {
-            if (mCornerX > 0 && isNext) {
-                dx = -(int) (mScreenWidth + mTouch.x);
-            } else {
-                dx = (int) (mScreenWidth - mTouch.x + mScreenWidth);
-            }
-            if (mCornerY > 0) {
-                dy = (int) (mScreenHeight - mTouch.y);
-            } else {
-                dy = (int) (1 - mTouch.y); // 防止mTouch.y最终变为0
-            }
-        }
-        mScroller.startScroll((int) mTouch.x, (int) mTouch.y, dx, dy,
-                delayMillis);
-    }
-
-    public void abortAnimation() {
-        if (!mScroller.isFinished()) {
-            mScroller.abortAnimation();
-            mTouch.x =  mScroller.getFinalX();;
-            mTouch.y = mScroller.getFinalY();;
-            postInvalidate();
-        }
-    }
-
-    public boolean isFinishAnim(){
-        return mScroller.isFinished();
-    }
-
-    public boolean isRunning(){
-        return isRuning;
-    }
-
     /**
      * 是否能够拖动过去
      *
@@ -481,34 +141,6 @@ public class BookPageWidget extends View {
             return true;
         return false;
     }
-
-    /**
-     * 是否从左边翻向右边
-     *
-     * @return
-     */
-    public String DragToRight() {
-        // if (mCornerX > 0)
-        //     return false;
-        //   return true;
-
-        if (actiondownX>mScreenWidth/3.0 && actiondownX < (mScreenWidth * 2.0 / 3.0) ) {
-            Log.d("PageWidget","是否进入此语句");
-            return "popview";
-
-        } else if (actiondownX < mScreenWidth / 3.0)  {
-
-            Log.d("PageWidget", "mScreenWidth / 3.0=" + mScreenWidth / 3.0);
-            return "right";
-
-        } else if (actiondownX > mScreenWidth*2.0 /3 ) {
-
-            return "left";
-        }
-
-        return null;
-    }
-
 
     public boolean right() {
         if (mCornerX > -4)
@@ -911,6 +543,5 @@ public class BookPageWidget extends View {
         CrossP.y = a1 * CrossP.x + b1;
         return CrossP;
     }
-
 
 }
