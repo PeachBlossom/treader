@@ -13,6 +13,8 @@ import android.graphics.drawable.GradientDrawable;
 import android.view.animation.LinearInterpolator;
 import android.widget.Scroller;
 
+import com.zijie.treader.bean.Cache;
+
 /**
  * Created by Administrator on 2016/8/26 0026.
  */
@@ -21,8 +23,6 @@ public class SimulationAnimation extends AnimationProvider {
     private int mCornerY = 1;
     private Path mPath0;
     private Path mPath1;
-    Bitmap mCurPageBitmap = null; // 当前页
-    Bitmap mNextPageBitmap = null;
 
     PointF mBezierStart1 = new PointF(); // 贝塞尔曲线起始点
     PointF mBezierControl1 = new PointF(); // 贝塞尔曲线控制点
@@ -84,6 +84,113 @@ public class SimulationAnimation extends AnimationProvider {
 
         mTouch.x = 0.01f; // 不让x,y为0,否则在点计算时会有问题
         mTouch.y = 0.01f;
+    }
+
+    @Override
+    public void drawMove(Canvas canvas) {
+        if (getDirection().equals(Direction.next)) {
+            calcPoints();
+            drawCurrentPageArea(canvas, mCurPageBitmap, mPath0);
+            drawNextPageAreaAndShadow(canvas, mNextPageBitmap);
+            drawCurrentPageShadow(canvas);
+            drawCurrentBackArea(canvas, mCurPageBitmap);
+        }else{
+            calcPoints();
+            drawCurrentPageArea(canvas, mNextPageBitmap, mPath0);
+            drawNextPageAreaAndShadow(canvas, mCurPageBitmap);
+            drawCurrentPageShadow(canvas);
+            drawCurrentBackArea(canvas, mNextPageBitmap);
+        }
+    }
+
+    @Override
+    public void drawStatic(Canvas canvas) {
+        if (getCancel()){
+            canvas.drawBitmap(mCurPageBitmap, 0, 0, null);
+        }else {
+            canvas.drawBitmap(mNextPageBitmap, 0, 0, null);
+        }
+    }
+
+    @Override
+    public void setCancel(boolean isCancel) {
+        super.setCancel(isCancel);
+    }
+
+    @Override
+    public void startAnimation(Scroller scroller) {
+        int dx, dy;
+        // dx 水平方向滑动的距离，负值会使滚动向左滚动
+        // dy 垂直方向滑动的距离，负值会使滚动向上滚动
+        if (getCancel()){
+            if (mCornerX > 0 && getDirection().equals(Direction.next)) {
+                dx = (int) (mScreenWidth - mTouch.x);
+            } else {
+                dx = -(int) mTouch.x;
+            }
+
+            if (!getDirection().equals(Direction.next)){
+                dx = (int) - (mScreenWidth + mTouch.x);
+            }
+
+            if (mCornerY > 0) {
+                dy = (int) (mScreenHeight - mTouch.y);
+            } else {
+                dy = - (int) mTouch.y; // 防止mTouch.y最终变为0
+            }
+        }else {
+            if (mCornerX > 0 && getDirection().equals(Direction.next)) {
+                dx = -(int) (mScreenWidth + mTouch.x);
+            } else {
+                dx = (int) (mScreenWidth - mTouch.x + mScreenWidth);
+            }
+            if (mCornerY > 0) {
+                dy = (int) (mScreenHeight - mTouch.y);
+            } else {
+                dy = (int) (1 - mTouch.y); // 防止mTouch.y最终变为0
+            }
+        }
+        scroller.startScroll((int) mTouch.x, (int) mTouch.y, dx, dy, 400);
+    }
+
+
+    @Override
+    public void setDirection(Direction direction) {
+        super.setDirection(direction);
+        switch (direction){
+            case pre:
+                //上一页滑动不出现对角
+                if (myStartX > mScreenWidth / 2){
+                    calcCornerXY(myStartX,mScreenHeight);
+                }else{
+                    calcCornerXY(mScreenWidth - myStartX,mScreenHeight);
+                }
+                break;
+            case next:
+                if (mScreenWidth / 2 > myStartX){
+                    calcCornerXY(mScreenWidth - myStartX,myStartY);
+                }
+                break;
+        }
+    }
+
+    @Override
+    public void setStartPoint(float x, float y) {
+        super.setStartPoint(x, y);
+        calcCornerXY(x,y);
+    }
+
+    @Override
+    public void setTouchPoint(float x, float y) {
+        super.setTouchPoint(x, y);
+        //触摸y中间位置吧y变成屏幕高度
+        if ((myStartY > mScreenHeight / 3 && myStartY < mScreenHeight * 2 / 3) ||  getDirection().equals(Direction.pre)){
+            mTouch.y = mScreenHeight;
+        }
+
+        if (myStartY > mScreenHeight / 3 && myStartY < mScreenHeight / 2 && getDirection().equals(Direction.next)){
+            mTouch.y = 1;
+        }
     }
 
     /**

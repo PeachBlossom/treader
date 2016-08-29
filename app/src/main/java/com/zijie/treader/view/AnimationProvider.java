@@ -1,7 +1,9 @@
 package com.zijie.treader.view;
 
 import android.graphics.Bitmap;
+import android.graphics.Canvas;
 import android.graphics.PointF;
+import android.widget.Scroller;
 
 /**
  * Created by Administrator on 2016/8/1 0001.
@@ -21,7 +23,7 @@ abstract class AnimationProvider {
 //    }
 
     public static enum Direction {
-        leftToRight(true), rightToLeft(true), up(false), down(false);
+        none(true),next(true), pre(true), up(false), down(false);
 
         public final boolean IsHorizontal;
 
@@ -36,7 +38,7 @@ abstract class AnimationProvider {
 
 //    private Mode myMode = Mode.NoScrolling;
 
-    private Bitmap mCurrentBitmap,mNextBitmap;
+    protected Bitmap mCurPageBitmap,mNextPageBitmap;
     protected float myStartX;
     protected float myStartY;
     protected int myEndX;
@@ -48,15 +50,21 @@ abstract class AnimationProvider {
     protected int mScreenHeight;
 
     protected PointF mTouch = new PointF(); // 拖拽点
-    private Direction direction;
+    private Direction direction = Direction.none;
     private boolean isCancel = false;
 
     public AnimationProvider(Bitmap mCurrentBitmap,Bitmap mNextBitmap,int width,int height) {
-        this.mCurrentBitmap = mCurrentBitmap;
-        this.mNextBitmap = mNextBitmap;
+        this.mCurPageBitmap = mCurrentBitmap;
+        this.mNextPageBitmap = mNextBitmap;
         this.mScreenWidth = width;
         this.mScreenHeight = height;
     }
+
+    //绘制滑动页面
+    public abstract void drawMove(Canvas canvas);
+
+    //绘制不滑动页面
+    public abstract void drawStatic(Canvas canvas);
 
     //设置开始拖拽点
     public void setStartPoint(float x,float y){
@@ -75,11 +83,18 @@ abstract class AnimationProvider {
         this.direction = direction;
     }
 
+    public Direction getDirection(){
+        return direction;
+    }
+
     public void setCancel(boolean isCancel){
         this.isCancel = isCancel;
     }
 
-    public Direction getDirection(){
-        return direction;
+    public abstract void startAnimation(Scroller scroller);
+
+    public boolean getCancel(){
+        return isCancel;
     }
+
 }

@@ -28,6 +28,7 @@ import com.zijie.treader.R;
 import com.zijie.treader.db.BookCatalogue;
 import com.zijie.treader.db.BookList;
 import com.zijie.treader.view.BookPageWidget;
+import com.zijie.treader.view.PageWidget;
 
 import org.litepal.crud.DataSupport;
 import org.mozilla.universalchardet.UniversalDetector;
@@ -145,7 +146,7 @@ public class PageFactory {
     //当前是否为最后一页
     private boolean m_islastPage;
     //书本widget
-    private BookPageWidget mBookPageWidget;
+    private PageWidget mBookPageWidget;
 //    //书本所有段
 //    List<String> allParagraph;
 //    //书本所有行
@@ -862,7 +863,7 @@ public class PageFactory {
         return this.m_fontSize;
     }
 
-    public void setPageWidget(BookPageWidget mBookPageWidget){
+    public void setPageWidget(PageWidget mBookPageWidget){
         this.mBookPageWidget = mBookPageWidget;
     }
 

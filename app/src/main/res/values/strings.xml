@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">如风阅读</string>
+    <string name="app_name">如风小说阅读</string>
 
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
@@ -42,7 +42,7 @@
 
     <string name="readseting">设置</string>
 
-     <string name="aboutContent">如风阅读是专注于提供更舒适的阅读体验,主打本地阅读,操作方式简单易上手,目前支持txt格式。</string>
+     <string name="aboutContent">如风小说阅读是专注于提供更舒适的阅读体验,主打本地阅读,操作方式简单易上手,目前支持txt格式。</string>
 
     <string-array name="voicer_cloud_entries">
         <item>小燕—女青、中英、普通话</item>

@@ -38,6 +38,7 @@ import com.zijie.treader.dialog.SettingDialog;
 import com.zijie.treader.util.BrightnessUtil;
 import com.zijie.treader.util.PageFactory;
 import com.zijie.treader.view.BookPageWidget;
+import com.zijie.treader.view.PageWidget;
 
 import org.litepal.crud.DataSupport;
 
@@ -58,7 +59,7 @@ public class ReadActivity extends BaseActivity {
     private final static int MESSAGE_CHANGEPROGRESS = 1;
 
     @Bind(R.id.bookpage)
-    BookPageWidget bookpage;
+    PageWidget bookpage;
 //    @Bind(R.id.btn_return)
 //    ImageButton btn_return;
 //    @Bind(R.id.ll_top)
@@ -242,7 +243,7 @@ public class ReadActivity extends BaseActivity {
             }
         });
 
-        bookpage.setTouchListener(new BookPageWidget.TouchListener() {
+        bookpage.setTouchListener(new PageWidget.TouchListener() {
             @Override
             public void center() {
                 if (isShow) {
@@ -347,9 +348,9 @@ public class ReadActivity extends BaseActivity {
         return true;
     }
 
-    public BookPageWidget getPageWidget() {
-        return bookpage;
-    }
+//    public BookPageWidget getPageWidget() {
+//        return bookpage;
+//    }
 
     /**
      * 隐藏菜单。沉浸式阅读
