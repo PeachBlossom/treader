@@ -20,6 +20,7 @@ public class Config {
     private final static String NIGHT_KEY = "night";
     private final static String LIGHT_KEY = "light";
     private final static String SYSTEM_LIGHT_KEY = "systemlight";
+    private final static String PAGE_MODE_KEY = "pagemode";
 
     public final static String FONTTYPE_DEFAULT = "";
     public final static String FONTTYPE_QIHEI = "font/qihei.ttf";
@@ -34,6 +35,11 @@ public class Config {
     public final static int BOOK_BG_2 = 2;
     public final static int BOOK_BG_3 = 3;
     public final static int BOOK_BG_4 = 4;
+
+    public final static int PAGE_MODE_SIMULATION = 0;
+    public final static int PAGE_MODE_COVER = 1;
+    public final static int PAGE_MODE_SLIDE = 2;
+    public final static int PAGE_MODE_NONE = 3;
 
     private Context mContext;
     private static Config config;
@@ -63,40 +69,17 @@ public class Config {
         return config;
     }
 
+    public int getPageMode(){
+        return sp.getInt(PAGE_MODE_KEY,PAGE_MODE_SIMULATION);
+    }
 
-//    public int getBookBgColor(){
-//        if(getDayOrNight()){
-//            return Color.BLACK;
-//        }else{
-//
-//        }
-//    }
+    public void setPageMode(int pageMode){
+        sp.edit().putInt(PAGE_MODE_KEY,pageMode).commit();
+    }
 
     public int getBookBgType(){
         return sp.getInt(BOOK_BG_KEY,BOOK_BG_DEFAULT);
     }
-
-//    public Bitmap getBookBg(){
-//        return getBookBg(sp.getInt(BOOK_BG_KEY,BOOK_BG_DEFAULT));
-//    }
-
-//    public Bitmap getBookBg(int type){
-//        Bitmap bitmap = null;
-//        switch (type){
-//            case BOOK_BG_DEFAULT:
-//                break;
-//            case BOOK_BG_1:
-//                break;
-//            case BOOK_BG_2:
-//                break;
-//            case BOOK_BG_3:
-//                break;
-//            case BOOK_BG_4:
-//                break;
-//        }
-//
-//        return bitmap;
-//    }
 
     public void setBookBg(int type){
         sp.edit().putInt(BOOK_BG_KEY,type).commit();

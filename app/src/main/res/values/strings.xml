@@ -21,6 +21,7 @@
     <string name="read_setting_directory">目录</string>
     <string name="read_setting_night">夜间</string>
     <string name="read_setting_day">日间</string>
+    <string name="read_setting_pagemode">翻页</string>
     <string name="read_setting_set">设置</string>
     <string name="read_setting_pre">上一章</string>
     <string name="read_setting_next">下一章</string>
@@ -39,6 +40,11 @@
     <string name="font_fzxinghei">行黑</string>
     <string name="font_fzkatong">卡通</string>
     <string name="font_bysong">繁宋体</string>
+    
+    <string name="page_mode_simulation">仿真</string>
+    <string name="page_mode_cover">覆盖</string>
+    <string name="page_mode_slide">滑动</string>
+    <string name="page_mode_none">无</string>
 
     <string name="readseting">设置</string>
 

@@ -1,4 +1,4 @@
-package com.zijie.treader.view;
+package com.zijie.treader.view.animation;
 
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
@@ -10,10 +10,7 @@ import android.graphics.Path;
 import android.graphics.PointF;
 import android.graphics.Region;
 import android.graphics.drawable.GradientDrawable;
-import android.view.animation.LinearInterpolator;
 import android.widget.Scroller;
-
-import com.zijie.treader.bean.Cache;
 
 /**
  * Created by Administrator on 2016/8/26 0026.

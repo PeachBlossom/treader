@@ -33,6 +33,7 @@ import android.widget.Toast;
 
 import com.zijie.treader.base.BaseActivity;
 import com.zijie.treader.db.BookList;
+import com.zijie.treader.dialog.PageModeDialog;
 import com.zijie.treader.dialog.ReadSettingDialog;
 import com.zijie.treader.dialog.SettingDialog;
 import com.zijie.treader.util.BrightnessUtil;
@@ -78,6 +79,8 @@ public class ReadActivity extends BaseActivity {
     TextView tv_directory;
     @Bind(R.id.tv_dayornight)
     TextView tv_dayornight;
+    @Bind(R.id.tv_pagemode)
+    TextView tv_pagemode;
     @Bind(R.id.tv_setting)
     TextView tv_setting;
     @Bind(R.id.bookpop_bottom)
@@ -97,6 +100,7 @@ public class ReadActivity extends BaseActivity {
     // popwindow是否显示
     private Boolean isShow = false;
     private SettingDialog mSettingDialog;
+    private PageModeDialog mPageModeDialog;
     private Boolean mDayOrNight;
 
     // 接收电池信息更新的广播
@@ -144,6 +148,7 @@ public class ReadActivity extends BaseActivity {
         registerReceiver(myReceiver, mfilter);
 
         mSettingDialog = new SettingDialog(this);
+        mPageModeDialog = new PageModeDialog(this);
         //获取屏幕宽高
         WindowManager manage = getWindowManager();
         Display display = manage.getDefaultDisplay();
@@ -163,6 +168,7 @@ public class ReadActivity extends BaseActivity {
         Intent intent = getIntent();
         bookList = (BookList) intent.getSerializableExtra(EXTRA_BOOK);
 
+        bookpage.setPageMode(config.getPageMode());
         pageFactory.setPageWidget(bookpage);
 
         try {
@@ -196,6 +202,20 @@ public class ReadActivity extends BaseActivity {
             @Override
             public void onStopTrackingTouch(SeekBar seekBar) {
                 pageFactory.changeProgress(pro);
+            }
+        });
+
+        mPageModeDialog.setOnCancelListener(new DialogInterface.OnCancelListener() {
+            @Override
+            public void onCancel(DialogInterface dialog) {
+                hideSystemUI();
+            }
+        });
+
+        mPageModeDialog.setPageModeListener(new PageModeDialog.PageModeListener() {
+            @Override
+            public void changePageMode(int pageMode) {
+                bookpage.setPageMode(pageMode);
             }
         });
 
@@ -330,6 +350,10 @@ public class ReadActivity extends BaseActivity {
                 mSettingDialog.hide();
                 return true;
             }
+            if (mPageModeDialog.isShowing()){
+                mPageModeDialog.hide();
+                return true;
+            }
             finish();
         }
         return super.onKeyDown(keyCode, event);
@@ -452,7 +476,7 @@ public class ReadActivity extends BaseActivity {
         hideSystemUI();
     }
 
-    @OnClick({R.id.tv_progress, R.id.rl_progress, R.id.tv_pre, R.id.sb_progress, R.id.tv_next, R.id.tv_directory, R.id.tv_dayornight, R.id.tv_setting, R.id.bookpop_bottom, R.id.rl_bottom})
+    @OnClick({R.id.tv_progress, R.id.rl_progress, R.id.tv_pre, R.id.sb_progress, R.id.tv_next, R.id.tv_directory, R.id.tv_dayornight,R.id.tv_pagemode, R.id.tv_setting, R.id.bookpop_bottom, R.id.rl_bottom})
     public void onClick(View view) {
         switch (view.getId()) {
 //            case R.id.btn_return:
@@ -478,6 +502,10 @@ public class ReadActivity extends BaseActivity {
                 break;
             case R.id.tv_dayornight:
                 changeDayOrNight();
+                break;
+            case R.id.tv_pagemode:
+                hideReadSetting();
+                mPageModeDialog.show();
                 break;
             case R.id.tv_setting:
                 hideReadSetting();

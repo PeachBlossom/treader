@@ -1,4 +1,4 @@
-package com.zijie.treader.view;
+package com.zijie.treader.view.animation;
 
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
@@ -8,7 +8,7 @@ import android.widget.Scroller;
 /**
  * Created by Administrator on 2016/8/1 0001.
  */
-abstract class AnimationProvider {
+public abstract class AnimationProvider {
 //    static enum Mode {
 //        NoScrolling(false),
 //        ManualScrolling(false),

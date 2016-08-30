@@ -13,7 +13,13 @@ import android.view.WindowManager;
 import android.view.animation.LinearInterpolator;
 import android.widget.Scroller;
 
+import com.zijie.treader.Config;
 import com.zijie.treader.util.PageFactory;
+import com.zijie.treader.view.animation.AnimationProvider;
+import com.zijie.treader.view.animation.CoverAnimation;
+import com.zijie.treader.view.animation.NoneAnimation;
+import com.zijie.treader.view.animation.SimulationAnimation;
+import com.zijie.treader.view.animation.SlideAnimation;
 
 /**
  * Created by Administrator on 2016/8/29 0029.
@@ -72,6 +78,25 @@ public class PageWidget extends View {
         mScreenHeight = metric.heightPixels;
         mCurPageBitmap = Bitmap.createBitmap(mScreenWidth, mScreenHeight, Bitmap.Config.RGB_565);      //android:LargeHeap=true  use in  manifest application
         mNextPageBitmap = Bitmap.createBitmap(mScreenWidth, mScreenHeight, Bitmap.Config.RGB_565);
+    }
+
+    public void setPageMode(int pageMode){
+        switch (pageMode){
+            case Config.PAGE_MODE_SIMULATION:
+                mAnimationProvider = new SimulationAnimation(mCurPageBitmap,mNextPageBitmap,mScreenWidth,mScreenHeight);
+                break;
+            case Config.PAGE_MODE_COVER:
+                mAnimationProvider = new CoverAnimation(mCurPageBitmap,mNextPageBitmap,mScreenWidth,mScreenHeight);
+                break;
+            case Config.PAGE_MODE_SLIDE:
+                mAnimationProvider = new SlideAnimation(mCurPageBitmap,mNextPageBitmap,mScreenWidth,mScreenHeight);
+                break;
+            case Config.PAGE_MODE_NONE:
+                mAnimationProvider = new NoneAnimation(mCurPageBitmap,mNextPageBitmap,mScreenWidth,mScreenHeight);
+                break;
+            default:
+                mAnimationProvider = new SimulationAnimation(mCurPageBitmap,mNextPageBitmap,mScreenWidth,mScreenHeight);
+        }
     }
 
     public Bitmap getCurPage(){
