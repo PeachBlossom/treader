@@ -18,6 +18,18 @@ android {
         }
     }
 
+    productFlavors {
+        wandoujia {}
+        baidu {}
+        c360 {}
+        uc {}
+
+        productFlavors.all { flavor ->
+            flavor.manifestPlaceholders = [UMENG_CHANNEL_VALUE: name]
+        }
+
+    }
+
     packagingOptions {
         exclude 'META-INF/maven/com.squareup.okio/okio/pom.xml'
         exclude 'META-INF/maven/com.squareup.okio/okio/pom.properties'

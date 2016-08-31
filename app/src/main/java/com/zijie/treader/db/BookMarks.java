@@ -8,7 +8,7 @@ import org.litepal.crud.DataSupport;
 public class BookMarks extends DataSupport {
     private int id ;
   //  private int page;
-    private int begin; // 书签记录页面的结束点位置
+    private long begin; // 书签记录页面的结束点位置
   //  private int count;
     private String text;
     private String time;
@@ -37,11 +37,11 @@ public class BookMarks extends DataSupport {
         this.time = time;
     }
 
-    public int getBegin() {
+    public long getBegin() {
         return this.begin;
     }
 
-    public void setBegin(int begin) {
+    public void setBegin(long begin) {
         this.begin = begin;
     }
 

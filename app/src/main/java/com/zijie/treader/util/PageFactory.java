@@ -826,6 +826,14 @@ public class PageFactory {
         return mStatus;
     }
 
+    public long getBookLen(){
+        return mBookUtil.getBookLen();
+    }
+
+    public TRPage getCurrentPage(){
+        return currentPage;
+    }
+
     //获取书本的章
     public List<BookCatalogue> getDirectoryList(){
         return mBookUtil.getDirectoryList();

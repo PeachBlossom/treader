@@ -7,6 +7,7 @@
     <string name="action_settings">Settings</string>
     <string name="action_select_file">导入书本</string>
     <string name="action_search_file">搜索文件</string>
+    <string name="action_add_bookmark">添加书签</string>
 
     <string name="press_twice_to_exit">连续点击才能退出</string>
     <string name="root">根目录</string>

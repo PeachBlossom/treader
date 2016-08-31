@@ -7,6 +7,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.database.SQLException;
 import android.graphics.Point;
 import android.graphics.Typeface;
 import android.os.BatteryManager;
@@ -20,6 +21,8 @@ import android.util.Log;
 import android.view.Display;
 import android.view.Gravity;
 import android.view.KeyEvent;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.WindowManager;
 import android.view.animation.Animation;
@@ -33,11 +36,14 @@ import android.widget.Toast;
 
 import com.zijie.treader.base.BaseActivity;
 import com.zijie.treader.db.BookList;
+import com.zijie.treader.db.BookMarks;
 import com.zijie.treader.dialog.PageModeDialog;
 import com.zijie.treader.dialog.ReadSettingDialog;
 import com.zijie.treader.dialog.SettingDialog;
+import com.zijie.treader.filechooser.FileChooserActivity;
 import com.zijie.treader.util.BrightnessUtil;
 import com.zijie.treader.util.PageFactory;
+import com.zijie.treader.util.TRPage;
 import com.zijie.treader.view.BookPageWidget;
 import com.zijie.treader.view.PageWidget;
 
@@ -46,6 +52,8 @@ import org.litepal.crud.DataSupport;
 import java.io.File;
 import java.io.IOException;
 import java.text.DecimalFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
@@ -358,6 +366,50 @@ public class ReadActivity extends BaseActivity {
         }
         return super.onKeyDown(keyCode, event);
     }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        // Inflate the menu; this adds items to the action bar if it is present.
+        getMenuInflater().inflate(R.menu.read, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        // Handle action bar item clicks here. The action bar will
+        // automatically handle clicks on the Home/Up button, so long
+        // as you specify a parent activity in AndroidManifest.xml.
+        int id = item.getItemId();
+
+        if (id == R.id.action_add_bookmark){
+            if (pageFactory.getCurrentPage() != null) {
+                BookMarks bookMarks = new BookMarks();
+                String word = "";
+                for (String line : pageFactory.getCurrentPage().getLines()){
+                    word += line;
+                }
+                try {
+                    SimpleDateFormat sf = new SimpleDateFormat(
+                            "yyyy-MM-dd HH:mm ss");
+                    String time = sf.format(new Date());
+                    bookMarks.setTime(time);
+                    bookMarks.setBegin(pageFactory.getCurrentPage().getBegin());
+                    bookMarks.setText(word);
+                    bookMarks.setBookpath(pageFactory.getBookPath());
+                    bookMarks.save();
+
+                    Toast.makeText(ReadActivity.this, "书签添加成功", Toast.LENGTH_SHORT).show();
+                } catch (SQLException e) {
+                    Toast.makeText(ReadActivity.this, "该书签已存在", Toast.LENGTH_SHORT).show();
+                } catch (Exception e) {
+                    Toast.makeText(ReadActivity.this, "添加书签失败", Toast.LENGTH_SHORT).show();
+                }
+            }
+        }
+
+        return super.onOptionsItemSelected(item);
+    }
+
 
     public static boolean openBook(final BookList bookList, Activity context) {
         if (bookList == null){
