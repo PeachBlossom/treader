@@ -54,6 +54,7 @@ import java.io.IOException;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.List;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
@@ -383,26 +384,32 @@ public class ReadActivity extends BaseActivity {
 
         if (id == R.id.action_add_bookmark){
             if (pageFactory.getCurrentPage() != null) {
-                BookMarks bookMarks = new BookMarks();
-                String word = "";
-                for (String line : pageFactory.getCurrentPage().getLines()){
-                    word += line;
-                }
-                try {
-                    SimpleDateFormat sf = new SimpleDateFormat(
-                            "yyyy-MM-dd HH:mm ss");
-                    String time = sf.format(new Date());
-                    bookMarks.setTime(time);
-                    bookMarks.setBegin(pageFactory.getCurrentPage().getBegin());
-                    bookMarks.setText(word);
-                    bookMarks.setBookpath(pageFactory.getBookPath());
-                    bookMarks.save();
+                List<BookMarks> bookMarksList = DataSupport.where("bookpath = ? and begin = ?", pageFactory.getBookPath(),pageFactory.getCurrentPage().getBegin() + "").find(BookMarks.class);
 
-                    Toast.makeText(ReadActivity.this, "书签添加成功", Toast.LENGTH_SHORT).show();
-                } catch (SQLException e) {
+                if (!bookMarksList.isEmpty()){
                     Toast.makeText(ReadActivity.this, "该书签已存在", Toast.LENGTH_SHORT).show();
-                } catch (Exception e) {
-                    Toast.makeText(ReadActivity.this, "添加书签失败", Toast.LENGTH_SHORT).show();
+                }else {
+                    BookMarks bookMarks = new BookMarks();
+                    String word = "";
+                    for (String line : pageFactory.getCurrentPage().getLines()) {
+                        word += line;
+                    }
+                    try {
+                        SimpleDateFormat sf = new SimpleDateFormat(
+                                "yyyy-MM-dd HH:mm ss");
+                        String time = sf.format(new Date());
+                        bookMarks.setTime(time);
+                        bookMarks.setBegin(pageFactory.getCurrentPage().getBegin());
+                        bookMarks.setText(word);
+                        bookMarks.setBookpath(pageFactory.getBookPath());
+                        bookMarks.save();
+
+                        Toast.makeText(ReadActivity.this, "书签添加成功", Toast.LENGTH_SHORT).show();
+                    } catch (SQLException e) {
+                        Toast.makeText(ReadActivity.this, "该书签已存在", Toast.LENGTH_SHORT).show();
+                    } catch (Exception e) {
+                        Toast.makeText(ReadActivity.this, "添加书签失败", Toast.LENGTH_SHORT).show();
+                    }
                 }
             }
         }

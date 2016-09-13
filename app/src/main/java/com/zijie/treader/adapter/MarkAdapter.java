@@ -69,8 +69,8 @@ public class MarkAdapter extends BaseAdapter {
         viewHolder.text_mark.setText(list.get(position).getText());
         long begin = list.get(position).getBegin();
         float fPercent = (float) (begin * 1.0 / pageFactory.getBookLen());
-        DecimalFormat df = new DecimalFormat("#0");
-        String strPercent = df.format(1 * 100) + "%";
+        DecimalFormat df = new DecimalFormat("#0.0");
+        String strPercent = df.format(fPercent * 100) + "%";
         viewHolder.progress1.setText(strPercent);
         viewHolder.mark_time.setText(list.get(position).getTime().substring(0, 16));
         return convertView;

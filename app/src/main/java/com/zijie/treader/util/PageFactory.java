@@ -98,6 +98,10 @@ public class PageFactory {
     private float statusMarginBottom;
     //行间距
     private float lineSpace;
+    //段间距
+    private float paragraphSpace;
+    //字高度
+    private float fontHeight;
     //字体
     private Typeface typeface;
     //文字画笔
@@ -209,7 +213,8 @@ public class PageFactory {
         marginWidth = mContext.getResources().getDimension(R.dimen.readingMarginWidth);
         marginHeight = mContext.getResources().getDimension(R.dimen.readingMarginHeight);
         statusMarginBottom = mContext.getResources().getDimension(R.dimen.reading_status_margin_bottom);
-        lineSpace = (int) context.getResources().getDimension(R.dimen.reading_line_spacing);
+        lineSpace = context.getResources().getDimension(R.dimen.reading_line_spacing);
+        paragraphSpace = context.getResources().getDimension(R.dimen.reading_paragraph_spacing);
         mVisibleWidth = mWidth - marginWidth * 2;
         mVisibleHeight = mHeight - marginHeight * 2;
 
@@ -248,6 +253,15 @@ public class PageFactory {
         float wordWidth =mPaint.measureText("\u3000");
         float width = mVisibleWidth % wordWidth;
         measureMarginWidth = marginWidth + width / 2;
+
+//        Rect rect = new Rect();
+//        mPaint.getTextBounds("好", 0, 1, rect);
+//        float wordHeight = rect.height();
+//        float wordW = rect.width();
+//        Paint.FontMetrics fm = mPaint.getFontMetrics();
+//        float wrodH = (float) (Math.ceil(fm.top + fm.bottom + fm.leading));
+//        String a = "";
+
     }
 
     //初始化背景
@@ -542,6 +556,7 @@ public class PageFactory {
     public List<String> getNextLines(){
         List<String> lines = new ArrayList<>();
         float width = 0;
+        float height = 0;
         String line = "";
         while (mBookUtil.next(true) != -1){
             char word = (char) mBookUtil.next(false);
@@ -552,6 +567,7 @@ public class PageFactory {
                     lines.add(line);
                     line = "";
                     width = 0;
+//                    height +=  paragraphSpace;
                     if (lines.size() == mLineCount){
                         break;
                     }

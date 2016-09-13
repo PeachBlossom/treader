@@ -197,9 +197,9 @@ public class BookUtil {
             }
 
             String bufStr = new String(buf);
-            bufStr = bufStr.replaceAll("\r\n","\r\n\u3000\u3000");
-            bufStr = bufStr.replaceAll("\u3000\u3000+[ ]*","\u3000\u3000");
-
+//            bufStr = bufStr.replaceAll("\r\n","\r\n\u3000\u3000");
+//            bufStr = bufStr.replaceAll("\u3000\u3000+[ ]*","\u3000\u3000");
+            bufStr = bufStr.replaceAll("\r\n+\\s*","\r\n\u3000\u3000");
 //            bufStr = bufStr.replaceAll("\r\n[ {0,}]","\r\n\u3000\u3000");
 //            bufStr = bufStr.replaceAll(" ","");
             bufStr = bufStr.replaceAll("\u0000","");

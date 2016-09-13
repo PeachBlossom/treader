@@ -18,6 +18,8 @@
     <dimen name="reading_status_margin_bottom">3dp</dimen>
     <!-- 行间距 -->
     <dimen name="reading_line_spacing">10dp</dimen>
+    <!-- 段间距 -->
+    <dimen name="reading_paragraph_spacing">30dp</dimen>
     <!-- 书本字体默认大小 -->
     <dimen name="reading_default_text_size">20sp</dimen>
     <!-- 书本字体最小大小 -->

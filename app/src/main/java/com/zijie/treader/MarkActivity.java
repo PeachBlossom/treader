@@ -70,14 +70,6 @@ public class MarkActivity extends BaseActivity {
             getSupportActionBar().setTitle(FileUtils.getFileName(pageFactory.getBookPath()));
         }
 
-//        catalogueList.addAll(pageFactory.getDirectoryList());
-//        CatalogueAdapter catalogueAdapter = new CatalogueAdapter(this, catalogueList);
-//        catalogueAdapter.setCharter(pageFactory.getCurrentCharter());
-//        lv_catalogue.setAdapter(catalogueAdapter);
-//        catalogueAdapter.notifyDataSetChanged();
-
-//        tv_bookname.setText(FileUtils.getFileName(pageFactory.getBookPath()));
-
         setTabsValue();
         pager.setAdapter(new MyPagerAdapter(getSupportFragmentManager(),pageFactory.getBookPath()));
         tabs.setViewPager(pager);
@@ -93,7 +85,7 @@ public class MarkActivity extends BaseActivity {
                 TypedValue.COMPLEX_UNIT_DIP, 1, dm));
         // 设置Tab Indicator的高度
         tabs.setIndicatorHeight((int) TypedValue.applyDimension(
-                TypedValue.COMPLEX_UNIT_DIP, 4, dm));
+                TypedValue.COMPLEX_UNIT_DIP, 2, dm));
         // 设置Tab标题文字的大小
         tabs.setTextSize((int) TypedValue.applyDimension(
                 TypedValue.COMPLEX_UNIT_SP, 16, dm));
@@ -109,13 +101,7 @@ public class MarkActivity extends BaseActivity {
 
     @Override
     protected void initListener() {
-//        lv_catalogue.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-//            @Override
-//            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-//                pageFactory.changeChapter(catalogueList.get(position).getBookCatalogueStartPos());
-//                MarkActivity.this.finish();
-//            }
-//        });
+
     }
 
 }
