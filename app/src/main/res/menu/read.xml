@@ -6,4 +6,10 @@
         android:title="@string/action_add_bookmark"
         android:orderInCategory="90"
         app:showAsAction="ifRoom" />
+
+    <item
+        android:id="@+id/action_read_book"
+        android:title="@string/action_read_book"
+        android:orderInCategory="90"
+        app:showAsAction="ifRoom" />
 </menu>

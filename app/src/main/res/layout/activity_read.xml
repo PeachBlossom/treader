@@ -82,6 +82,23 @@
         <!--</LinearLayout>-->
 
     <RelativeLayout
+        android:id="@+id/rl_read_bottom"
+        android:layout_width="match_parent"
+        android:layout_height="200dp"
+        android:background="@color/read_dialog_bg"
+        android:layout_alignParentBottom="true"
+        android:layout_gravity="bottom"
+        android:visibility="gone">
+
+        <TextView
+            android:id="@+id/tv_stop_read"
+            style="@style/setting_dialog_button"
+            android:layout_centerInParent="true"
+            android:textSize="20dp"
+            android:text="停止语音播放" />
+    </RelativeLayout>
+
+    <RelativeLayout
         android:id="@+id/rl_bottom"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

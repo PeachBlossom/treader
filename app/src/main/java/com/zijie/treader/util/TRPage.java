@@ -30,6 +30,16 @@ public class TRPage {
         return lines;
     }
 
+    public String getLineToString(){
+        String text ="";
+        if (lines != null){
+            for (String line : lines){
+                text += line;
+            }
+        }
+        return text;
+    }
+
     public void setLines(List<String> lines) {
         this.lines = lines;
     }

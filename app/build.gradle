@@ -18,6 +18,12 @@ android {
         }
     }
 
+    sourceSets {
+        main {
+            jniLibs.srcDirs = ['libs']
+        }
+    }
+
     productFlavors {
         df {}
         wandoujia {}

@@ -1,3 +1,203 @@
 <?xml version="1.0" encoding="utf-8"?>
-<items version="2" />
+<items version="2" >
 
+    <item
+        is-multidex="false"
+        jar="/Users/tao/Desktop/github/treader/app/libs/galaxy-v2.0.jar"
+        jumboMode="false"
+        optimize="true"
+        revision="23.0.3"
+        sha1="382fc20085522cd3758c7f500151a7c6ef6604d3">
+        <dex dex="/Users/tao/Desktop/github/treader/app/build/intermediates/pre-dexed/meizu/debug/galaxy-v2.0_342722069f0ed120af73f75af2b51525effcea78.jar" />
+    </item>
+    <item
+        is-multidex="false"
+        jar="/Users/tao/.gradle/caches/modules-2/files-2.1/com.jakewharton/butterknife/7.0.1/d5d13ea991eab0252e3710e5df3d6a9d4b21d461/butterknife-7.0.1.jar"
+        jumboMode="false"
+        optimize="true"
+        revision="23.0.3"
+        sha1="d5d13ea991eab0252e3710e5df3d6a9d4b21d461">
+        <dex dex="/Users/tao/Desktop/github/treader/app/build/intermediates/pre-dexed/meizu/debug/butterknife-7.0.1_638a33f795c126129f55f8a056fd5d0deeaeeb03.jar" />
+    </item>
+    <item
+        is-multidex="false"
+        jar="/Users/tao/Desktop/adt-bundle-mac-x86_64-20140702/sdk/extras/android/m2repository/com/android/support/support-annotations/23.4.0/support-annotations-23.4.0.jar"
+        jumboMode="false"
+        optimize="true"
+        revision="23.0.3"
+        sha1="ffbe55fdb2bb456b1485831706a9eac3300bb6b8">
+        <dex dex="/Users/tao/Desktop/github/treader/app/build/intermediates/pre-dexed/meizu/debug/support-annotations-23.4.0_c6289eea0d7872162176657febdb6b725e21bcb1.jar" />
+    </item>
+    <item
+        is-multidex="false"
+        jar="/Users/tao/Desktop/github/treader/app/build/intermediates/exploded-aar/com.umeng/message/2.4.1/jars/libs/com.umeng.message.lib_v2.4.1.jar"
+        jumboMode="false"
+        optimize="true"
+        revision="23.0.3"
+        sha1="2e43bd4164f510a6b4be65f569356d79237b36ed">
+        <dex dex="/Users/tao/Desktop/github/treader/app/build/intermediates/pre-dexed/meizu/debug/com.umeng.message.lib_v2.4.1_3acdd30bcd65bfabd158ede24de2378dfbc120d3.jar" />
+    </item>
+    <item
+        is-multidex="false"
+        jar="/Users/tao/Desktop/github/treader/app/build/intermediates/exploded-aar/com.android.support/support-vector-drawable/23.4.0/jars/classes.jar"
+        jumboMode="false"
+        optimize="true"
+        revision="23.0.3"
+        sha1="c2c594cace5d83a3227b2b6e658ecbfd586d3ed9">
+        <dex dex="/Users/tao/Desktop/github/treader/app/build/intermediates/pre-dexed/meizu/debug/com.android.support-support-vector-drawable-23.4.0_eef3849d89acf56d0a454ea8be586122a19115b4.jar" />
+    </item>
+    <item
+        is-multidex="false"
+        jar="/Users/tao/.gradle/caches/modules-2/files-2.1/com.squareup.okhttp3/okhttp/3.3.1/19047bdb6a4fc00a44124f64ca98e88fc204e7e3/okhttp-3.3.1.jar"
+        jumboMode="false"
+        optimize="true"
+        revision="23.0.3"
+        sha1="19047bdb6a4fc00a44124f64ca98e88fc204e7e3">
+        <dex dex="/Users/tao/Desktop/github/treader/app/build/intermediates/pre-dexed/meizu/debug/okhttp-3.3.1_0a0d83407fce42e3febcb55ee57cfb452cfcdfd3.jar" />
+    </item>
+    <item
+        is-multidex="false"
+        jar="/Users/tao/.gradle/caches/modules-2/files-2.1/com.umeng.analytics/analytics/6.0.4/27238b0acdc4e764623a653d5776488783e9ae3f/analytics-6.0.4.jar"
+        jumboMode="false"
+        optimize="true"
+        revision="23.0.3"
+        sha1="27238b0acdc4e764623a653d5776488783e9ae3f">
+        <dex dex="/Users/tao/Desktop/github/treader/app/build/intermediates/pre-dexed/meizu/debug/analytics-6.0.4_c51ed62b2c412fd1afe13170cd4107fc58b55f22.jar" />
+    </item>
+    <item
+        is-multidex="false"
+        jar="/Users/tao/Desktop/github/treader/app/build/intermediates/exploded-aar/com.umeng/fb/5.4.0/jars/classes.jar"
+        jumboMode="false"
+        optimize="true"
+        revision="23.0.3"
+        sha1="30447d190372c4ad8ecec92ccb510bfaadf4f603">
+        <dex dex="/Users/tao/Desktop/github/treader/app/build/intermediates/pre-dexed/meizu/debug/com.umeng-fb-5.4.0_2a0acc2eea71de5768b079a7146870e9a90873b7.jar" />
+    </item>
+    <item
+        is-multidex="false"
+        jar="/Users/tao/Desktop/github/treader/app/libs/com.baidu.tts_2.2.9.20161020_154fa02_release.jar"
+        jumboMode="false"
+        optimize="true"
+        revision="23.0.3"
+        sha1="23ec3c5bfb359fe9950bf23c0da3d6c3bbaabb77">
+        <dex dex="/Users/tao/Desktop/github/treader/app/build/intermediates/pre-dexed/meizu/debug/com.baidu.tts_2.2.9.20161020_154fa02_release_c3fc5903e4723119625cd96efff4c4d754683dfc.jar" />
+    </item>
+    <item
+        is-multidex="false"
+        jar="/Users/tao/.gradle/caches/modules-2/files-2.1/com.squareup.okio/okio/1.8.0/5ea7af56cc7c567ed9856d99efb30740e9b17ff/okio-1.8.0.jar"
+        jumboMode="false"
+        optimize="true"
+        revision="23.0.3"
+        sha1="05ea7af56cc7c567ed9856d99efb30740e9b17ff">
+        <dex dex="/Users/tao/Desktop/github/treader/app/build/intermediates/pre-dexed/meizu/debug/okio-1.8.0_48dc24064965f3dd37b57802344e85e4e8c2470d.jar" />
+    </item>
+    <item
+        is-multidex="false"
+        jar="/Users/tao/Desktop/github/treader/app/build/intermediates/exploded-aar/org.litepal.android/core/1.3.1/jars/classes.jar"
+        jumboMode="false"
+        optimize="true"
+        revision="23.0.3"
+        sha1="148cce49c37bc1db5f004549ec6bf8308731d0ec">
+        <dex dex="/Users/tao/Desktop/github/treader/app/build/intermediates/pre-dexed/meizu/debug/org.litepal.android-core-1.3.1_ac2010b137e643b172d5c395ae827791811e75b6.jar" />
+    </item>
+    <item
+        is-multidex="false"
+        jar="/Users/tao/Desktop/github/treader/app/build/intermediates/exploded-aar/com.android.support/recyclerview-v7/23.4.0/jars/classes.jar"
+        jumboMode="false"
+        optimize="true"
+        revision="23.0.3"
+        sha1="ec75036c3c52e451d0cde50a5aedaf5fd32354a0">
+        <dex dex="/Users/tao/Desktop/github/treader/app/build/intermediates/pre-dexed/meizu/debug/com.android.support-recyclerview-v7-23.4.0_59783cb474a7d4b99cb7bc72cfcaced8c1cf79a9.jar" />
+    </item>
+    <item
+        is-multidex="false"
+        jar="/Users/tao/Desktop/github/treader/app/build/intermediates/exploded-aar/com.zhy/okhttputils/2.6.2/jars/classes.jar"
+        jumboMode="false"
+        optimize="true"
+        revision="23.0.3"
+        sha1="155fef2600f48631a9e9665c0873743b6d24e324">
+        <dex dex="/Users/tao/Desktop/github/treader/app/build/intermediates/pre-dexed/meizu/debug/com.zhy-okhttputils-2.6.2_66156f053936ab09df86246cbb771798ad47aeaf.jar" />
+    </item>
+    <item
+        is-multidex="false"
+        jar="/Users/tao/Desktop/github/treader/app/build/intermediates/exploded-aar/com.android.support/support-v4/23.4.0/jars/classes.jar"
+        jumboMode="false"
+        optimize="true"
+        revision="23.0.3"
+        sha1="67bd36ee9340ec7c254108936ad16b24bed160cc">
+        <dex dex="/Users/tao/Desktop/github/treader/app/build/intermediates/pre-dexed/meizu/debug/com.android.support-support-v4-23.4.0_d4df529ead5529a889f1284a8f401485525a2fd9.jar" />
+    </item>
+    <item
+        is-multidex="false"
+        jar="/Users/tao/Desktop/github/treader/app/build/intermediates/exploded-aar/com.android.support/support-v4/23.4.0/jars/libs/internal_impl-23.4.0.jar"
+        jumboMode="false"
+        optimize="true"
+        revision="23.0.3"
+        sha1="ea3c07504d2c8f4b13aa17c45c1b68ed9c1c3674">
+        <dex dex="/Users/tao/Desktop/github/treader/app/build/intermediates/pre-dexed/meizu/debug/internal_impl-23.4.0_1cdf1baa8fed2486bd4514b155b8dd26354f3270.jar" />
+    </item>
+    <item
+        is-multidex="false"
+        jar="/Users/tao/Desktop/github/treader/app/build/intermediates/exploded-aar/com.android.support/appcompat-v7/23.4.0/jars/classes.jar"
+        jumboMode="false"
+        optimize="true"
+        revision="23.0.3"
+        sha1="548f06de403a9409f00554b3ee12a9fdea0e236c">
+        <dex dex="/Users/tao/Desktop/github/treader/app/build/intermediates/pre-dexed/meizu/debug/com.android.support-appcompat-v7-23.4.0_3b24aaf31fd9ca40183e88a1326470fd9b6103f6.jar" />
+    </item>
+    <item
+        is-multidex="false"
+        jar="/Users/tao/Desktop/github/treader/app/build/intermediates/exploded-aar/com.umeng/message/2.4.1/jars/classes.jar"
+        jumboMode="false"
+        optimize="true"
+        revision="23.0.3"
+        sha1="29939a737c58fd8eb96e3a9eda9ecccb1817edd2">
+        <dex dex="/Users/tao/Desktop/github/treader/app/build/intermediates/pre-dexed/meizu/debug/com.umeng-message-2.4.1_b85f79aa2fac97537626ef8ca95b4ee780528f1c.jar" />
+    </item>
+    <item
+        is-multidex="false"
+        jar="/Users/tao/Desktop/github/treader/app/libs/Msc.jar"
+        jumboMode="false"
+        optimize="true"
+        revision="23.0.3"
+        sha1="bad3f17744b208362aa7e20242a6261cf2d21977">
+        <dex dex="/Users/tao/Desktop/github/treader/app/build/intermediates/pre-dexed/meizu/debug/Msc_14672ce8b7a4ce54591609f8c2a98cc11b90bdf7.jar" />
+    </item>
+    <item
+        is-multidex="false"
+        jar="/Users/tao/Desktop/github/treader/app/build/intermediates/exploded-aar/com.android.support/animated-vector-drawable/23.4.0/jars/classes.jar"
+        jumboMode="false"
+        optimize="true"
+        revision="23.0.3"
+        sha1="de4db3785756bfb0915a9f59a9b3f2fea7407be4">
+        <dex dex="/Users/tao/Desktop/github/treader/app/build/intermediates/pre-dexed/meizu/debug/com.android.support-animated-vector-drawable-23.4.0_07395116b69ffe402ee67cfc76c30ade8244eabe.jar" />
+    </item>
+    <item
+        is-multidex="false"
+        jar="/Users/tao/Desktop/github/treader/app/libs/juniversalchardet-1.0.3.jar"
+        jumboMode="false"
+        optimize="true"
+        revision="23.0.3"
+        sha1="591d72211acc0b909b79c840e0b3ed9a0982d807">
+        <dex dex="/Users/tao/Desktop/github/treader/app/build/intermediates/pre-dexed/meizu/debug/juniversalchardet-1.0.3_95c512bd13aa22e2f911a93ad4001d15e4ec1511.jar" />
+    </item>
+    <item
+        is-multidex="false"
+        jar="/Users/tao/Desktop/github/treader/app/build/intermediates/exploded-aar/com.astuetz/pagerslidingtabstrip/1.0.1/jars/classes.jar"
+        jumboMode="false"
+        optimize="true"
+        revision="23.0.3"
+        sha1="7912610ed96381c25c36d986eba422731b9641b6">
+        <dex dex="/Users/tao/Desktop/github/treader/app/build/intermediates/pre-dexed/meizu/debug/com.astuetz-pagerslidingtabstrip-1.0.1_c9d3eb07bf344c6f165dfb999e87aae8139c861c.jar" />
+    </item>
+    <item
+        is-multidex="false"
+        jar="/Users/tao/Desktop/github/treader/app/build/intermediates/exploded-aar/com.android.support/design/23.4.0/jars/classes.jar"
+        jumboMode="false"
+        optimize="true"
+        revision="23.0.3"
+        sha1="5326d9a850d491714fef8cbfaa9ea3416f0bf0d2">
+        <dex dex="/Users/tao/Desktop/github/treader/app/build/intermediates/pre-dexed/meizu/debug/com.android.support-design-23.4.0_d1b30f1cb311fafa31302fe2bc516c2757b56e7c.jar" />
+    </item>
+
+</items>
